@@ -1,5 +1,5 @@
 *.form
 *.swp
 *.bak
-.DS*
+.DS_Store
 
