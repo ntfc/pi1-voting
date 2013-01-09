@@ -6,11 +6,23 @@
 package org.evoting.authority;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Security;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import org.cssi.provider.CssiProvider;
+import org.cssi.paillier.cipher.Paillier;
+import org.cssi.paillier.cipher.PaillierException;
+import org.cssi.paillier.cipher.PaillierSimple;
+import org.cssi.paillier.interfaces.PaillierPrivateKey;
+import org.cssi.paillier.interfaces.PaillierPublicKey;
 /**
  *
  * @author nc
@@ -20,11 +32,14 @@ public class VotingServer extends Thread {
   private int port;
   private int nCandidates, base;
   private int nVoters;
+  private ArrayList<BigInteger> votes;
+
 
   public VotingServer(int port, int nCandidates, int base) {
     this.port = port;
     this.nCandidates = nCandidates;
     this.base = base;
+    this.votes = new ArrayList<BigInteger>();
   }
 
 
@@ -33,24 +48,35 @@ public class VotingServer extends Thread {
     this.nCandidates = nrCands;
     this.base = base;
     this.nVoters = voters;
+    this.votes = new ArrayList<BigInteger>();
   }
 
   @Override
   public void run() {
     try {
-      startServer();
+          try {
+              startServer();
+          } catch (  NoSuchAlgorithmException | NoSuchProviderException ex) {
+              Logger.getLogger(VotingServer.class.getName()).log(Level.SEVERE, null, ex);
+          }
     }
     catch (IOException ex) {
       System.err.println("Error starting server. Server may not be running anymore.");
     }
   }
 
-  private void startServer() throws IOException {
+  private void startServer() throws IOException, NoSuchAlgorithmException, NoSuchProviderException {
     this.serverSocket = new ServerSocket(port);
     int nrClientes = 0;
     while(true) {
+      Security.addProvider(new CssiProvider()); 
       Socket socket = this.serverSocket.accept();
       nrClientes++;
+      KeyPairGenerator kpGen = KeyPairGenerator.getInstance("Paillier", "CSSI");
+      kpGen.initialize(1024);
+      KeyPair kp = kpGen.generateKeyPair();
+      TServer ts = new TServer(socket, kp, nVoters, nCandidates, votes);
+      ts.start();
       System.out.println("Client accepted. Total: " + nrClientes);
     }
   }
