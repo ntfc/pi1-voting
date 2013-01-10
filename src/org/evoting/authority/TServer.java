@@ -32,16 +32,18 @@ public class TServer extends Thread {
   private KeyPair keyPair;
   private int nVoters;
   private int nCandi;
-  private ArrayList<BigInteger> votes;
+  //private ArrayList<BigInteger> votes;
+  private Votes votes;
   /**
    * Creates a new empty instance of <code>TServer</code>.
    */
-  public TServer(Socket s, KeyPair kP, int voters, int cands, List<BigInteger> votes) {
+  public TServer(Socket s, KeyPair kP, int voters, int cands, Votes votos) {
     this.socket = s;
     this.keyPair = kP;
     this.nVoters = voters;
     this.nCandi = cands;
-    this.votes = (ArrayList<BigInteger>) votes;
+    //this.votes = (ArrayList<BigInteger>) votes;
+    this.votes = votos;
   }
 
   @Override
@@ -66,9 +68,20 @@ public class TServer extends Thread {
         Paillier paillier = new PaillierSimple();
         byte[] receivedVote;
         //while(true) {
-          receivedVote = dsu.readBytes();
-          votes.add(new BigInteger(receivedVote));
-          System.out.println("Vote added");
+        receivedVote = dsu.readBytes();
+        votes.add(new BigInteger(receivedVote));
+        System.out.println("Vote added");
+          
+         //no caso de chegar ao última votante apresenta resultados
+        if(nVoters == votes.nVotes()){
+           try {
+               votes.printResults(nCandi);
+           } catch (PaillierException ex) {
+               Logger.getLogger(TServer.class.getName()).log(Level.SEVERE, null, ex);
+           } catch (InvalidKeyException ex) {
+               Logger.getLogger(TServer.class.getName()).log(Level.SEVERE, null, ex);
+           }
+         }
           
         //}
       }

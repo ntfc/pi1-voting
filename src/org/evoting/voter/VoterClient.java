@@ -57,7 +57,7 @@ public class VoterClient {
 
         Integer voteI = Integer.valueOf(stdIn.readLine());
         BigInteger baseBI = new BigInteger(Integer.toString(base));
-        BigInteger vote = baseBI.pow(voteI);
+        BigInteger vote = baseBI.pow(voteI-1);
         System.out.println("Base = " + base + ",voto=" + voteI + "Voto final = " + vote);
         BigInteger c = paillier.enc(pubKey, vote, new SecureRandom());
         dsu.writeBigInteger(c);

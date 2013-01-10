@@ -6,9 +6,9 @@
 package org.evoting.authority;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -32,14 +32,16 @@ public class VotingServer extends Thread {
   private int port;
   private int nCandidates, base;
   private int nVoters;
-  private ArrayList<BigInteger> votes;
+  //private ArrayList<BigInteger> votes;
+  private Votes votes;
 
 
   public VotingServer(int port, int nCandidates, int base) {
     this.port = port;
     this.nCandidates = nCandidates;
     this.base = base;
-    this.votes = new ArrayList<BigInteger>();
+    //this.votes = new ArrayList<BigInteger>();
+    this.votes = new Votes();
   }
 
 
@@ -48,38 +50,51 @@ public class VotingServer extends Thread {
     this.nCandidates = nrCands;
     this.base = base;
     this.nVoters = voters;
-    this.votes = new ArrayList<BigInteger>();
+    //this.votes = new ArrayList<BigInteger>();
+    votes = new Votes();
+
   }
 
   @Override
   public void run() {
-    try {
-          try {
-              startServer();
-          } catch (  NoSuchAlgorithmException | NoSuchProviderException ex) {
-              Logger.getLogger(VotingServer.class.getName()).log(Level.SEVERE, null, ex);
-          }
-    }
+   try {
+                startServer();
+            } catch (NoSuchAlgorithmException ex) {
+                Logger.getLogger(VotingServer.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (NoSuchProviderException ex) {
+                Logger.getLogger(VotingServer.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (PaillierException ex) {
+                Logger.getLogger(VotingServer.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InvalidKeyException ex) {
+                Logger.getLogger(VotingServer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+     
     catch (IOException ex) {
       System.err.println("Error starting server. Server may not be running anymore.");
     }
   }
 
-  private void startServer() throws IOException, NoSuchAlgorithmException, NoSuchProviderException {
+  private void startServer() throws IOException, NoSuchAlgorithmException, NoSuchProviderException, PaillierException, InvalidKeyException {
     this.serverSocket = new ServerSocket(port);
     int nrClientes = 0;
-    while(true) {
-      Security.addProvider(new CssiProvider()); 
-      Socket socket = this.serverSocket.accept();
-      nrClientes++;
-      KeyPairGenerator kpGen = KeyPairGenerator.getInstance("Paillier", "CSSI");
-      kpGen.initialize(1024);
-      KeyPair kp = kpGen.generateKeyPair();
-      TServer ts = new TServer(socket, kp, nVoters, nCandidates, votes);
-      ts.start();
-      System.out.println("Client accepted. Total: " + nrClientes);
+    Security.addProvider(new CssiProvider()); 
+    KeyPairGenerator kpGen = KeyPairGenerator.getInstance("Paillier", "CSSI");
+    kpGen.initialize(1024);
+    KeyPair kp = kpGen.generateKeyPair();
+    
+    PaillierPrivateKey s = (PaillierPrivateKey) kp.getPrivate();
+    votes.setPrivateKey(s);
+
+    while(nrClientes < nVoters) {
+      
+        Socket socket = this.serverSocket.accept();
+        nrClientes++;
+        TServer ts = new TServer(socket, kp, nVoters, nCandidates, votes);
+        ts.start();
+        System.out.println("Client accepted. Total: " + nrClientes);
     }
   }
+  
 
   public void stopServer() throws IOException {
     this.serverSocket.close();
