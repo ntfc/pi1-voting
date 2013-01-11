@@ -5,25 +5,13 @@
 
 package org.evoting.authority;
 
-import java.io.IOException;
 import java.math.BigInteger;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.Security;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.cssi.provider.CssiProvider;
 import org.cssi.paillier.cipher.Paillier;
 import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.paillier.interfaces.PaillierPrivateKey;
-import org.cssi.paillier.interfaces.PaillierPublicKey;
 
 
 /**
@@ -72,7 +60,7 @@ public class Votes {
     
     //apresentar resultados
     public void printResults(int nCands) throws PaillierException, InvalidKeyException{
-        String result = tallying().toString();
+        String result = String.format("%0"+nCands+"d", tallying());
         int index = 1;
         System.out.println(result);
         System.out.println("Resultados:\n");
