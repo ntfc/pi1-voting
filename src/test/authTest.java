@@ -42,7 +42,7 @@ public class authTest {
 
 
     VotingServer votingServer = new VotingServer(votingType, kP);
-    System.out.println(votingServer.getVoting().getNrCandidates());
+
     votingServer.startVoting(10000, 4545);
     BigInteger tally = votingServer.getVoting().tallying(kP.getPrivate());
     //int winner = votingServer.getVoting().winner(kP.getPrivate(), tally);
