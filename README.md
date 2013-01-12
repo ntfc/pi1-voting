@@ -11,7 +11,7 @@ and add the libs/ folder
 
 # TODO
  - in netbeans, go to Window -> Actions Itens to see the TODO's in the code
- - create exceptions
+ - create exceptions (in org.voting.exception)
  - validate client voting option
  - validate receive votes
  - DONT USE A LIST TO STORE CANDIDATE NAMES NOR THE VOTES
