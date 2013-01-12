@@ -2,71 +2,122 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
+package org.evoting.voter;
 
-package org.evonting.voter;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Socket;
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.Security;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.security.spec.InvalidKeySpecException;
 import org.cssi.paillier.cipher.Paillier;
+import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.cipher.PaillierSimple;
-import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.cssi.paillier.spec.PaillierPublicKeyBetaSpec;
-import org.cssi.paillier.spec.PaillierPublicKeySpec;
-import org.cssi.provider.CssiProvider;
+import org.evoting.schemes.OneOutOfLVoting;
+import org.evoting.schemes.Voting;
+import org.evoting.schemes.YesNoVoting;
 import org.utils.DataStreamUtils;
 
 /**
+ * Class that defines a voter and its operations <p> TODO: close
+ * {@link DataStreamUtils} TODO: support more than just {@link Paillier}
  *
- * @author nc
  */
 public class VoterClient {
-  private static final Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-  public static void main(String[] args) {
+  private Socket socket;
+  private DataStreamUtils dsu;
+  private PublicKey publicKey;
+  private Paillier paillier;
+  private Voting voting;
+
+  public VoterClient(Socket soc) throws IOException {
+    this.socket = soc;
+    this.dsu = new DataStreamUtils(socket.getInputStream(), socket.
+            getOutputStream());
+    this.paillier = new PaillierSimple();
+  }
+
+  /**
+   * Return the voting scheme instance
+   *
+   * @return
+   */
+  public Voting getVoting() {
+    return voting;
+  }
+
+  /**
+   * Set up a voting <p> In this method, the voter receive every necessary
+   * information from the authority<br> It receives the voting scheme, the
+   * number of voters and candidates and the {@link PublicKey}
+   *
+   * @throws NoSuchAlgorithmException
+   * @throws NoSuchProviderException
+   * @throws InvalidKeySpecException
+   */
+  public void setUpVoting() throws NoSuchAlgorithmException,
+          NoSuchProviderException, InvalidKeySpecException {
+    // receive voting properties from server
     try {
-	    Socket s = new Socket("localhost",4567);
-      // add provider
-      Security.addProvider(new CssiProvider());
-      DataStreamUtils dsu = new DataStreamUtils(s.getInputStream(), s.getOutputStream());
+      // TODO: em vez de mandar String, mandar so um codigo
+      // first, receive the kind of voting that is taking place
+      String votingType = new String(dsu.readBytes());
 
-      int nCand = dsu.readInt();
-      int base = dsu.readInt();
+      //voting = new YesNoVoting();
+      voting = new OneOutOfLVoting();
 
+      //------- receive voting properties
+      voting.readVotingProperties(dsu);
+
+      //------- receive voting candidates
+      voting.readVotingCandidates(dsu);
+
+      // receive public key
       byte[] pubKeyEnc = dsu.readBytes();
-      KeyFactory keyFact = KeyFactory.getInstance("Paillier", "CSSI");
-      PaillierPublicKeyBetaSpec spec = new PaillierPublicKeyBetaSpec(pubKeyEnc);
-      PaillierPublicKey pubKey = (PaillierPublicKey) keyFact.generatePublic(spec);
-      System.out.println("n = " + pubKey.getN());
-      Paillier paillier = new PaillierSimple();
-
-	    String test;
-      BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-	    //while((test = stdIn.readLine()) != null) {
-      
-      System.out.print("Escolher voto\n");
-      for(int i = 1; i <= nCand; i++) {
-        System.out.println("Opção " + i);
-      }
-
-        Integer voteI = Integer.valueOf(stdIn.readLine());
-        BigInteger baseBI = new BigInteger(Integer.toString(base));
-        BigInteger vote = baseBI.pow(voteI-1);
-        System.out.println("Base = " + base + ",voto=" + voteI + "Voto final = " + vote);
-        BigInteger c = paillier.enc(pubKey, vote, new SecureRandom());
-        dsu.writeBigInteger(c);
-        System.out.println("Enviado: " + c);
-	    //}
+      //-------------------------
+      KeyFactory keyFactory = KeyFactory.getInstance("Paillier", "CSSI");
+      PaillierPublicKeyBetaSpec paiSpec = new PaillierPublicKeyBetaSpec(
+              pubKeyEnc);
+      this.publicKey = keyFactory.generatePublic(paiSpec);
+      //-------------------------
     }
-    catch (Exception e){
-      log.log(Level.SEVERE, e.getMessage(), e);
+    catch (IOException ex) {
+      System.err.println(ex.getMessage());
     }
   }
 
+  /**
+   * Submits the client vote
+   *
+   * @param cand
+   * @param key
+   */
+  public void vote(Integer voteOption) throws IOException, PaillierException,
+          InvalidKeyException {
+    BigInteger vote = null;
+    if (voting == null) {
+      // TODO: throw a VotingSchemeException
+    }
+
+    if (voting instanceof YesNoVoting) {
+      // yes/no voting
+      vote = new BigInteger(Integer.toString(voteOption));
+    }
+    if (voting instanceof OneOutOfLVoting) {
+      // 1-out-of-L voting
+      int base = ((OneOutOfLVoting) getVoting()).getBase();
+      vote = new BigInteger(Integer.toString(base)).pow(voteOption);
+    }
+    // encrypt the vote
+    BigInteger c = this.paillier.enc(publicKey, vote, new SecureRandom());
+    // send vote
+    dsu.writeBigInteger(c);
+
+  }
 }

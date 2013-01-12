@@ -10,3 +10,10 @@ and add the libs/ folder
  * voting scheme is implemented in org.evoting
 
 # TODO
+ - in netbeans, go to Window -> Actions Itens to see the TODO's in the code
+ - create exceptions
+ - validate client voting option
+ - validate receive votes
+ - DONT USE A LIST TO STORE CANDIDATE NAMES NOR THE VOTES
+ - instead of sending voting classe, send a code
+ - add the possibility for the voter to vote in blank

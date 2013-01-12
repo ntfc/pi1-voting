@@ -2,167 +2,82 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package org.evoting.authority;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.Security;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.cssi.provider.CssiProvider;
-import org.cssi.paillier.cipher.Paillier;
 import org.cssi.paillier.cipher.PaillierException;
-import org.cssi.paillier.cipher.PaillierSimple;
-import org.cssi.paillier.interfaces.PaillierPrivateKey;
-import org.cssi.paillier.interfaces.PaillierPublicKey;
+import org.evoting.schemes.Voting;
+
 /**
  *
  * @author nc
  */
-public class VotingServer extends Thread {
-  private ServerSocket serverSocket;
-  private int port;
-  private int nCandidates, base;
-  private int nVoters;
-  //private ArrayList<BigInteger> votes;
-  private Votes votes;
+public class VotingServer {
 
+  private Voting voting;
+  private KeyPair keyPair;
+  private static final Logger LOG = Logger.getLogger(VotingServer.class.
+          getName());
 
-  public VotingServer(int port, int nCandidates, int base) {
-    this.port = port;
-    this.nCandidates = nCandidates;
-    this.base = base;
-    //this.votes = new ArrayList<BigInteger>();
-    this.votes = new Votes();
+  public VotingServer(Voting vot, KeyPair kP) {
+    this.voting = vot;
+    this.keyPair = kP;
   }
 
-
-  public VotingServer(int port, int nrCands, int base, int voters) {
-    this.port = port;
-    this.nCandidates = nrCands;
-    this.base = base;
-    this.nVoters = voters;
-    //this.votes = new ArrayList<BigInteger>();
-    votes = new Votes();
-
+  public Voting getVoting() {
+    return voting;
   }
 
-  @Override
-  public void run() {
-   try {
-                startServer();
-            } catch (NoSuchAlgorithmException ex) {
-                Logger.getLogger(VotingServer.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (NoSuchProviderException ex) {
-                Logger.getLogger(VotingServer.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (PaillierException ex) {
-                Logger.getLogger(VotingServer.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InvalidKeyException ex) {
-                Logger.getLogger(VotingServer.class.getName()).log(Level.SEVERE, null, ex);
-            }
-     
-    catch (IOException ex) {
-      System.err.println("Error starting server. Server may not be running anymore.");
-    }
-  }
+  /**
+   * Starts a new voting <p> This voting ends either when the timeout is
+   * reached, or the number of votes received reachs the maximum allowed defined
+   * in {@link Voting}
+   *
+   * @param timeout
+   * @param port
+   * @throws IOException
+   * @throws InvalidKeyException
+   * @throws PaillierException
+   */
+  public void startVoting(int timeout, int port) throws IOException,
+          InvalidKeyException, PaillierException {
+    ServerSocket server = new ServerSocket(port);
+    // set the server timeout in miliseconds
+    server.setSoTimeout(timeout);
 
-  private void startServer() throws IOException, NoSuchAlgorithmException, NoSuchProviderException, PaillierException, InvalidKeyException {
-    this.serverSocket = new ServerSocket(port);
-    int nrClientes = 0;
-    Security.addProvider(new CssiProvider()); 
-    KeyPairGenerator kpGen = KeyPairGenerator.getInstance("Paillier", "CSSI");
-    kpGen.initialize(1024);
-    KeyPair kp = kpGen.generateKeyPair();
-    
-    PaillierPrivateKey s = (PaillierPrivateKey) kp.getPrivate();
-    votes.setPrivateKey(s);
+    LOG.log(Level.INFO, "Voting started!");
 
-    while(nrClientes < nVoters) {
-      
-        Socket socket = this.serverSocket.accept();
-        nrClientes++;
-        TServer ts = new TServer(socket, kp, nVoters, nCandidates, votes);
-        ts.start();
-        System.out.println("Client accepted. Total: " + nrClientes);
-    }
-  }
-  
-
-  public void stopServer() throws IOException {
-    this.serverSocket.close();
-  }
-
-  public boolean isRunning() {
-    if(this.serverSocket == null)
-      return false;
-    else
-      return !this.serverSocket.isClosed();
-  }
-
-
-  /*public static void main(String[] args) {
-    try {
-      ServerSocket ss = new ServerSocket(4567);
-      ArrayList<BigInteger> votes = new ArrayList<>();
-      // add provider
-      Security.addProvider(new CssiProvider());
-      // number of voters and candidates
-      int nVoters = 2;
-      int nCand = 5;
-      // keypairgenerator for paillier
-      // TODO: Nao devia ser feito aqui!! Fazer como no guiao do RSA
-      KeyPairGenerator keyPG = KeyPairGenerator.getInstance("Paillier", "CSSI");
-      // keypair
-      keyPG.initialize(32);
-      KeyPair keyPair = keyPG.generateKeyPair();
-      int participants = 0;
-      while(participants < nVoters) {
-          Socket s = ss.accept();
-
-          TServer tServer = new TServer(s, keyPair, nVoters, nCand, votes);
-          tServer.start();
-          participants++;
-
-          // wait for completion of all threads
-          try {
-            tServer.join();
-          }
-          catch(InterruptedException e) {
-            System.err.println(e.getMessage());
-          }
-
-      }
-
-      Paillier paillier = new PaillierSimple();
-      System.out.println("Election ended with " + votes.size() + " to count.");
-      PaillierPrivateKey sk = (PaillierPrivateKey) keyPair.getPrivate();
-      BigInteger n = sk.getN();
-      BigInteger T = BigInteger.ONE;
-      for(BigInteger v : votes) {
-        T = T.multiply(v).mod(n.pow(2));
-      }
-      System.out.println("T = " + T);
-      BigInteger dT;
+    // this loop breaks when timeout is reached
+    while (true) {
+      // accepts any client that connects to me
+      // but each voter must be validated in its thread!
       try {
-        dT = paillier.dec(sk, T);
-        System.out.println("D(T) = " + dT);
+        Socket voter = server.accept();
+        // if the number of max voter has been reached, break
+        // TODO: improve this
+        if (!voting.canAcceptMoreVotes()) {
+          LOG.log(Level.INFO,
+                  "Cannot receive more votes. Max number of voters reached");
+          break;
+        }
+        LOG.log(Level.INFO, "Voter connected");
+        // start the voter thread
+        TServer voterThread = new TServer(voter, keyPair, voting);
+        voterThread.start();
       }
-      catch (PaillierException|InvalidKeyException ex) {
-        System.err.println(ex.getMessage());
+      catch (SocketTimeoutException ex) {
+        LOG.log(Level.INFO, "SocketTimeout reached. Voting ended!");
+        // voting ended. exit while(1) loop
+        break;
       }
-      
     }
-    catch(IOException|NoSuchAlgorithmException|NoSuchProviderException e) {
-      System.err.println(e.getMessage());
-    }
-  }*/
 
+  }
 }
