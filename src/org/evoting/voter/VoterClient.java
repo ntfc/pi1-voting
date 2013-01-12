@@ -106,12 +106,11 @@ public class VoterClient {
       throw new VotingSchemeException("No voting scheme defined");
     }
 
-    // TODO: throw a VotingSchemeException("No such voting scheme")
     if (voting instanceof YesNoVoting) {
       // yes/no voting
       vote = new BigInteger(Integer.toString(voteOption));
     }
-    if (voting instanceof OneOutOfLVoting) {
+    else if (voting instanceof OneOutOfLVoting) {
       // 1-out-of-L voting
       int base = ((OneOutOfLVoting) getVoting()).getBase();
       vote = new BigInteger(Integer.toString(base)).pow(voteOption);
