@@ -16,4 +16,3 @@ and add the libs/ folder
  - validate receive votes
  - DONT USE A LIST TO STORE CANDIDATE NAMES NOR THE VOTES
  - instead of sending voting classe, send a code
- - add the possibility for the voter to vote in blank

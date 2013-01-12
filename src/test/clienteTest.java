@@ -38,9 +38,13 @@ public class clienteTest {
     String option;
     BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
     option = stdIn.readLine();
-    Integer optionInt = Integer.valueOf(option)-1;
-
-    // Vote
+    
+    if(option.isEmpty() ) {
+        option = "0";
+    }
+    
+    Integer optionInt = Integer.valueOf(option);
+    //Vote
     client.vote(optionInt);
     }
   }

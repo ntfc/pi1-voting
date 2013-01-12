@@ -108,10 +108,13 @@ public class OneOutOfLVoting extends Voting {
   public String votingResults(BigInteger tallyDec) {
 
     StringBuilder s = new StringBuilder();
-    String result = String.format("%0" + nrCandidates + "d", tallyDec);
+    String result = String.format("%0" + (nrCandidates+1) + "d", tallyDec);
     int index = 1;
 
     s.append("Resultados:\n");
+            
+    s.append("Votos em branco: ").append(result.charAt(nrCandidates));
+    s.append("\n");
     for (int i = (nrCandidates - 1); i >= 0; i--) {
       s.append("Opção ").append(index).append(" : ").append(result.charAt(i));
       s.append("\n");
