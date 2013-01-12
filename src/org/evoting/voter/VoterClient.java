@@ -18,6 +18,7 @@ import org.cssi.paillier.cipher.Paillier;
 import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.paillier.spec.PaillierPublicKeyBetaSpec;
+import org.evoting.exception.VotingSchemeException;
 import org.evoting.schemes.OneOutOfLVoting;
 import org.evoting.schemes.Voting;
 import org.evoting.schemes.YesNoVoting;
@@ -99,12 +100,13 @@ public class VoterClient {
    * @param key
    */
   public void vote(Integer voteOption) throws IOException, PaillierException,
-          InvalidKeyException {
+          InvalidKeyException, VotingSchemeException {
     BigInteger vote = null;
     if (voting == null) {
-      // TODO: throw a VotingSchemeException
+      throw new VotingSchemeException("No voting scheme defined");
     }
 
+    // TODO: throw a VotingSchemeException("No such voting scheme")
     if (voting instanceof YesNoVoting) {
       // yes/no voting
       vote = new BigInteger(Integer.toString(voteOption));
