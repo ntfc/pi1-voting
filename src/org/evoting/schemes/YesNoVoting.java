@@ -17,14 +17,12 @@ import org.utils.DataStreamUtils;
  */
 public class YesNoVoting extends Voting {
 
+  public static final int CODE = 0x74;
   /**
    * Used only by the voter
    */
-    private String code;
-    
   public YesNoVoting() {
     super(2, -1); // 2 candidates, unknown number of candidates
-    code = "ynV";
   }
 
   /**
@@ -37,12 +35,15 @@ public class YesNoVoting extends Voting {
    */
   public YesNoVoting(int voters, String cand1, String cand2) {
     super(2, voters);
-    code = "ynV";
     // TODO: this method is deprecated
     addCandidateNameAtIndex(cand1, 0);
     addCandidateNameAtIndex(cand2, 1);
   }
-  
+
+  @Override
+  public int getCode() {
+    return CODE;
+  }
 
 
   /**
@@ -88,10 +89,4 @@ public class YesNoVoting extends Voting {
   public void readVotingProperties(DataStreamUtils dsu) throws IOException {
     // No specific properties for Yes/No voting
   }
-
-
-   @Override
-   public String getCode() {
-       return code;
-   }
 }

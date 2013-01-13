@@ -21,13 +21,12 @@ import org.utils.DataStreamUtils;
 public class OneOutOfLVoting extends Voting {
 
   private int base;
-  private String code;
+  public static final int CODE = 0x52;
   /**
    * Only used by the voter Default base is 10
    */
   public OneOutOfLVoting() throws VotingSchemeException {
     this(new ArrayList<String>(), -1, 10);
-    code = "ooolV";
   }
 
   /**
@@ -47,7 +46,6 @@ public class OneOutOfLVoting extends Voting {
     }
     super.candidateNames = cands;
     this.base = base;
-    code = "ooolV";
   }
 
   public int getL() {
@@ -58,13 +56,19 @@ public class OneOutOfLVoting extends Voting {
     return base;
   }
 
+  @Override
+  public int getCode() {
+    return CODE;
+  }
+
+  /* TODO: move this to a k-out-of-l voting
   public int getMaxM() {
     return base ^ (nrCandidates - 1);
   }
 
   public int getMaxT() {
     return nrVoters * getMaxM();
-  }
+  }*/
 
 
   /**
@@ -141,9 +145,4 @@ public class OneOutOfLVoting extends Voting {
     s.append(nonBlankVotes).append(" votos + ").append(blank).append(" em branco\n");
     return s.toString();
   }
-
-    @Override
-    public String getCode() {
-        return code;
-    }
 }

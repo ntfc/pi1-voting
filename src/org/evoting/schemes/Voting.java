@@ -72,6 +72,8 @@ public abstract class Voting {
     return nrVoters;
   }
 
+  public abstract int getCode();
+
   /**
    * Return the candidate names
    *
@@ -222,11 +224,5 @@ public abstract class Voting {
    * @return
    */
   public abstract String votingResults(BigInteger tally);
-  
-    /**
-     * 
-     * @return code
-     */
-   public abstract String getCode();
   
 }

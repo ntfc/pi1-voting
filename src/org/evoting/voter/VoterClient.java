@@ -66,16 +66,19 @@ public class VoterClient {
           NoSuchProviderException, InvalidKeySpecException, VotingSchemeException {
     // receive voting properties from server
     try {
-      // TODO: em vez de mandar String, mandar so um codigo
+
       // first, receive the kind of voting that is taking place
-      String votingType = new String(dsu.readBytes());
+      int votingType = dsu.readInt();
 
-      if(votingType.equals("ynV")){
+      switch(votingType) {
+        case YesNoVoting.CODE:
           voting = new YesNoVoting();
-      }
-      else{
+          break;
+        case OneOutOfLVoting.CODE:
           voting = new OneOutOfLVoting();
-
+          break;
+        default:
+          throw new VotingSchemeException("No such voting scheme");
       }
       
       //------- receive voting properties
