@@ -49,7 +49,9 @@ public class TServer extends Thread {
 
       try {
         // first of all, send the voting type, so the voter can create its instance
-        String votingType = voting.getClass().getCanonicalName();
+        String votingType = voting.getCode();
+        System.out.println(votingType);
+        
         dsu.writeBytes(votingType.getBytes());
         // send voting properties, like base
         voting.sendVotingProperties(dsu);

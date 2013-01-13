@@ -70,9 +70,14 @@ public class VoterClient {
       // first, receive the kind of voting that is taking place
       String votingType = new String(dsu.readBytes());
 
-      //voting = new YesNoVoting();
-      voting = new OneOutOfLVoting();
+      if(votingType.equals("ynV")){
+          voting = new YesNoVoting();
+      }
+      else{
+          voting = new OneOutOfLVoting();
 
+      }
+      
       //------- receive voting properties
       voting.readVotingProperties(dsu);
 

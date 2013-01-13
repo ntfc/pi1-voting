@@ -15,4 +15,3 @@ and add the libs/ folder
  - validate client voting option
  - validate receive votes
  - DONT USE A LIST TO STORE CANDIDATE NAMES NOR THE VOTES
- - instead of sending voting classe, send a code

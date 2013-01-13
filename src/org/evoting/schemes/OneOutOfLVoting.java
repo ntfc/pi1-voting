@@ -21,12 +21,13 @@ import org.utils.DataStreamUtils;
 public class OneOutOfLVoting extends Voting {
 
   private int base;
-
+  private String code;
   /**
    * Only used by the voter Default base is 10
    */
   public OneOutOfLVoting() throws VotingSchemeException {
     this(new ArrayList<String>(), -1, 10);
+    code = "ooolV";
   }
 
   /**
@@ -46,6 +47,7 @@ public class OneOutOfLVoting extends Voting {
     }
     super.candidateNames = cands;
     this.base = base;
+    code = "ooolV";
   }
 
   public int getL() {
@@ -63,6 +65,7 @@ public class OneOutOfLVoting extends Voting {
   public int getMaxT() {
     return nrVoters * getMaxM();
   }
+
 
   /**
    * In a 1-out-of-L, the only common property is the base
@@ -131,11 +134,16 @@ public class OneOutOfLVoting extends Voting {
     for (int i = (nrCandidates - 1), index = 1; i >= 0; i--, index++) {
       int nVotes = result.charAt(i) - '0'; // http://stackoverflow.com/q/4221225
       nonBlankVotes += nVotes; // add votes in candidate to the total non blank votes
-      s.append("Opção ").append(index).append(" : ").append(nVotes).append("\n");
+      s.append(super.candidateNames.get(index-1)).append(" : ").append(nVotes).append("\n");
     }
     int blank = votes.size() - nonBlankVotes;
     s.append("TOTAL: ");
     s.append(nonBlankVotes).append(" votos + ").append(blank).append(" em branco\n");
     return s.toString();
   }
+
+    @Override
+    public String getCode() {
+        return code;
+    }
 }

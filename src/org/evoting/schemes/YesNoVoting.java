@@ -20,8 +20,11 @@ public class YesNoVoting extends Voting {
   /**
    * Used only by the voter
    */
+    private String code;
+    
   public YesNoVoting() {
     super(2, -1); // 2 candidates, unknown number of candidates
+    code = "ynV";
   }
 
   /**
@@ -34,10 +37,13 @@ public class YesNoVoting extends Voting {
    */
   public YesNoVoting(int voters, String cand1, String cand2) {
     super(2, voters);
+    code = "ynV";
     // TODO: this method is deprecated
     addCandidateNameAtIndex(cand1, 0);
     addCandidateNameAtIndex(cand2, 1);
   }
+  
+
 
   /**
    * Determine who won this ellection <p> The received tally must be unencrypted
@@ -82,4 +88,10 @@ public class YesNoVoting extends Voting {
   public void readVotingProperties(DataStreamUtils dsu) throws IOException {
     // No specific properties for Yes/No voting
   }
+
+
+   @Override
+   public String getCode() {
+       return code;
+   }
 }

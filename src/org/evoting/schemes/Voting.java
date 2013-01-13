@@ -222,4 +222,11 @@ public abstract class Voting {
    * @return
    */
   public abstract String votingResults(BigInteger tally);
+  
+    /**
+     * 
+     * @return code
+     */
+   public abstract String getCode();
+  
 }
