@@ -63,7 +63,7 @@ public class VoterClient {
    * @throws InvalidKeySpecException
    */
   public void setUpVoting() throws NoSuchAlgorithmException,
-          NoSuchProviderException, InvalidKeySpecException {
+          NoSuchProviderException, InvalidKeySpecException, VotingSchemeException {
     // receive voting properties from server
     try {
       // TODO: em vez de mandar String, mandar so um codigo
@@ -96,8 +96,7 @@ public class VoterClient {
   /**
    * Submits the client vote
    *
-   * @param cand
-   * @param key
+   * @param voteOption From 0 to nrCandidates. 0 is blank vote
    */
   public void vote(Integer voteOption) throws IOException, PaillierException,
           InvalidKeyException, VotingSchemeException {
@@ -113,10 +112,17 @@ public class VoterClient {
     else if (voting instanceof OneOutOfLVoting) {
       // 1-out-of-L voting
       int base = ((OneOutOfLVoting) getVoting()).getBase();
-      vote = new BigInteger(Integer.toString(base)).pow(voteOption);
+      if(voteOption == 0) // blank vote
+        vote = BigInteger.ZERO;
+      else { // vote in C1 is = base^(voteOption-1), voteOption=1
+        voteOption--;
+        vote = new BigInteger(Integer.toString(base)).pow(voteOption);
+      }
     }
     // encrypt the vote
     BigInteger c = this.paillier.enc(publicKey, vote, new SecureRandom());
+    System.out.println("Vote: " + vote);
+    System.out.println("Vote enc: " + c);
     // send vote
     dsu.writeBigInteger(c);
 

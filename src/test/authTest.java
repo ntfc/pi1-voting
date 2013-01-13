@@ -36,10 +36,18 @@ public class authTest {
     cands.add("Antonio");
     cands.add("Jose");
     cands.add("Carlos");
+    /*cands.add("Zé");
+    cands.add("Manuel");
+    cands.add("Jesus");
+    cands.add("Cristo");
+    cands.add("Nuno");
+    cands.add("Rafael");
+    cands.add("Milton");
+    cands.add("Deus");*/
 
+    
     Voting votingType = new OneOutOfLVoting(cands, 3, 10);
     //Voting votingType = new YesNoVoting(5, "Jose", "Antonio");
-
 
     VotingServer votingServer = new VotingServer(votingType, kP);
 
@@ -53,6 +61,10 @@ public class authTest {
     System.out.println("Winner: " + winner + " (" + votingServer.getVoting().
             getCandidateNames().get(winner) + ")");*/
 
-    System.out.println("Result: " + votingType.votingResults(new PaillierSimple().dec(kP.getPrivate(), tally)));
+    BigInteger tallyDec = new PaillierSimple().dec(kP.getPrivate(), tally);
+    System.out.println("Tally dec: " + tallyDec);
+    int base = ((OneOutOfLVoting)votingType).getBase();
+    System.out.println("Tally base " + base + ": " + tallyDec.toString(base));
+    System.out.println(votingType.votingResults(tallyDec));
   }
 }

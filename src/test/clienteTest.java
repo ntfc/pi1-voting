@@ -38,11 +38,11 @@ public class clienteTest {
     String option;
     BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
     option = stdIn.readLine();
-    
+
+
     if(option.isEmpty() ) {
         option = "0";
     }
-    
     Integer optionInt = Integer.valueOf(option);
     //Vote
     client.vote(optionInt);

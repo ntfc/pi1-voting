@@ -21,14 +21,14 @@ public class JMainFrame extends javax.swing.JFrame {
 	}
 
   private void startServer(int port, int cands, int base, int voters) {
-    tServer = new VotingServer(port, cands, base, voters);
+    /*tServer = new VotingServer(port, cands, base, voters);
     tServer.start();
-    System.out.println("server running @ " + port);
+    System.out.println("server running @ " + port);*/
   }
 
   private void stopServer() throws IOException {
-    this.tServer.stopServer();
-    System.out.println("server stopped");
+    /*this.tServer.stopServer();
+    System.out.println("server stopped");*/
   }
 
 	/** This method is called from within the constructor to
@@ -131,7 +131,7 @@ public class JMainFrame extends javax.swing.JFrame {
 
   private void jButtonStartStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStartStopActionPerformed
     
-    if(tServer == null || !tServer.isRunning()) {
+    /*if(tServer == null || !tServer.isRunning()) {
       int port = 4567;
       int base = (int) jSpinnerBase.getValue();
       int cands = (int) jSpinnerNrCands.getValue();
@@ -149,7 +149,7 @@ public class JMainFrame extends javax.swing.JFrame {
       }
     }
 
-    jLabelServerStatus.setText(Boolean.toString(tServer.isRunning()));
+    jLabelServerStatus.setText(Boolean.toString(tServer.isRunning()));*/
   }//GEN-LAST:event_jButtonStartStopActionPerformed
 
 	/**

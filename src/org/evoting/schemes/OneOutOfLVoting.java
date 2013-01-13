@@ -11,6 +11,7 @@ import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.List;
 import org.cssi.paillier.cipher.PaillierException;
+import org.evoting.exception.VotingSchemeException;
 import org.utils.DataStreamUtils;
 
 /**
@@ -24,7 +25,7 @@ public class OneOutOfLVoting extends Voting {
   /**
    * Only used by the voter Default base is 10
    */
-  public OneOutOfLVoting() {
+  public OneOutOfLVoting() throws VotingSchemeException {
     this(new ArrayList<String>(), -1, 10);
   }
 
@@ -36,8 +37,13 @@ public class OneOutOfLVoting extends Voting {
    * @param voters
    * @param base
    */
-  public OneOutOfLVoting(List<String> cands, int voters, int base) {
+  public OneOutOfLVoting(List<String> cands, int voters, int base) throws VotingSchemeException {
     super(cands.size(), voters);
+    // TODO: create more exceptions (OneOutOfLException, etc)
+    if(base <= voters) {
+      throw new VotingSchemeException("Base must be greater than base. "
+              + "Found base = " + base + " and nVoters = " + voters);
+    }
     super.candidateNames = cands;
     this.base = base;
   }
@@ -98,28 +104,38 @@ public class OneOutOfLVoting extends Voting {
   }
 
   /**
-   * Creates a String with the voting results <p> It display how many votes each
-   * candidate had
+   * Creates a String with how many votes each candidate had
+   * <p>
+   * How does it work?
+   * <b>1.</b> the length of tally.toString() must be equal to nrCandidates<br>
+   * <b>1. a)</b> if it's not, it adds the necessary zeros to the left of the string.
+   * <b>2.</b> the number of blank votes are calculated in the end, by doing
+   * votes.size() - nonBlankVotes
+   * <b>3.</b> The number of votes in candidate x_(nrCandidates-1) is in the
+   * first position of the string, and so on..
    *
    * @param tallyDec
    * @return
    */
   @Override
   public String votingResults(BigInteger tallyDec) {
-
     StringBuilder s = new StringBuilder();
-    String result = String.format("%0" + (nrCandidates+1) + "d", tallyDec);
-    int index = 1;
+
+    // if needed, adds zeros on the left to tallyDec string
+    String result = String.format("%0" + (nrCandidates) + "d", tallyDec);
 
     s.append("Resultados:\n");
-            
-    s.append("Votos em branco: ").append(result.charAt(nrCandidates));
-    s.append("\n");
-    for (int i = (nrCandidates - 1); i >= 0; i--) {
-      s.append("Opção ").append(index).append(" : ").append(result.charAt(i));
-      s.append("\n");
-      index++;
+
+    int nonBlankVotes = 0;
+
+    for (int i = (nrCandidates - 1), index = 1; i >= 0; i--, index++) {
+      int nVotes = result.charAt(i) - '0'; // http://stackoverflow.com/q/4221225
+      nonBlankVotes += nVotes; // add votes in candidate to the total non blank votes
+      s.append("Opção ").append(index).append(" : ").append(nVotes).append("\n");
     }
+    int blank = votes.size() - nonBlankVotes;
+    s.append("TOTAL: ");
+    s.append(nonBlankVotes).append(" votos + ").append(blank).append(" em branco\n");
     return s.toString();
   }
 }
