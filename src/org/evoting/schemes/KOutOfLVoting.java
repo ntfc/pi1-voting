@@ -2,15 +2,18 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
+
 package org.evoting.schemes;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 import org.cssi.paillier.cipher.PaillierException;
+import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.evoting.exception.VotingSchemeException;
 import org.utils.DataStreamUtils;
 
@@ -18,45 +21,29 @@ import org.utils.DataStreamUtils;
  *
  * @author nc
  */
-public class OneOutOfLVoting extends Voting {
-
-  public static final int CODE = 0x52;
-  
+public class KOutOfLVoting extends Voting {
+  public static final int CODE = 0x14;
+  private int k, l;
   private int base;
 
-  /**
-   * Only used by the voter Default base is 10
-   */
-  public OneOutOfLVoting() throws VotingSchemeException {
-    this(new ArrayList<String>(), -1, 10);
-  }
 
   /**
-   * Create a 1-out-of-L voting <p> L is the number of candidates, or the size
-   * of the list of candidates
-   *
-   * @param cands
-   * @param voters
-   * @param base
+   * Only used by the voter Default K=1, base is 10
    */
-  public OneOutOfLVoting(List<String> cands, int voters, int base) throws
-          VotingSchemeException {
+  public KOutOfLVoting() throws VotingSchemeException {
+    this(1, 10, -1, new ArrayList<String>());
+  }
+  // L = cands.size()
+  public KOutOfLVoting(int K, int base, int voters, List<String> cands) throws VotingSchemeException {
     super(voters, cands);
     this.base = base;
-    // TODO: create more exceptions (OneOutOfLException, etc)
-    if (base <= voters) {
+    this.k = K;
+    this.l = cands.size();
+    if(!isBaseOK()) {
+      // base not valid. cannot create voting scheme
       throw new VotingSchemeException("Base must be greater than base. "
               + "Found base = " + base + " and nVoters = " + voters);
     }
-    
-  }
-
-  public int getL() {
-    return candidateNames.size();
-  }
-
-  public int getBase() {
-    return base;
   }
 
   @Override
@@ -64,57 +51,49 @@ public class OneOutOfLVoting extends Voting {
     return CODE;
   }
 
-  /**
-   * In a 1-out-of-L, the only common property is the base
-   *
-   * @param dsu
-   * @throws IOException
-   */
-  @Override
-  public void sendVotingProperties(DataStreamUtils dsu) throws IOException {
-    // send base number
-    dsu.writeInt(base);
+  public int calcMaxM() {
+    int i = nrCandidates - k + 1;
+    int tot = 0;
+    for( ; i <= nrCandidates; i++)
+      tot += base^(i-1);
+    return tot;
   }
 
-  /**
-   * Assign the base number <p> This method is used only by the voters
-   *
-   * @param dsu
-   * @throws IOException
-   */
+  public int calcMaxT() {
+    return nrVoters * calcMaxM();
+  }
+
+  public boolean isBaseOK() {
+    return base > nrVoters;
+  }
+
+  @Override
+  public void sendVotingProperties(DataStreamUtils dsu) throws IOException {
+    // send base
+    dsu.writeInt(base);
+    // send k
+    dsu.writeInt(k);
+    // send l
+    dsu.writeInt(l);
+  }
+
   @Override
   public void readVotingProperties(DataStreamUtils dsu) throws IOException {
     // read base
-    this.base = dsu.readInt();
+    base = dsu.readInt();
+    // read k
+    k = dsu.readInt();
+    // read l
+    l = dsu.readInt();
   }
 
-  /**
-   * TODO: finish this method
-   *
-   * @param key
-   * @param tally
-   * @return
-   * @throws PaillierException
-   * @throws InvalidKeyException
-   */
   @Override
   public int winner(PrivateKey key, BigInteger tally) throws PaillierException,
           InvalidKeyException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
-  /**
-   * Creates a String with how many votes each candidate had <p> How does it
-   * work? <b>1.</b> the length of tally.toString() must be equal to
-   * nrCandidates<br> <b>1. a)</b> if it's not, it adds the necessary zeros to
-   * the left of the string. <b>2.</b> the number of blank votes are calculated
-   * in the end, by doing votes.size() - nonBlankVotes <b>3.</b> The number of
-   * votes in candidate x_(nrCandidates-1) is in the first position of the
-   * string, and so on..
-   *
-   * @param tallyDec
-   * @return
-   */
+  // TODO: the winners are the K candidates with the most votes
   @Override
   public String votingResults(BigInteger tallyDec) {
     StringBuilder s = new StringBuilder();
@@ -136,6 +115,8 @@ public class OneOutOfLVoting extends Voting {
     s.append("TOTAL: ");
     s.append(nonBlankVotes).append(" votos + ").append(blank).append(
             " em branco\n");
+    
     return s.toString();
   }
+
 }

@@ -13,6 +13,7 @@ import java.util.List;
 import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.provider.CssiProvider;
 import org.evoting.authority.VotingServer;
+import org.evoting.schemes.KOutOfLVoting;
 import org.evoting.schemes.OneOutOfLVoting;
 import org.evoting.schemes.Voting;
 import org.evoting.schemes.YesNoVoting;
@@ -48,6 +49,7 @@ public class authTest {
     
     Voting votingType = new OneOutOfLVoting(cands, 3, 10);
     //Voting votingType = new YesNoVoting(5, "Jose", "Antonio");
+    //Voting votingType = new KOutOfLVoting(2, 14, 3, cands);
 
     VotingServer votingServer = new VotingServer(votingType, kP);
 

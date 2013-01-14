@@ -59,6 +59,7 @@ public class TServer extends Thread {
         voting.sendVotingCandidates(dsu);
         // send publickey
         dsu.writeBytes(pubKey.getEncoded());
+        System.out.println("Sent public key" + pubKey.getAlgorithm());
         // receive vote
         BigInteger vote = dsu.readBigInteger();
         // add vote to the voting

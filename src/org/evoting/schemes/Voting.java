@@ -55,6 +55,22 @@ public abstract class Voting {
   }
 
   /**
+   * Create a voting scheme with
+   * <code>cands.size()</code> candidates and a maximum of
+   * <code>voters</code> allowed.
+   * <code>cands</code> contains the names of the candidates
+   *
+   * @param voters
+   * @param cands
+   */
+  public Voting(int voters, List<String> cands) {
+    this.nrCandidates = cands.size();
+    this.nrVoters = voters;
+    this.candidateNames = cands;
+    this.votes = new ArrayList<BigInteger>();
+  }
+
+  /**
    * Return the number of candidates
    *
    * @return
@@ -223,6 +239,5 @@ public abstract class Voting {
    * @param tally
    * @return
    */
-  public abstract String votingResults(BigInteger tally);
-  
+  public abstract String votingResults(BigInteger tallyDec);
 }

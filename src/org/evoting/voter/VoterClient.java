@@ -19,6 +19,7 @@ import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.paillier.spec.PaillierPublicKeyBetaSpec;
 import org.evoting.exception.VotingSchemeException;
+import org.evoting.schemes.KOutOfLVoting;
 import org.evoting.schemes.OneOutOfLVoting;
 import org.evoting.schemes.Voting;
 import org.evoting.schemes.YesNoVoting;
@@ -76,6 +77,9 @@ public class VoterClient {
           break;
         case OneOutOfLVoting.CODE:
           voting = new OneOutOfLVoting();
+          break;
+        case KOutOfLVoting.CODE:
+          voting = new KOutOfLVoting();
           break;
         default:
           throw new VotingSchemeException("No such voting scheme");

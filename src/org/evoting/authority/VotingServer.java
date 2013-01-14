@@ -5,15 +5,23 @@
 package org.evoting.authority;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.security.InvalidKeyException;
+import java.security.KeyException;
 import java.security.KeyPair;
+import java.security.PublicKey;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cssi.paillier.cipher.PaillierException;
+import org.cssi.paillier.interfaces.PaillierPublicKey;
+import org.evoting.exception.VotingSchemeException;
+import org.evoting.schemes.KOutOfLVoting;
+import org.evoting.schemes.OneOutOfLVoting;
 import org.evoting.schemes.Voting;
+import org.evoting.schemes.YesNoVoting;
 
 /**
  *
@@ -26,13 +34,47 @@ public class VotingServer {
   private static final Logger LOG = Logger.getLogger(VotingServer.class.
           getName());
 
-  public VotingServer(Voting vot, KeyPair kP) {
+  public VotingServer(Voting vot, KeyPair kP) throws VotingSchemeException, KeyException {
     this.voting = vot;
     this.keyPair = kP;
+    // modulo n is not valid
+    canEncrypt(); // throws exception if it cannot encrypt
   }
 
   public Voting getVoting() {
     return voting;
+  }
+
+  public void canEncrypt() throws VotingSchemeException, KeyException {
+    if (voting == null) {
+      throw new VotingSchemeException("No voting scheme defined");
+    }
+    if(keyPair == null || keyPair.getPublic() == null) {
+      throw new KeyException("No public key assigned");
+    }
+    else {
+      switch (voting.getCode()) {
+        case OneOutOfLVoting.CODE:
+          
+          break;
+        case KOutOfLVoting.CODE:
+          BigInteger tMaxPlusOne = new BigInteger(Integer.
+                  toString(((KOutOfLVoting) voting).calcMaxT() + 1));
+
+          PaillierPublicKey pub = (PaillierPublicKey) keyPair.getPublic();
+          // n >= Tmax + 1
+          if(! (pub.getN().compareTo(tMaxPlusOne) >= 0)) {
+            throw new VotingSchemeException("Modulo n must be greater or equal than Tmax + 1.");
+          }
+          break;
+        case YesNoVoting.CODE:
+          // i dont think there's any restriction on Yes/No...
+          break;
+        default:
+          throw new VotingSchemeException("No such voting scheme as " + voting.
+                  getClass().getCanonicalName());
+      }
+    }
   }
 
   /**
