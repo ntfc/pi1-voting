@@ -8,8 +8,12 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
 import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.cipher.PaillierSimple;
+import org.evoting.exception.NumberOfVotesException;
+import org.evoting.exception.VotingSchemeException;
 import org.utils.DataStreamUtils;
 
 /**
@@ -89,4 +93,27 @@ public class YesNoVoting extends Voting {
   public void readVotingProperties(DataStreamUtils dsu) throws IOException {
     // No specific properties for Yes/No voting
   }
+
+  @Override
+  public Ballot createBallot(PublicKey key, int... votes) throws NumberOfVotesException,
+          VotingSchemeException, InvalidKeyException, IOException,
+          PaillierException {
+    if(getCipher() == null) { // No cipher associated with voting
+      throw new VotingSchemeException("No encryption algorithm associated with voting scheme");
+    }
+    if (votes.length > 1) {
+      throw new NumberOfVotesException(
+              "Maximum number of votes allowed in Yes/No voting is one.");
+    }
+    // TODO: allow blank votes
+    // TODO: consider Yes/No voting as 1-out-of-2 Voting?
+    BigInteger vote = new BigInteger(Integer.toString(votes[0]));
+
+    Ballot ballot = new Ballot();
+    ballot.addVote(getCipher().enc(key, vote, new SecureRandom()));
+    return ballot;
+
+  }
+
+
 }

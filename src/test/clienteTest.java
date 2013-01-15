@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.net.Socket;
 import java.security.Security;
 import org.cssi.provider.CssiProvider;
+import org.evoting.schemes.Ballot;
 import org.evoting.schemes.OneOutOfLVoting;
 import org.evoting.voter.VoterClient;
 
@@ -45,6 +46,9 @@ public class clienteTest {
     }
     Integer optionInt = Integer.valueOf(option);
     //Vote
-    client.vote(optionInt);
+    //client.vote(optionInt);
+    Ballot ballot = client.getVoting().createBallot(client.getPublicKey(), optionInt);
+    client.submitBallot(ballot);
+    System.out.println("Ballot sent");
     }
   }

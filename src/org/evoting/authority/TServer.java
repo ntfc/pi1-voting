@@ -5,7 +5,6 @@
 package org.evoting.authority;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.Socket;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -60,11 +59,15 @@ public class TServer extends Thread {
         // send publickey
         dsu.writeBytes(pubKey.getEncoded());
         System.out.println("Sent public key" + pubKey.getAlgorithm());
-        // receive vote
-        BigInteger vote = dsu.readBigInteger();
-        // add vote to the voting
-        boolean receivedVote = voting.receiveVote(vote);
-        System.out.println("Vote accepted: " + receivedVote);
+        // receive ballot
+        //BigInteger vote = dsu.readBigInteger();
+        int votes = dsu.readInt();
+        for(int i = 0; i < votes; i++) {
+          boolean receivedVote = voting.receiveVote(dsu.readBigInteger());
+          // add vote to the voting
+          //boolean receivedVote = voting.receiveVote(vote);
+          System.out.println("Vote accepted: " + receivedVote);
+        }
 
       }
       catch (IOException e) {

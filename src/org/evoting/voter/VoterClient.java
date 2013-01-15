@@ -19,6 +19,7 @@ import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.paillier.spec.PaillierPublicKeyBetaSpec;
 import org.evoting.exception.VotingSchemeException;
+import org.evoting.schemes.Ballot;
 import org.evoting.schemes.KOutOfLVoting;
 import org.evoting.schemes.OneOutOfLVoting;
 import org.evoting.schemes.Voting;
@@ -54,6 +55,10 @@ public class VoterClient {
     return voting;
   }
 
+  public PublicKey getPublicKey() {
+    return publicKey;
+  }
+
   /**
    * Set up a voting <p> In this method, the voter receive every necessary
    * information from the authority<br> It receives the voting scheme, the
@@ -87,7 +92,9 @@ public class VoterClient {
       
       //------- receive voting properties
       voting.readVotingProperties(dsu);
-
+      // TODO: do this in readVotingProperties(); auth send the cipher being used
+      voting.setCipher(new PaillierSimple());
+      
       //------- receive voting candidates
       voting.readVotingCandidates(dsu);
 
@@ -110,8 +117,10 @@ public class VoterClient {
    *
    * @param voteOption From 0 to nrCandidates. 0 is blank vote
    */
+  @Deprecated
   public void vote(Integer voteOption) throws IOException, PaillierException,
           InvalidKeyException, VotingSchemeException {
+    // TODO: move this method to Voting, as abstract? Maybe not..
     BigInteger vote = null;
     if (voting == null) {
       throw new VotingSchemeException("No voting scheme defined");
@@ -121,14 +130,23 @@ public class VoterClient {
       // yes/no voting
       vote = new BigInteger(Integer.toString(voteOption));
     }
-    else if (voting instanceof OneOutOfLVoting) {
-      // 1-out-of-L voting
-      int base = ((OneOutOfLVoting) getVoting()).getBase();
-      if(voteOption == 0) // blank vote
-        vote = BigInteger.ZERO;
-      else { // vote in C1 is = base^(voteOption-1), voteOption=1
-        voteOption--;
-        vote = new BigInteger(Integer.toString(base)).pow(voteOption);
+    else {
+      if (voting instanceof OneOutOfLVoting) {
+        // 1-out-of-L voting
+        int base = ((OneOutOfLVoting) getVoting()).getBase();
+        if(voteOption == 0) // blank vote
+          vote = BigInteger.ZERO;
+        else { // vote in C1 is = base^(voteOption-1), voteOption=1
+          voteOption--;
+          vote = new BigInteger(Integer.toString(base)).pow(voteOption);
+        }
+      }
+      else {
+        if(voting instanceof KOutOfLVoting) {
+          // K-out-of-L voting
+          int base = ((KOutOfLVoting)getVoting()).getBase();
+          // TODO: fazer isto na classe voting
+        }
       }
     }
     // encrypt the vote
@@ -138,5 +156,17 @@ public class VoterClient {
     // send vote
     dsu.writeBigInteger(c);
 
+  }
+
+  public void submitBallot(Ballot ballot) throws IOException {
+    if(ballot == null) {
+      //TODO: throw exception
+    }
+    // send number of votes in the ballot
+    dsu.writeInt(ballot.getVotes().size());
+    // send the votes
+    for(BigInteger v : ballot.getVotes()) {
+      dsu.writeBigInteger(v);
+    }
   }
 }

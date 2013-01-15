@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
+import org.evoting.exception.NumberOfVotesException;
 import org.evoting.exception.VotingSchemeException;
 import org.utils.DataStreamUtils;
 
@@ -44,6 +45,18 @@ public class KOutOfLVoting extends Voting {
       throw new VotingSchemeException("Base must be greater than base. "
               + "Found base = " + base + " and nVoters = " + voters);
     }
+  }
+
+  public int getK() {
+    return k;
+  }
+
+  public int getL() {
+    return l;
+  }
+
+  public int getBase() {
+    return base;
   }
 
   @Override
@@ -85,6 +98,13 @@ public class KOutOfLVoting extends Voting {
     k = dsu.readInt();
     // read l
     l = dsu.readInt();
+  }
+
+  @Override
+  public Ballot createBallot(PublicKey key, int... votes) throws NumberOfVotesException,
+          VotingSchemeException, InvalidKeyException, IOException,
+          PaillierException {
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 
   @Override

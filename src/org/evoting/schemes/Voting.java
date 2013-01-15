@@ -8,10 +8,14 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
+import org.cssi.paillier.cipher.Paillier;
 import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.interfaces.PaillierPrivateKey;
+import org.evoting.exception.NumberOfVotesException;
+import org.evoting.exception.VotingSchemeException;
 import org.utils.DataStreamUtils;
 
 /**
@@ -26,10 +30,11 @@ public abstract class Voting {
   /* these variables are protected so that they can be accessible only from the
    * classes in this package */
 
-  protected int nrCandidates;
+  protected int nrCandidates; // this is L
   protected int nrVoters;
   protected List<String> candidateNames;
   protected List<BigInteger> votes;
+  private Paillier cipher; //TODO: add constructor with cipher as param
 
   /**
    * Create an empty voting scheme <p> This is used only by the voter
@@ -77,6 +82,14 @@ public abstract class Voting {
    */
   public int getNrCandidates() {
     return nrCandidates;
+  }
+
+  public Paillier getCipher() {
+    return cipher;
+  }
+
+  public void setCipher(Paillier cipher) {
+    this.cipher = cipher;
   }
 
   /**
@@ -151,6 +164,7 @@ public abstract class Voting {
    * @param dsu
    * @throws IOException
    */
+  // TODO: receive the cipher used
   public abstract void readVotingProperties(DataStreamUtils dsu) throws
           IOException;
 
@@ -240,4 +254,21 @@ public abstract class Voting {
    * @return
    */
   public abstract String votingResults(BigInteger tallyDec);
+
+  /**
+   * Receive a vote (or K votes) and creates a ballot
+   * <p>
+   * Each subclass must make sure the number of votes are lesser or equal than
+   * the maximum number of votes allowed (on Yes/No, maximum is 1 and on K-out-of-L
+   * maximum is K)
+   * @param key
+   * @param votes
+   * @throws NumberOfVotesException
+   * @throws VotingSchemeException
+   * @throws InvalidKeyException
+   * @throws IOException
+   */
+  public abstract Ballot createBallot(PublicKey key, int... votes) throws
+          NumberOfVotesException, VotingSchemeException, InvalidKeyException,
+          IOException, PaillierException;
 }

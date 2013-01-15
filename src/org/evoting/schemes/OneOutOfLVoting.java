@@ -8,9 +8,12 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import org.cssi.paillier.cipher.PaillierException;
+import org.evoting.exception.NumberOfVotesException;
 import org.evoting.exception.VotingSchemeException;
 import org.utils.DataStreamUtils;
 
@@ -21,7 +24,6 @@ import org.utils.DataStreamUtils;
 public class OneOutOfLVoting extends Voting {
 
   public static final int CODE = 0x52;
-  
   private int base;
 
   /**
@@ -48,7 +50,7 @@ public class OneOutOfLVoting extends Voting {
       throw new VotingSchemeException("Base must be greater than base. "
               + "Found base = " + base + " and nVoters = " + voters);
     }
-    
+
   }
 
   public int getL() {
@@ -86,6 +88,41 @@ public class OneOutOfLVoting extends Voting {
   public void readVotingProperties(DataStreamUtils dsu) throws IOException {
     // read base
     this.base = dsu.readInt();
+  }
+
+  /**
+   *
+   * @param key
+   * @param votes
+   * @throws NumberOfVotesException
+   * @throws VotingSchemeException
+   * @throws InvalidKeyException
+   * @throws IOException
+   */
+  @Override
+  public Ballot createBallot(PublicKey key, int... votes) throws
+          NumberOfVotesException,
+          VotingSchemeException, InvalidKeyException, IOException, PaillierException {
+    if(getCipher() == null) { // No cipher associated with voting
+      throw new VotingSchemeException("No encryption algorithm associated with voting scheme");
+    }
+    if (votes.length > 1) {
+      throw new NumberOfVotesException(
+              "Maximum number of votes allowed in 1-out-of-L is one.");
+    }
+    BigInteger vote = BigInteger.ZERO; // assumed blank vote as default vote
+
+    if(votes.length > 0 && votes[0] > 0) { // non blank vote
+      votes[0]--; // vote option must be in [0..L-1]
+      // vote = b^voteOption
+      System.err.println("Base: " + base);
+      vote = new BigInteger(Integer.toString(base)).pow(votes[0]);
+    }
+    Ballot ballot = new Ballot();
+    // encrypt vote
+    ballot.addVote(getCipher().enc(key, vote, new SecureRandom()));
+    return ballot;
+    
   }
 
   /**
