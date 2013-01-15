@@ -11,6 +11,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.evoting.schemes.Ballot;
 import org.evoting.schemes.Voting;
 import org.utils.DataStreamUtils;
 
@@ -62,12 +63,12 @@ public class TServer extends Thread {
         // receive ballot
         //BigInteger vote = dsu.readBigInteger();
         int votes = dsu.readInt();
+        Ballot ballot = new Ballot();
         for(int i = 0; i < votes; i++) {
-          boolean receivedVote = voting.receiveVote(dsu.readBigInteger());
-          // add vote to the voting
-          //boolean receivedVote = voting.receiveVote(vote);
-          System.out.println("Vote accepted: " + receivedVote);
+          ballot.addVote(dsu.readBigInteger());
         }
+        boolean receivedVote = voting.receiveBallot(ballot);
+        System.out.println("Vote accepted: " + receivedVote);
 
       }
       catch (IOException e) {

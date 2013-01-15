@@ -5,11 +5,13 @@
 
 package org.evoting.schemes;
 
+import com.sun.org.apache.bcel.internal.generic.AALOAD;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import org.cssi.paillier.cipher.PaillierException;
@@ -104,7 +106,28 @@ public class KOutOfLVoting extends Voting {
   public Ballot createBallot(PublicKey key, int... votes) throws NumberOfVotesException,
           VotingSchemeException, InvalidKeyException, IOException,
           PaillierException {
-    throw new UnsupportedOperationException("Not supported yet.");
+    if(getCipher() == null) { // No cipher associated with voting
+      throw new VotingSchemeException("No encryption algorithm associated with voting scheme");
+    }
+    if (votes.length > getK()) {
+      throw new NumberOfVotesException(
+              "Maximum number of votes allowed in K-out-of-L is K.");
+    }
+    Ballot ballot = new Ballot();
+    BigInteger vote = BigInteger.ZERO; // assumed blank vote as default vote
+    if(votes.length > 0 && votes[0] != 0) { // non blank vote
+      for(int vv : votes) {
+        vv--; // vote option must be in [0..L-1]
+        // vote = b^voteOption
+        vote = new BigInteger(Integer.toString(base)).pow(vv);
+        // add vote to the ballot
+        BigInteger voteEnc = getCipher().enc(key, vote, new SecureRandom());
+        ballot.addVote(voteEnc);
+      }
+
+    }
+
+    return ballot;
   }
 
   @Override

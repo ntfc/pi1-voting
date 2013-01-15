@@ -110,17 +110,18 @@ public class OneOutOfLVoting extends Voting {
       throw new NumberOfVotesException(
               "Maximum number of votes allowed in 1-out-of-L is one.");
     }
+    Ballot ballot = new Ballot();
     BigInteger vote = BigInteger.ZERO; // assumed blank vote as default vote
 
     if(votes.length > 0 && votes[0] > 0) { // non blank vote
       votes[0]--; // vote option must be in [0..L-1]
       // vote = b^voteOption
-      System.err.println("Base: " + base);
       vote = new BigInteger(Integer.toString(base)).pow(votes[0]);
+      // encrypt vote
+      BigInteger voteEnc = getCipher().enc(key, vote, new SecureRandom());
+      ballot.addVote(voteEnc);
     }
-    Ballot ballot = new Ballot();
-    // encrypt vote
-    ballot.addVote(getCipher().enc(key, vote, new SecureRandom()));
+    
     return ballot;
     
   }
@@ -160,7 +161,7 @@ public class OneOutOfLVoting extends Voting {
     String result = String.format("%0" + (nrCandidates) + "d", tallyDec);
 
     s.append("Resultados:\n");
-
+    System.out.println("Taly dec: " + tallyDec);
     int nonBlankVotes = 0;
 
     for (int i = (nrCandidates - 1), index = 1; i >= 0; i--, index++) {

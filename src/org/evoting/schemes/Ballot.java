@@ -31,4 +31,16 @@ public class Ballot {
     return this.votes.add(vote);
   }
 
+  public BigInteger tally() {
+    BigInteger mult = BigInteger.ONE;
+    for(BigInteger bb : this.votes) {
+      mult = mult.multiply(bb);
+    }
+    return mult;
+  }
+
+  public BigInteger tally(BigInteger nSquare) {
+    return tally().mod(nSquare);
+  }
+
 }

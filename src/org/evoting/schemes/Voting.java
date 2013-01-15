@@ -33,8 +33,10 @@ public abstract class Voting {
   protected int nrCandidates; // this is L
   protected int nrVoters;
   protected List<String> candidateNames;
-  protected List<BigInteger> votes;
+  //protected List<BigInteger> votes;
+  protected List<Ballot> votes;
   private Paillier cipher; //TODO: add constructor with cipher as param
+  private int votersWhoVoted = 0;
 
   /**
    * Create an empty voting scheme <p> This is used only by the voter
@@ -56,7 +58,7 @@ public abstract class Voting {
     this.nrVoters = voters;
     // initializate everything here
     this.candidateNames = new ArrayList<String>();
-    this.votes = new ArrayList<BigInteger>();
+    this.votes = new ArrayList<Ballot>();
   }
 
   /**
@@ -72,7 +74,7 @@ public abstract class Voting {
     this.nrCandidates = cands.size();
     this.nrVoters = voters;
     this.candidateNames = cands;
-    this.votes = new ArrayList<BigInteger>();
+    this.votes = new ArrayList<>();
   }
 
   /**
@@ -121,13 +123,17 @@ public abstract class Voting {
     return votes.size();
   }
 
+  public int getVotersWhoVoted() {
+    return votersWhoVoted;
+  }
+
   /**
    * Did everyone already voted?
    *
    * @return
    */
   public boolean canAcceptMoreVotes() {
-    return nrVoters > votes.size();
+    return nrVoters > votersWhoVoted;
   }
 
   @Deprecated
@@ -204,14 +210,15 @@ public abstract class Voting {
   }
 
   /**
-   * Receive the vote from the voter and add it to the list of received votes
-   * <p> NOTE: the vote must already be encrypted!!
+   * Receive the ballot from the voter and add it to the list of received votes
+   * <p> NOTE: the votes in the ballot must already be encrypted!!
    *
    * @param vote
    * @return
    */
-  public boolean receiveVote(BigInteger vote) {
-    return votes.add(vote);
+  public boolean receiveBallot(Ballot ballot) {
+    votersWhoVoted++;
+    return votes.add(ballot);
   }
 
   /**
@@ -227,8 +234,8 @@ public abstract class Voting {
           PaillierException {
     BigInteger mult = BigInteger.ONE;
     BigInteger nSquare = ((PaillierPrivateKey) key).getN().pow(2);
-    for (BigInteger vote : this.votes) {
-      mult = mult.multiply(vote);
+    for (Ballot ballot : this.votes) {
+      mult = mult.multiply(ballot.tally());
     }
     return mult.mod(nSquare);
   }

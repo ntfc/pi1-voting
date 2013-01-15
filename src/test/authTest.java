@@ -49,7 +49,7 @@ public class authTest {
     
     Voting votingType = new OneOutOfLVoting(cands, 3, 10);
     //Voting votingType = new YesNoVoting(5, "Sim", "Não");
-    //Voting votingType = new KOutOfLVoting(2, 14, 3, cands);
+    //Voting votingType = new KOutOfLVoting(2, 10, 3, cands);
 
     VotingServer votingServer = new VotingServer(votingType, kP);
 
