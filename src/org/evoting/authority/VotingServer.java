@@ -12,7 +12,6 @@ import java.net.SocketTimeoutException;
 import java.security.InvalidKeyException;
 import java.security.KeyException;
 import java.security.KeyPair;
-import java.security.PublicKey;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cssi.paillier.cipher.PaillierException;
@@ -34,7 +33,8 @@ public class VotingServer {
   private static final Logger LOG = Logger.getLogger(VotingServer.class.
           getName());
 
-  public VotingServer(Voting vot, KeyPair kP) throws VotingSchemeException, KeyException {
+  public VotingServer(Voting vot, KeyPair kP) throws VotingSchemeException,
+          KeyException {
     this.voting = vot;
     this.keyPair = kP;
     // modulo n is not valid
@@ -49,22 +49,28 @@ public class VotingServer {
     if (voting == null) {
       throw new VotingSchemeException("No voting scheme defined");
     }
-    if(keyPair == null || keyPair.getPublic() == null) {
+    if (keyPair == null || keyPair.getPublic() == null) {
       throw new KeyException("No public key assigned");
     }
     else {
       switch (voting.getCode()) {
         case OneOutOfLVoting.CODE:
-          
+
           break;
         case KOutOfLVoting.CODE:
           BigInteger tMaxPlusOne = new BigInteger(Integer.
                   toString(((KOutOfLVoting) voting).calcMaxT() + 1));
 
           PaillierPublicKey pub = (PaillierPublicKey) keyPair.getPublic();
+          // base > nrVoters
+          if (!((KOutOfLVoting) voting).isBaseOK()) {
+            throw new VotingSchemeException(
+                    "Base must be greater than the number of voters");
+          }
           // n >= Tmax + 1
-          if(! (pub.getN().compareTo(tMaxPlusOne) >= 0)) {
-            throw new VotingSchemeException("Modulo n must be greater or equal than Tmax + 1.");
+          if (!(pub.getN().compareTo(tMaxPlusOne) >= 0)) {
+            throw new VotingSchemeException(
+                    "Modulo n must be greater or equal than Tmax + 1.");
           }
           break;
         case YesNoVoting.CODE:

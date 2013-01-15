@@ -47,7 +47,7 @@ public class OneOutOfLVoting extends Voting {
     this.base = base;
     // TODO: create more exceptions (OneOutOfLException, etc)
     if (base <= voters) {
-      throw new VotingSchemeException("Base must be greater than base. "
+      throw new VotingSchemeException("Base must be greater than number of voters. "
               + "Found base = " + base + " and nVoters = " + voters);
     }
 
