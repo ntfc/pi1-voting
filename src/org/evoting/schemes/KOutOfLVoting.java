@@ -5,7 +5,6 @@
 
 package src.org.evoting.schemes;
 
-import com.sun.org.apache.bcel.internal.generic.AALOAD;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
@@ -15,7 +14,6 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import org.cssi.paillier.cipher.PaillierException;
-import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.evoting.exception.NumberOfVotesException;
 import org.evoting.exception.VotingSchemeException;
 import org.utils.DataStreamUtils;

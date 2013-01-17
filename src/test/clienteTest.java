@@ -6,7 +6,6 @@ package src.test;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.math.BigInteger;
 import java.net.Socket;
 import java.security.Security;
 import org.cssi.provider.CssiProvider;
