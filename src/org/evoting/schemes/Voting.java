@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.evoting.schemes;
+package src.org.evoting.schemes;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -74,7 +74,7 @@ public abstract class Voting {
     this.nrCandidates = cands.size();
     this.nrVoters = voters;
     this.candidateNames = cands;
-    this.votes = new ArrayList<>();
+    this.votes = new ArrayList<Ballot>();
   }
 
   /**
@@ -260,7 +260,7 @@ public abstract class Voting {
    * @param tally
    * @return
    */
-  public abstract String votingResults(BigInteger tallyDec);
+  public abstract String votingResults(BigInteger tallyDec,int b);
 
   /**
    * Receive a vote (or K votes) and creates a ballot

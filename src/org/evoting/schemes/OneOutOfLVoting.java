@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.evoting.schemes;
+package src.org.evoting.schemes;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -153,23 +153,57 @@ public class OneOutOfLVoting extends Voting {
    * @param tallyDec
    * @return
    */
-  @Override
-  public String votingResults(BigInteger tallyDec) {
+
+  public String votingResults(BigInteger tallyDec, int base) {
     StringBuilder s = new StringBuilder();
 
     // if needed, adds zeros on the left to tallyDec string
-    String result = String.format("%0" + (nrCandidates) + "d", tallyDec);
-
+    
+    int nonBlankVotes = 0;
+    String s1 = tallyDec.toString(base);
+    int j;
+    int i=0;
+    for(j=2;j>=0;j--){
+        if(j<=(s1.length()-1)){
+            char c = s1.charAt(j);
+            System.out.println(c);
+            int nrVotes = Integer.parseInt(Character.toString(c),base); 
+            nonBlankVotes += nrVotes;
+            s.append(super.candidateNames.get(i)).append(" : ").append(nrVotes).
+              append("\n");
+        }  
+        else{
+            int nrVotes = 0; 
+            s.append(super.candidateNames.get(i)).append(" : ").append(nrVotes).append("\n");
+        }
+        i++;
+    }
+    
+   /* String result = String.format("%0" + (nrCandidates) + "d", s1);
+    System.out.println("result "+result);
+    
+    char[] number = new char[3];
+    int j;
+    for(j=0;j<3;j++){
+        number[j] = '0';
+    }
+    for(j=s1.length();j>=0;j--){
+        number[j] = s1.charAt(j);
+    }
+       
     s.append("Resultados:\n");
     System.out.println("Taly dec: " + tallyDec);
     int nonBlankVotes = 0;
 
     for (int i = (nrCandidates - 1), index = 1; i >= 0; i--, index++) {
-      int nVotes = result.charAt(i) - '0'; // http://stackoverflow.com/q/4221225
+      char c = result.charAt(i); // http://stackoverflow.com/q/4221225
+      String s2 = Integer.toString(c,10);
+      int nVotes = Integer.parseInt(s2);
       nonBlankVotes += nVotes; // add votes in candidate to the total non blank votes
       s.append(super.candidateNames.get(index - 1)).append(" : ").append(nVotes).
               append("\n");
-    }
+    }*/
+    
     int blank = votes.size() - nonBlankVotes;
     s.append("TOTAL: ");
     s.append(nonBlankVotes).append(" votos + ").append(blank).append(

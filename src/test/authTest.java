@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package test;
+package src.test;
 
 import java.math.BigInteger;
 import java.security.KeyPair;
@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.provider.CssiProvider;
-import org.evoting.authority.VotingServer;
-import org.evoting.schemes.KOutOfLVoting;
-import org.evoting.schemes.OneOutOfLVoting;
-import org.evoting.schemes.Voting;
-import org.evoting.schemes.YesNoVoting;
+import src.org.evoting.authority.VotingServer;
+import src.org.evoting.schemes.KOutOfLVoting;
+import src.org.evoting.schemes.OneOutOfLVoting;
+import src.org.evoting.schemes.Voting;
+import src.org.evoting.schemes.YesNoVoting;
 
 /**
  *
@@ -33,7 +33,7 @@ public class authTest {
     KeyPairGenerator kGen = KeyPairGenerator.getInstance("Paillier", "CSSI");
     KeyPair kP = kGen.generateKeyPair();
     //Voting votingType = new YesNoVoting(3, "José", "António");
-    List<String> cands = new ArrayList<>();
+    List<String> cands = new ArrayList<String>();
     cands.add("Antonio");
     cands.add("Jose");
     cands.add("Carlos");
@@ -47,7 +47,7 @@ public class authTest {
     cands.add("Deus");*/
 
     
-    Voting votingType = new OneOutOfLVoting(cands, 3, 10);
+    Voting votingType = new OneOutOfLVoting(cands,14, 16);
     //Voting votingType = new YesNoVoting(5, "Sim", "Não");
     //Voting votingType = new KOutOfLVoting(2, 10, 3, cands);
 
@@ -67,6 +67,7 @@ public class authTest {
     System.out.println("Tally dec: " + tallyDec);
 //    int base = ((OneOutOfLVoting)votingType).getBase();
 //    System.out.println("Tally base " + base + ": " + tallyDec.toString(base));
-    System.out.println(votingType.votingResults(tallyDec));
+  
+    System.out.println(votingType.votingResults(tallyDec, 16));
   }
 }

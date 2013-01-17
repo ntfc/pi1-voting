@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.evoting.schemes;
+package src.org.evoting.schemes;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -80,7 +80,7 @@ public class YesNoVoting extends Voting {
   }
 
   @Override
-  public String votingResults(BigInteger tally) {
+  public String votingResults(BigInteger tally, int b) {
     return "Finish votingResults()";
   }
 

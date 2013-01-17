@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.evoting.schemes;
+package src.org.evoting.schemes;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ public class Ballot {
   private List<BigInteger> votes;
 
   public Ballot() {
-    this.votes = new ArrayList<>();
+    this.votes = new ArrayList<BigInteger>();
   }
   public Ballot(List<BigInteger> votes) {
     this.votes = votes;

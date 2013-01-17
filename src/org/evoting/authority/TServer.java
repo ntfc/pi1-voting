@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.evoting.authority;
+package src.org.evoting.authority;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -11,8 +11,8 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.evoting.schemes.Ballot;
-import org.evoting.schemes.Voting;
+import src.org.evoting.schemes.Ballot;
+import src.org.evoting.schemes.Voting;
 import org.utils.DataStreamUtils;
 
 /**

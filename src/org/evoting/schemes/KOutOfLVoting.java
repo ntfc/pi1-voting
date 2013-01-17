@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.evoting.schemes;
+package src.org.evoting.schemes;
 
 import com.sun.org.apache.bcel.internal.generic.AALOAD;
 import java.io.IOException;
@@ -138,8 +138,33 @@ public class KOutOfLVoting extends Voting {
 
   // TODO: the winners are the K candidates with the most votes
   @Override
-  public String votingResults(BigInteger tallyDec) {
-    StringBuilder s = new StringBuilder();
+  public String votingResults(BigInteger tallyDec, int b) {
+    
+        StringBuilder s = new StringBuilder();
+
+    // if needed, adds zeros on the left to tallyDec string
+    
+    int nonBlankVotes = 0;
+    String s1 = tallyDec.toString(base);
+    int j;
+    int i=0;
+    for(j=2;j>=0;j--){
+        if(j<=(s1.length()-1)){
+            char c = s1.charAt(j);
+            System.out.println(c);
+            int nrVotes = Integer.parseInt(Character.toString(c),base); 
+            nonBlankVotes += nrVotes;
+            s.append(super.candidateNames.get(i)).append(" : ").append(nrVotes).
+              append("\n");
+        }  
+        else{
+            int nrVotes = 0; 
+            s.append(super.candidateNames.get(i)).append(" : ").append(nrVotes).append("\n");
+        }
+        i++;
+    }
+      
+    /*StringBuilder s = new StringBuilder();
 
     // if needed, adds zeros on the left to tallyDec string
     String result = String.format("%0" + (nrCandidates) + "d", tallyDec);
@@ -153,7 +178,7 @@ public class KOutOfLVoting extends Voting {
       nonBlankVotes += nVotes; // add votes in candidate to the total non blank votes
       s.append(super.candidateNames.get(index - 1)).append(" : ").append(nVotes).
               append("\n");
-    }
+    }*/
     int blank = votes.size() - nonBlankVotes;
     s.append("TOTAL: ");
     s.append(nonBlankVotes).append(" votos + ").append(blank).append(
