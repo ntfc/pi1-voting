@@ -13,6 +13,7 @@ import java.util.List;
 import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.provider.CssiProvider;
 import org.evoting.authority.VotingServer;
+import org.evoting.schemes.KOutOfLVoting;
 import org.evoting.schemes.OneOutOfLVoting;
 import org.evoting.schemes.Voting;
 
@@ -36,16 +37,17 @@ public class authTest {
     cands.add("Jose");
     cands.add("Carlos");
     /*cands.add("Zé");
-    cands.add("Manuel");
-    cands.add("Jesus");
-    cands.add("Cristo");
-    cands.add("Nuno");
-    cands.add("Rafael");
-    cands.add("Milton");
-    cands.add("Deus");*/
+     cands.add("Manuel");
+     cands.add("Jesus");
+     cands.add("Cristo");
+     cands.add("Nuno");
+     cands.add("Rafael");
+     cands.add("Milton");
+     cands.add("Deus");*/
 
-    
-    Voting votingType = new OneOutOfLVoting(cands,14, 16);
+
+    Voting votingType = new OneOutOfLVoting(cands, 14, 16);
+    //Voting votingType = new KOutOfLVoting(1, 14, 10, cands);
     //Voting votingType = new YesNoVoting(5, "Sim", "Não");
     //Voting votingType = new KOutOfLVoting(2, 10, 3, cands);
 
@@ -58,14 +60,14 @@ public class authTest {
     System.out.println("Total votes: " + votingServer.getVoting().totalVotes());
 
     /*int winner = votingServer.getVoting().winner(kP.getPrivate(), tally);
-    System.out.println("Winner: " + winner + " (" + votingServer.getVoting().
-            getCandidateNames().get(winner) + ")");*/
+     System.out.println("Winner: " + winner + " (" + votingServer.getVoting().
+     getCandidateNames().get(winner) + ")");*/
 
     BigInteger tallyDec = new PaillierSimple().dec(kP.getPrivate(), tally);
     System.out.println("Tally dec: " + tallyDec);
 //    int base = ((OneOutOfLVoting)votingType).getBase();
 //    System.out.println("Tally base " + base + ": " + tallyDec.toString(base));
-  
+
     System.out.println(votingType.votingResults(tallyDec, 16));
   }
 }

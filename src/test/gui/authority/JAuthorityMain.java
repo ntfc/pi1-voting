@@ -251,8 +251,17 @@ public class JAuthorityMain extends javax.swing.JFrame {
           try {
             BigInteger tally = server.getVoting().tallying(privKey);
             // TODO: fix
-            //String res = server.getVoting().votingResults(new PaillierSimple().dec(privKey, tally));
-            //JOptionPane.showMessageDialog(rootPane, res);
+            Voting v = server.getVoting();
+            if(!(v instanceof YesNoVoting)) {
+              String res = null;
+              if(v instanceof OneOutOfLVoting)
+                res = v.votingResults(new PaillierSimple().dec(privKey, tally), ((OneOutOfLVoting)v).getBase());
+              else
+                res = v.votingResults(new PaillierSimple().dec(privKey, tally), ((OneOutOfLVoting)v).getBase());
+              JOptionPane.showMessageDialog(rootPane, res);
+            }
+            
+            
           }
           catch (Exception ex) {
             JOptionPane.showMessageDialog(rootPane, ex.getMessage());

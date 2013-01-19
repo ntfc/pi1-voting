@@ -154,6 +154,7 @@ public class OneOutOfLVoting extends Voting {
    * @return
    */
 
+  @Override
   public String votingResults(BigInteger tallyDec, int base) {
     StringBuilder s = new StringBuilder();
 
@@ -165,7 +166,7 @@ public class OneOutOfLVoting extends Voting {
     int i=0;
     for(j=2;j>=0;j--){
         if(j<=(s1.length()-1)){
-            char c = s1.charAt(j);
+            char c = s1.charAt(j); // - '0'; // http://stackoverflow.com/q/4221225
             System.out.println(c);
             int nrVotes = Integer.parseInt(Character.toString(c),base); 
             nonBlankVotes += nrVotes;
@@ -178,32 +179,7 @@ public class OneOutOfLVoting extends Voting {
         }
         i++;
     }
-    
-   /* String result = String.format("%0" + (nrCandidates) + "d", s1);
-    System.out.println("result "+result);
-    
-    char[] number = new char[3];
-    int j;
-    for(j=0;j<3;j++){
-        number[j] = '0';
-    }
-    for(j=s1.length();j>=0;j--){
-        number[j] = s1.charAt(j);
-    }
-       
-    s.append("Resultados:\n");
-    System.out.println("Taly dec: " + tallyDec);
-    int nonBlankVotes = 0;
 
-    for (int i = (nrCandidates - 1), index = 1; i >= 0; i--, index++) {
-      char c = result.charAt(i); // http://stackoverflow.com/q/4221225
-      String s2 = Integer.toString(c,10);
-      int nVotes = Integer.parseInt(s2);
-      nonBlankVotes += nVotes; // add votes in candidate to the total non blank votes
-      s.append(super.candidateNames.get(index - 1)).append(" : ").append(nVotes).
-              append("\n");
-    }*/
-    
     int blank = votes.size() - nonBlankVotes;
     s.append("TOTAL: ");
     s.append(nonBlankVotes).append(" votos + ").append(blank).append(

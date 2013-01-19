@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package org.evoting.schemes;
 
 import java.io.IOException;
@@ -23,10 +22,10 @@ import org.utils.DataStreamUtils;
  * @author nc
  */
 public class KOutOfLVoting extends Voting {
+
   public static final int CODE = 0x14;
   private int k, l;
   private int base;
-
 
   /**
    * Only used by the voter Default K=1, base is 10
@@ -35,14 +34,16 @@ public class KOutOfLVoting extends Voting {
     this(1, 10, -1, new ArrayList<String>());
   }
   // L = cands.size()
-  public KOutOfLVoting(int K, int base, int voters, List<String> cands) throws VotingSchemeException {
+
+  public KOutOfLVoting(int K, int base, int voters, List<String> cands) throws
+          VotingSchemeException {
     super(voters, cands);
     this.base = base;
     this.k = K;
     this.l = cands.size();
-    if(!isBaseOK()) {
+    if (!isBaseOK()) {
       // base not valid. cannot create voting scheme
-      throw new VotingSchemeException("Base must be greater than base. "
+      throw new VotingSchemeException("Base must be greater than number of voters. "
               + "Found base = " + base + " and nVoters = " + voters);
     }
   }
@@ -67,8 +68,9 @@ public class KOutOfLVoting extends Voting {
   public int calcMaxM() {
     int i = nrCandidates - k + 1;
     int tot = 0;
-    for( ; i <= nrCandidates; i++)
-      tot += base^(i-1);
+    for (; i <= nrCandidates; i++) {
+      tot += base ^ (i - 1);
+    }
     return tot;
   }
 
@@ -101,11 +103,13 @@ public class KOutOfLVoting extends Voting {
   }
 
   @Override
-  public Ballot createBallot(PublicKey key, int... votes) throws NumberOfVotesException,
+  public Ballot createBallot(PublicKey key, int... votes) throws
+          NumberOfVotesException,
           VotingSchemeException, InvalidKeyException, IOException,
           PaillierException {
-    if(getCipher() == null) { // No cipher associated with voting
-      throw new VotingSchemeException("No encryption algorithm associated with voting scheme");
+    if (getCipher() == null) { // No cipher associated with voting
+      throw new VotingSchemeException(
+              "No encryption algorithm associated with voting scheme");
     }
     if (votes.length > getK()) {
       throw new NumberOfVotesException(
@@ -113,8 +117,8 @@ public class KOutOfLVoting extends Voting {
     }
     Ballot ballot = new Ballot();
     BigInteger vote = BigInteger.ZERO; // assumed blank vote as default vote
-    if(votes.length > 0 && votes[0] != 0) { // non blank vote
-      for(int vv : votes) {
+    if (votes.length > 0 && votes[0] != 0) { // non blank vote
+      for (int vv : votes) {
         vv--; // vote option must be in [0..L-1]
         // vote = b^voteOption
         vote = new BigInteger(Integer.toString(base)).pow(vv);
@@ -137,52 +141,52 @@ public class KOutOfLVoting extends Voting {
   // TODO: the winners are the K candidates with the most votes
   @Override
   public String votingResults(BigInteger tallyDec, int b) {
-    
-        StringBuilder s = new StringBuilder();
+
+    StringBuilder s = new StringBuilder();
 
     // if needed, adds zeros on the left to tallyDec string
-    
+
     int nonBlankVotes = 0;
     String s1 = tallyDec.toString(base);
     int j;
-    int i=0;
-    for(j=2;j>=0;j--){
-        if(j<=(s1.length()-1)){
-            char c = s1.charAt(j);
-            System.out.println(c);
-            int nrVotes = Integer.parseInt(Character.toString(c),base); 
-            nonBlankVotes += nrVotes;
-            s.append(super.candidateNames.get(i)).append(" : ").append(nrVotes).
-              append("\n");
-        }  
-        else{
-            int nrVotes = 0; 
-            s.append(super.candidateNames.get(i)).append(" : ").append(nrVotes).append("\n");
-        }
-        i++;
+    int i = 0;
+    for (j = 2; j >= 0; j--) {
+      if (j <= (s1.length() - 1)) {
+        char c = s1.charAt(j);
+        System.out.println(c);
+        int nrVotes = Integer.parseInt(Character.toString(c), base);
+        nonBlankVotes += nrVotes;
+        s.append(super.candidateNames.get(i)).append(" : ").append(nrVotes).
+                append("\n");
+      }
+      else {
+        int nrVotes = 0;
+        s.append(super.candidateNames.get(i)).append(" : ").append(nrVotes).
+                append("\n");
+      }
+      i++;
     }
-      
+
     /*StringBuilder s = new StringBuilder();
 
-    // if needed, adds zeros on the left to tallyDec string
-    String result = String.format("%0" + (nrCandidates) + "d", tallyDec);
+     // if needed, adds zeros on the left to tallyDec string
+     String result = String.format("%0" + (nrCandidates) + "d", tallyDec);
 
-    s.append("Resultados:\n");
+     s.append("Resultados:\n");
 
-    int nonBlankVotes = 0;
+     int nonBlankVotes = 0;
 
-    for (int i = (nrCandidates - 1), index = 1; i >= 0; i--, index++) {
-      int nVotes = result.charAt(i) - '0'; // http://stackoverflow.com/q/4221225
-      nonBlankVotes += nVotes; // add votes in candidate to the total non blank votes
-      s.append(super.candidateNames.get(index - 1)).append(" : ").append(nVotes).
-              append("\n");
-    }*/
+     for (int i = (nrCandidates - 1), index = 1; i >= 0; i--, index++) {
+     int nVotes = result.charAt(i) - '0'; // http://stackoverflow.com/q/4221225
+     nonBlankVotes += nVotes; // add votes in candidate to the total non blank votes
+     s.append(super.candidateNames.get(index - 1)).append(" : ").append(nVotes).
+     append("\n");
+     }*/
     int blank = votes.size() - nonBlankVotes;
     s.append("TOTAL: ");
     s.append(nonBlankVotes).append(" votos + ").append(blank).append(
             " em branco\n");
-    
+
     return s.toString();
   }
-
 }
