@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package src.org.evoting.schemes;
+package org.evoting.schemes;
 
 import java.io.IOException;
 import java.math.BigInteger;

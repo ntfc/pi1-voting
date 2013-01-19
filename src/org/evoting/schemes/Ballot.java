@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package src.org.evoting.schemes;
+package org.evoting.schemes;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

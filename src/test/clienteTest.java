@@ -2,16 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package src.test;
+package test;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.Socket;
 import java.security.Security;
 import org.cssi.provider.CssiProvider;
-import src.org.evoting.schemes.Ballot;
-import src.org.evoting.schemes.OneOutOfLVoting;
-import src.org.evoting.voter.VoterClient;
+import org.evoting.schemes.Ballot;
+import org.evoting.voter.VoterClient;
 
 /**
  *

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package src.test;
+package test;
 
 import java.math.BigInteger;
 import java.security.KeyPair;
@@ -12,11 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.provider.CssiProvider;
-import src.org.evoting.authority.VotingServer;
-import src.org.evoting.schemes.KOutOfLVoting;
-import src.org.evoting.schemes.OneOutOfLVoting;
-import src.org.evoting.schemes.Voting;
-import src.org.evoting.schemes.YesNoVoting;
+import org.evoting.authority.VotingServer;
+import org.evoting.schemes.OneOutOfLVoting;
+import org.evoting.schemes.Voting;
 
 /**
  *

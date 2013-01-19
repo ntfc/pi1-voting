@@ -3,10 +3,10 @@
  * and open the template in the editor.
  */
 
-package src.test.gui.authority;
+package test.gui.authority;
 
 import java.io.IOException;
-import src.org.evoting.authority.VotingServer;
+import org.evoting.authority.VotingServer;
 
 /**
  *

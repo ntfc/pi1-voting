@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package src.org.evoting.authority;
+package org.evoting.authority;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -17,10 +17,10 @@ import java.util.logging.Logger;
 import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.evoting.exception.VotingSchemeException;
-import src.org.evoting.schemes.KOutOfLVoting;
-import src.org.evoting.schemes.OneOutOfLVoting;
-import src.org.evoting.schemes.Voting;
-import src.org.evoting.schemes.YesNoVoting;
+import org.evoting.schemes.KOutOfLVoting;
+import org.evoting.schemes.OneOutOfLVoting;
+import org.evoting.schemes.Voting;
+import org.evoting.schemes.YesNoVoting;
 
 /**
  *

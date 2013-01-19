@@ -4,7 +4,6 @@
  */
 package test.gui.authority;
 
-import com.sun.corba.se.spi.activation.Server;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
@@ -30,7 +29,6 @@ import org.evoting.schemes.KOutOfLVoting;
 import org.evoting.schemes.OneOutOfLVoting;
 import org.evoting.schemes.Voting;
 import org.evoting.schemes.YesNoVoting;
-import sun.security.util.BigInt;
 import test.gui.CommonMethods;
 
 /**
@@ -252,8 +250,9 @@ public class JAuthorityMain extends javax.swing.JFrame {
           // show voting results
           try {
             BigInteger tally = server.getVoting().tallying(privKey);
-            String res = server.getVoting().votingResults(new PaillierSimple().dec(privKey, tally));
-            JOptionPane.showMessageDialog(rootPane, res);
+            // TODO: fix
+            //String res = server.getVoting().votingResults(new PaillierSimple().dec(privKey, tally));
+            //JOptionPane.showMessageDialog(rootPane, res);
           }
           catch (Exception ex) {
             JOptionPane.showMessageDialog(rootPane, ex.getMessage());
