@@ -47,7 +47,7 @@ public class authTest {
 
 
     //Voting votingType = new OneOutOfLVoting(cands, 14, 16);
-    Voting votingType = new KOutOfLVoting(1, 36, 20, cands);
+    Voting votingType = new KOutOfLVoting(1, 36, 34, cands);
     //Voting votingType = new YesNoVoting(5, "Sim", "Não");
     //Voting votingType = new KOutOfLVoting(2, 10, 3, cands);
 

@@ -62,13 +62,8 @@ public class VotingServer {
                   toString(((KOutOfLVoting) voting).calcMaxT() + 1));
 
           PaillierPublicKey pub = (PaillierPublicKey) keyPair.getPublic();
-          // base > nrVoters
-          if (!((KOutOfLVoting) voting).isBaseOK()) {
-            throw new VotingSchemeException(
-                    "Base must be greater than the number of voters");
-          }
           // n >= Tmax + 1
-          if (!(pub.getN().compareTo(tMaxPlusOne) >= 0)) {
+          if (!((KOutOfLVoting)voting).isModuloNOK(pub.getN())) {
             throw new VotingSchemeException(
                     "Modulo n must be greater or equal than Tmax + 1.");
           }

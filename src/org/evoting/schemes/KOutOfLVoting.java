@@ -40,17 +40,20 @@ public class KOutOfLVoting extends Voting {
   public KOutOfLVoting(int K, int base, int voters, List<String> cands) throws
           VotingSchemeException {
     super(voters, cands);
-    if(base > Character.MAX_RADIX) {
-      throw new VotingSchemeException("base " + base + " "
-              + "greater than Character.MAX_RADIX = " + Character.MAX_RADIX);
-    }
+
     this.base = base;
     this.k = K;
     this.l = cands.size();
-    if (!isBaseOK()) {
+    // base must be greater than nrVoters
+    if (base <= nrVoters) {
       // base not valid. cannot create voting scheme
       throw new VotingSchemeException("Base must be greater than number of voters. "
               + "Found base = " + base + " and nVoters = " + voters);
+    }
+    // base must be smaller or equal than Character.MAX_RADIX (=36)
+    if(base > Character.MAX_RADIX) {
+      throw new VotingSchemeException("base " + base + " "
+              + "greater than Character.MAX_RADIX = " + Character.MAX_RADIX);
     }
   }
 
@@ -84,8 +87,10 @@ public class KOutOfLVoting extends Voting {
     return nrVoters * calcMaxM();
   }
 
-  public boolean isBaseOK() {
-    return base > nrVoters;
+  // n >= Tmax + 1
+  public boolean isModuloNOK(BigInteger n) {
+    BigInteger tMaxPlusOne = new BigInteger(Integer.toString(calcMaxT() + 1));
+    return n.compareTo(tMaxPlusOne) >= 0;
   }
 
   @Override
