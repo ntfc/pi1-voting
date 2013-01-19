@@ -22,6 +22,7 @@ import org.utils.DataStreamUtils;
 public class YesNoVoting extends Voting {
 
   public static final int CODE = 0x74;
+
   /**
    * Used only by the voter
    */
@@ -30,8 +31,10 @@ public class YesNoVoting extends Voting {
   }
 
   /**
-   * Create a new Yes/No voting scheme. <p> The maximum number of voter and the
-   * names of the two candidates must be supplied
+   * Create a new Yes/No voting scheme.
+   * <p>
+   * The maximum number of voter and the names of the two candidates must be
+   * supplied
    *
    * @param voters
    * @param cand1
@@ -49,9 +52,10 @@ public class YesNoVoting extends Voting {
     return CODE;
   }
 
-
   /**
-   * Determine who won this ellection <p> The received tally must be unencrypted
+   * Determine who won this ellection
+   * <p>
+   * The received tally must be unencrypted
    *
    * @param key
    * @param tally
@@ -95,11 +99,13 @@ public class YesNoVoting extends Voting {
   }
 
   @Override
-  public Ballot createBallot(PublicKey key, int... votes) throws NumberOfVotesException,
+  public Ballot createBallot(PublicKey key, int... votes) throws
+          NumberOfVotesException,
           VotingSchemeException, InvalidKeyException, IOException,
           PaillierException {
-    if(getCipher() == null) { // No cipher associated with voting
-      throw new VotingSchemeException("No encryption algorithm associated with voting scheme");
+    if (getCipher() == null) { // No cipher associated with voting
+      throw new VotingSchemeException(
+              "No encryption algorithm associated with voting scheme");
     }
     if (votes.length > 1) {
       throw new NumberOfVotesException(
@@ -114,6 +120,4 @@ public class YesNoVoting extends Voting {
     return ballot;
 
   }
-
-
 }

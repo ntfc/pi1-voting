@@ -44,19 +44,18 @@ public class KOutOfLVoting extends Voting {
     this.base = base;
     this.k = K;
     this.l = cands.size();
-    // base must be greater than nrVoters
-    if (base <= nrVoters) {
-      // base not valid. cannot create voting scheme
-      throw new VotingSchemeException("Base must be greater than number of voters. "
-              + "Found base = " + base + " and nVoters = " + voters);
-    }
-    // base must be smaller or equal than Character.MAX_RADIX (=36)
-    if(base > Character.MAX_RADIX) {
-      throw new VotingSchemeException("base " + base + " "
-              + "greater than Character.MAX_RADIX = " + Character.MAX_RADIX);
-    }
+      // base must be greater than nrVoters
+      if (base <= nrVoters) {
+        // base not valid. cannot create voting scheme
+        throw new VotingSchemeException("Base must be greater than number of voters. "
+                + "Found base = " + base + " and nVoters = " + voters);
+      }
+      // base must be smaller or equal than Character.MAX_RADIX (=36)
+      if(base > Character.MAX_RADIX) {
+        throw new VotingSchemeException("base " + base + " "
+                + "greater than Character.MAX_RADIX = " + Character.MAX_RADIX);
+      }
   }
-
   public int getK() {
     return k;
   }
@@ -152,38 +151,6 @@ public class KOutOfLVoting extends Voting {
   // TODO: the winners are the K candidates with the most votes
   @Override
   public String votingResults(BigInteger tallyDec) {
-
-    /*StringBuilder s = new StringBuilder();
-
-    // if needed, adds zeros on the left to tallyDec string
-
-    int nonBlankVotes = 0;
-    String s1 = tallyDec.toString(base);
-    int j;
-    int i = 0;
-    for (j = 2; j >= 0; j--) {
-      if (j <= (s1.length() - 1)) {
-        char c = s1.charAt(j);
-        System.out.println(c);
-        int nrVotes = Integer.parseInt(Character.toString(c), base);
-        nonBlankVotes += nrVotes;
-        s.append(super.candidateNames.get(i)).append(" : ").append(nrVotes).
-                append("\n");
-      }
-      else {
-        int nrVotes = 0;
-        s.append(super.candidateNames.get(i)).append(" : ").append(nrVotes).
-                append("\n");
-      }
-      i++;
-    }
-
-    int blank = votes.size() - nonBlankVotes;
-    s.append("TOTAL: ");
-    s.append(nonBlankVotes).append(" votos + ").append(blank).append(
-            " em branco\n");
-
-    return s.toString();*/
     StringBuilder s = new StringBuilder("Results\n");
     LOG.log(Level.INFO, "tallyDec = {0}", tallyDec.toString());
     // convert tallyDec from base 10 to base defined in the voting scheme

@@ -27,8 +27,10 @@ import org.evoting.schemes.YesNoVoting;
 import org.utils.DataStreamUtils;
 
 /**
- * Class that defines a voter and its operations <p> TODO: close
- * {@link DataStreamUtils} TODO: support more than just {@link Paillier}
+ * Class that defines a voter and its operations
+ * <p>
+ * TODO: close {@link DataStreamUtils}
+ * TODO: support more than just {@link Paillier}
  *
  */
 public class VoterClient {
@@ -60,23 +62,28 @@ public class VoterClient {
   }
 
   /**
-   * Set up a voting <p> In this method, the voter receive every necessary
-   * information from the authority<br> It receives the voting scheme, the
-   * number of voters and candidates and the {@link PublicKey}
+   * Set up a voting
+   * <p>
+   * In this method, the voter receive every necessary information from the
+   * authority
+   * <br>
+   * It receives the voting scheme, the number of voters and candidates and the
+   * {@link PublicKey}
    *
    * @throws NoSuchAlgorithmException
    * @throws NoSuchProviderException
    * @throws InvalidKeySpecException
    */
   public void setUpVoting() throws NoSuchAlgorithmException,
-          NoSuchProviderException, InvalidKeySpecException, VotingSchemeException {
+          NoSuchProviderException, InvalidKeySpecException,
+          VotingSchemeException {
     // receive voting properties from server
     try {
 
       // first, receive the kind of voting that is taking place
       int votingType = dsu.readInt();
 
-      switch(votingType) {
+      switch (votingType) {
         case YesNoVoting.CODE:
           voting = new YesNoVoting();
           break;
@@ -89,12 +96,12 @@ public class VoterClient {
         default:
           throw new VotingSchemeException("No such voting scheme");
       }
-      
+
       //------- receive voting properties
       voting.readVotingProperties(dsu);
       // TODO: do this in readVotingProperties(); auth send the cipher being used
       voting.setCipher(new PaillierSimple());
-      
+
       //------- receive voting candidates
       voting.readVotingCandidates(dsu);
 
@@ -134,17 +141,19 @@ public class VoterClient {
       if (voting instanceof OneOutOfLVoting) {
         // 1-out-of-L voting
         int base = ((OneOutOfLVoting) getVoting()).getBase();
-        if(voteOption == 0) // blank vote
+        if (voteOption == 0) // blank vote
+        {
           vote = BigInteger.ZERO;
+        }
         else { // vote in C1 is = base^(voteOption-1), voteOption=1
           voteOption--;
           vote = new BigInteger(Integer.toString(base)).pow(voteOption);
         }
       }
       else {
-        if(voting instanceof KOutOfLVoting) {
+        if (voting instanceof KOutOfLVoting) {
           // K-out-of-L voting
-          int base = ((KOutOfLVoting)getVoting()).getBase();
+          int base = ((KOutOfLVoting) getVoting()).getBase();
           // TODO: fazer isto na classe voting
         }
       }
@@ -159,13 +168,13 @@ public class VoterClient {
   }
 
   public void submitBallot(Ballot ballot) throws IOException {
-    if(ballot == null) {
+    if (ballot == null) {
       //TODO: throw exception
     }
     // send number of votes in the ballot
     dsu.writeInt(ballot.getVotes().size());
     // send the votes
-    for(BigInteger v : ballot.getVotes()) {
+    for (BigInteger v : ballot.getVotes()) {
       dsu.writeBigInteger(v);
     }
   }

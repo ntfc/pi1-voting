@@ -35,8 +35,8 @@ public class authTest {
     List<String> cands = new ArrayList<String>();
     cands.add("Antonio");
     cands.add("Jose");
-    cands.add("Carlos");
-    /*cands.add("Zé");
+    /*cands.add("Carlos");
+    cands.add("Zé");
     cands.add("Manuel");
      cands.add("Jesus");
      cands.add("Cristo");
@@ -47,13 +47,13 @@ public class authTest {
 
 
     //Voting votingType = new OneOutOfLVoting(cands, 14, 16);
-    Voting votingType = new KOutOfLVoting(1, 36, 34, cands);
+    //Voting votingType = new KOutOfLVoting(1, 36, 34, cands);
     //Voting votingType = new YesNoVoting(5, "Sim", "Não");
-    //Voting votingType = new KOutOfLVoting(2, 10, 3, cands);
+    Voting votingType = new KOutOfLVoting(1, 10, 11, cands); // Yes/No voting if cands.size = 2
 
     VotingServer votingServer = new VotingServer(votingType, kP);
 
-    votingServer.startVoting(10000, 4545);
+    votingServer.startVoting(5000, 4545);
     BigInteger tally = votingServer.getVoting().tallying(kP.getPrivate());
     //int winner = votingServer.getVoting().winner(kP.getPrivate(), tally);
     System.out.println("Results: " + tally);

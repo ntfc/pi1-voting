@@ -63,7 +63,7 @@ public class VotingServer {
 
           PaillierPublicKey pub = (PaillierPublicKey) keyPair.getPublic();
           // n >= Tmax + 1
-          if (!((KOutOfLVoting)voting).isModuloNOK(pub.getN())) {
+          if (!((KOutOfLVoting) voting).isModuloNOK(pub.getN())) {
             throw new VotingSchemeException(
                     "Modulo n must be greater or equal than Tmax + 1.");
           }
@@ -79,9 +79,10 @@ public class VotingServer {
   }
 
   /**
-   * Starts a new voting <p> This voting ends either when the timeout is
-   * reached, or the number of votes received reachs the maximum allowed defined
-   * in {@link Voting}
+   * Starts a new voting
+   * <p>
+   * This voting ends either when the timeout is reached, or the number of votes
+   * received reachs the maximum allowed defined in {@link Voting}
    *
    * @param timeout
    * @param port
@@ -90,7 +91,7 @@ public class VotingServer {
    * @throws PaillierException
    */
   public void startVoting(int timeout, int port) throws IOException,
-    InvalidKeyException, PaillierException {
+          InvalidKeyException, PaillierException {
     ServerSocket server = new ServerSocket(port);
     // set the server timeout in miliseconds
     server.setSoTimeout(timeout);

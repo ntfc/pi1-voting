@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package org.evoting.exception;
 
 /**
@@ -12,14 +11,16 @@ package org.evoting.exception;
 public class VotingSchemeException extends Exception {
 
   /**
-   * Creates a new instance of <code>VotingSchemeException</code> without detail message.
+   * Creates a new instance of
+   * <code>VotingSchemeException</code> without detail message.
    */
   public VotingSchemeException() {
   }
 
-
   /**
-   * Constructs an instance of <code>VotingSchemeException</code> with the specified detail message.
+   * Constructs an instance of
+   * <code>VotingSchemeException</code> with the specified detail message.
+   * <p/>
    * @param msg the detail message.
    */
   public VotingSchemeException(String msg) {

@@ -19,16 +19,20 @@ import org.evoting.exception.VotingSchemeException;
 import org.utils.DataStreamUtils;
 
 /**
- * Class that defines the basics of a voting scheme <p> Every voting scheme must
- * store the number of candidates, number of voters allowed, a list with the
- * candidate names and the number of received votes <br> TODO: DONT USE A LIST
- * TO STORE CANDIDATE NAMES NOR THE VOTES
+ * Class that defines the basics of a voting scheme
+ * <p>
+ * Every voting scheme must store the number of candidates, number of voters
+ * allowed, a list with the candidate names and the number of received votes
+ * <br>
+ * TODO: DONT USE A LIST TO STORE CANDIDATE NAMES NOR THE VOTES
  *
  * @author miltonnunes52
  */
 public abstract class Voting {
-  /* these variables are protected so that they can be accessible only from the
-   * classes in this package */
+  /*
+   * these variables are protected so that they can be accessible only from the
+   * classes in this package
+   */
 
   protected int nrCandidates; // this is L
   protected int nrVoters;
@@ -149,12 +153,14 @@ public abstract class Voting {
   }
 
   /**
-   * Send the voting properties to the voter. <p> All voting schemes must send
-   * the properties associated with itself. For example, in {@link YesNoVoting}
-   * there are no properties to send. But in {@link OneOutOfLVoting} the
-   * authority must send the base number. In more complex schemes there may be
-   * even more properties to send <br> NOTE: this method must be only used by
-   * the authority
+   * Send the voting properties to the voter.
+   * <p>
+   * All voting schemes must send the properties associated with itself. For
+   * example, in {@link YesNoVoting} there are no properties to send. But in
+   * {@link OneOutOfLVoting} the authority must send the base number. In more
+   * complex schemes there may be even more properties to send
+   * <br>
+   * NOTE: this method must be only used by the authority
    *
    * @param dsu
    * @throws IOException
@@ -163,9 +169,11 @@ public abstract class Voting {
           IOException;
 
   /**
-   * Read the voting properties sent by the authority <p> Every voter must read
-   * the voting properties from the authority <br> NOTE: * NOTE: this method
-   * must be only used by the voters
+   * Read the voting properties sent by the authority
+   * <p>
+   * Every voter must read the voting properties from the authority
+   * <br>
+   * NOTE: this method must be only used by the voters
    *
    * @param dsu
    * @throws IOException
@@ -175,10 +183,12 @@ public abstract class Voting {
           IOException;
 
   /**
-   * Send the candidates to the voter <p> In order to vote, every voter must
-   * know that the options are. This method sends the number of candidates and
-   * the and their names <br> NOTE: this method must be only used by the
-   * authority
+   * Send the candidates to the voter
+   * <p>
+   * In order to vote, every voter must know that the options are. This method
+   * sends the number of candidates and the and their names
+   * <br>
+   * NOTE: this method must be only used by the authority
    *
    * @param dsu
    * @throws IOException
@@ -193,8 +203,11 @@ public abstract class Voting {
   }
 
   /**
-   * Read the candidates info <p> Receives and assigns the number of candidates
-   * and their names <br> NOTE: this method must be only used by the voters
+   * Read the candidates info
+   * <p>
+   * Receives and assigns the number of candidates and their names
+   * <br>
+   * NOTE: this method must be only used by the voters
    *
    * @param dsu
    * @throws IOException
@@ -211,7 +224,8 @@ public abstract class Voting {
 
   /**
    * Receive the ballot from the voter and add it to the list of received votes
-   * <p> NOTE: the votes in the ballot must already be encrypted!!
+   * <p>
+   * NOTE: the votes in the ballot must already be encrypted!!
    *
    * @param vote
    * @return
@@ -222,8 +236,9 @@ public abstract class Voting {
   }
 
   /**
-   * Multiply all votes received and returned the tally <p> NOTE: Tally is not
-   * decrypted!!!
+   * Multiply all votes received and returned the tally
+   * <p>
+   * NOTE: Tally is not decrypted!!!
    *
    * @param key
    * @return The unencrypted tally of all votes
@@ -241,7 +256,9 @@ public abstract class Voting {
   }
 
   /**
-   * Determine who the winner of the voting was <p> TODO: considere the tie case
+   * Determine who the winner of the voting was
+   * <p>
+   * TODO: considere the tie case
    * TODO: implement it on all subclasses
    *
    * @param key
@@ -254,8 +271,9 @@ public abstract class Voting {
           PaillierException, InvalidKeyException;
 
   /**
-   * Creates a String with the voting results <p> In the voting results we can
-   * see how many votes each candidate got
+   * Creates a String with the voting results
+   * <p>
+   * In the voting results we can see how many votes each candidate got
    *
    * @param tally
    * @return
@@ -266,8 +284,9 @@ public abstract class Voting {
    * Receive a vote (or K votes) and creates a ballot
    * <p>
    * Each subclass must make sure the number of votes are lesser or equal than
-   * the maximum number of votes allowed (on Yes/No, maximum is 1 and on K-out-of-L
-   * maximum is K)
+   * the maximum number of votes allowed (on Yes/No, maximum is 1 and on
+   * K-out-of-L maximum is K)
+   * <p/>
    * @param key
    * @param votes
    * @throws NumberOfVotesException

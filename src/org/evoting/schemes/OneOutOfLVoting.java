@@ -21,6 +21,7 @@ import org.utils.DataStreamUtils;
  *
  * @author nc
  */
+@Deprecated
 public class OneOutOfLVoting extends Voting {
 
   public static final int CODE = 0x52;
