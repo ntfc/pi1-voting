@@ -260,7 +260,7 @@ public abstract class Voting {
    * @param tally
    * @return
    */
-  public abstract String votingResults(BigInteger tallyDec,int base);
+  public abstract String votingResults(BigInteger tallyDec);
 
   /**
    * Receive a vote (or K votes) and creates a ballot

@@ -155,7 +155,7 @@ public class OneOutOfLVoting extends Voting {
    */
 
   @Override
-  public String votingResults(BigInteger tallyDec, int base) {
+  public String votingResults(BigInteger tallyDec) {
     StringBuilder s = new StringBuilder();
 
     // if needed, adds zeros on the left to tallyDec string

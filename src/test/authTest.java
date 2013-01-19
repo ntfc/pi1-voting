@@ -37,7 +37,7 @@ public class authTest {
     cands.add("Jose");
     cands.add("Carlos");
     /*cands.add("Zé");
-     cands.add("Manuel");
+    cands.add("Manuel");
      cands.add("Jesus");
      cands.add("Cristo");
      cands.add("Nuno");
@@ -46,8 +46,8 @@ public class authTest {
      cands.add("Deus");*/
 
 
-    Voting votingType = new OneOutOfLVoting(cands, 14, 16);
-    //Voting votingType = new KOutOfLVoting(1, 14, 10, cands);
+    //Voting votingType = new OneOutOfLVoting(cands, 14, 16);
+    Voting votingType = new KOutOfLVoting(1, 36, 20, cands);
     //Voting votingType = new YesNoVoting(5, "Sim", "Não");
     //Voting votingType = new KOutOfLVoting(2, 10, 3, cands);
 
@@ -68,6 +68,6 @@ public class authTest {
 //    int base = ((OneOutOfLVoting)votingType).getBase();
 //    System.out.println("Tally base " + base + ": " + tallyDec.toString(base));
 
-    System.out.println(votingType.votingResults(tallyDec, 16));
+    System.out.println(votingType.votingResults(tallyDec));
   }
 }

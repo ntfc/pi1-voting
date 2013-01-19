@@ -80,7 +80,7 @@ public class YesNoVoting extends Voting {
   }
 
   @Override
-  public String votingResults(BigInteger tally, int b) {
+  public String votingResults(BigInteger tally) {
     return "Finish votingResults()";
   }
 
