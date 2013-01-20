@@ -74,6 +74,18 @@ public class KOutOfLVoting extends Voting {
     l = dsu.readInt();
   }
 
+  /**
+   * Create a {@link Ballot} for the voter.
+   *
+   * @param key
+   * @param votes The candidates in which the voter voted
+   * @return
+   * @throws NumberOfVotesException
+   * @throws VotingSchemeException
+   * @throws InvalidKeyException
+   * @throws IOException
+   * @throws PaillierException
+   */
   @Override
   public Ballot createBallot(PublicKey key, int... votes) throws
           NumberOfVotesException,

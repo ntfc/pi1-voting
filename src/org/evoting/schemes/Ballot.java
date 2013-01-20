@@ -6,14 +6,11 @@
 package org.evoting.schemes;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 /**
- *
+ * This class implements the ballot that each voter sends to the authority.
  * @author nc
  */
 public class Ballot {
@@ -22,7 +19,7 @@ public class Ballot {
   public Ballot() {
     this.votes = new TreeMap<Integer, BigInteger>();
   }
-  
+
   public BigInteger getCandidateVote(int cand) {
     return this.votes.get(cand);
   }

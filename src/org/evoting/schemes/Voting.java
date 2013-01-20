@@ -286,11 +286,7 @@ public abstract class Voting {
 
   /**
    * Receive a vote (or K votes) and creates a ballot
-   * <p>
-   * Each subclass must make sure the number of votes are lesser or equal than
-   * the maximum number of votes allowed (on Yes/No, maximum is 1 and on
-   * K-out-of-L maximum is K)
-   * <p/>
+   * 
    * @param key
    * @param votes
    * @throws NumberOfVotesException
