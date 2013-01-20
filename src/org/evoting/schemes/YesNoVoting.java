@@ -111,8 +111,7 @@ public class YesNoVoting extends Voting {
       throw new NumberOfVotesException(
               "Maximum number of votes allowed in Yes/No voting is one.");
     }
-    // TODO: allow blank votes
-    // TODO: consider Yes/No voting as 1-out-of-2 Voting?
+    // TODO: allow blank votes or just count yes votes?
     BigInteger vote = new BigInteger(Integer.toString(votes[0]));
 
     Ballot ballot = new Ballot();

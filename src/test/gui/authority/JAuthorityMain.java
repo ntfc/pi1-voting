@@ -255,9 +255,9 @@ public class JAuthorityMain extends javax.swing.JFrame {
             if(!(v instanceof YesNoVoting)) {
               String res = null;
               if(v instanceof OneOutOfLVoting)
-                res = v.votingResults(new PaillierSimple().dec(privKey, tally), ((OneOutOfLVoting)v).getBase());
+                res = v.votingResults(new PaillierSimple().dec(privKey, tally));
               else
-                res = v.votingResults(new PaillierSimple().dec(privKey, tally), ((OneOutOfLVoting)v).getBase());
+                res = v.votingResults(new PaillierSimple().dec(privKey, tally));
               JOptionPane.showMessageDialog(rootPane, res);
             }
             
