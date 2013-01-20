@@ -6,6 +6,7 @@ package test;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,7 +30,6 @@ public class test {
     // convert tallyDec from base 10 to base defined in the voting scheme
     String tallyBase = tallyDec.toString(base);
     LOG.log(Level.INFO, "tally base {0} = {1}", new Object[]{base, tallyBase});
-    
     // add zeros
     String tallyBaseStr = paddingZeros(tallyBase, L);
 
@@ -75,7 +75,8 @@ public class test {
     cands.add("E");
     String s = results();
     System.out.println(s);
-
+    BigInteger a = new BigInteger("546");
+    System.out.println(a.byteValue());
 
 
 
