@@ -245,12 +245,16 @@ public abstract class Voting {
    * @throws InvalidKeyException
    * @throws PaillierException
    */
-  public BigInteger tallying(PrivateKey key) throws InvalidKeyException,
-          PaillierException {
+  public BigInteger tallying(PrivateKey key, int candIndex) throws InvalidKeyException,
+          PaillierException,
+          VotingSchemeException {
+    if(candIndex >= nrCandidates) {
+      throw new VotingSchemeException("Candidate index must be between 0 and nrCandidates-1");
+    }
     BigInteger mult = BigInteger.ONE;
     BigInteger nSquare = ((PaillierPrivateKey) key).getN().pow(2);
     for (Ballot ballot : this.votes) {
-      mult = mult.multiply(ballot.tally());
+      mult = mult.multiply(ballot.getCandidateVote(candIndex));
     }
     return mult.mod(nSquare);
   }

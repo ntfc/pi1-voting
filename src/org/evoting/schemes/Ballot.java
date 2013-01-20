@@ -8,39 +8,38 @@ package org.evoting.schemes;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  *
  * @author nc
  */
 public class Ballot {
-  private List<BigInteger> votes;
+  private Map<Integer, BigInteger> votes; // candidate -> vote
 
   public Ballot() {
-    this.votes = new ArrayList<BigInteger>();
+    this.votes = new TreeMap<Integer, BigInteger>();
   }
-  public Ballot(List<BigInteger> votes) {
-    this.votes = votes;
-  }
-
-  public List<BigInteger> getVotes() {
-    return votes;
+  
+  public BigInteger getCandidateVote(int cand) {
+    return this.votes.get(cand);
   }
 
-  public boolean addVote(BigInteger vote) {
-    return this.votes.add(vote);
+  public boolean containsVote(int cand) {
+    return this.votes.containsKey(cand);
   }
 
-  /*public BigInteger tally() {
-    BigInteger mult = BigInteger.ONE;
-    for(BigInteger bb : this.votes) {
-      mult = mult.multiply(bb);
-    }
-    return mult;
+  /**
+   * Add a encrypted vote to the bulletin
+   * <p>
+   * Vote must come already encrypted
+   * @param index
+   * @param voteEnc
+   * @return
+   */
+  public BigInteger addVote(int index, BigInteger voteEnc) {
+    return this.votes.put(index, voteEnc);
   }
-
-  public BigInteger tally(BigInteger nSquare) {
-    return tally().mod(nSquare);
-  }*/
-
 }
