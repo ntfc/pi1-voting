@@ -89,7 +89,6 @@ public class KOutOfLVoting extends Voting {
               "Maximum number of votes allowed in K-out-of-L is K.");
     }
     Ballot ballot = new Ballot();
-    
     // add the options choosen by the voter
     for(int vv : votes) {
       vv--; // voting option must be in [0..L-1]
@@ -103,6 +102,7 @@ public class KOutOfLVoting extends Voting {
       if(!ballot.containsVote(i)) {
         // add blank vote
         BigInteger blank = getCipher().enc(key, BigInteger.ZERO, new SecureRandom());
+        ballot.addVote(i, blank);
       }
     }
     return ballot;
