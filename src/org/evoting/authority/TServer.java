@@ -61,7 +61,7 @@ public class TServer extends Thread {
         dsu.writeBytes(pubKey.getEncoded());
         System.out.println("Sent public key" + pubKey.getAlgorithm());
         // receive ballot
-        Ballot ballot = new Ballot();
+        Ballot ballot = new Ballot(voting.getNrCandidates());
         for(int i = 0; i < voting.getNrCandidates(); i++) {
           ballot.addVote(i, dsu.readBigInteger());
         }

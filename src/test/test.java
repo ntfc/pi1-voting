@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import org.cssi.numbers.CryptoNumbers;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.cssi.provider.CssiProvider;
+import org.evoting.schemes.Ballot;
 import org.evoting.zkp.NZKP;
 
 /**
@@ -95,5 +96,8 @@ public class test {
 
     System.out.println(proof.verify(pub));
 
+    Ballot b = new Ballot(2);
+    b.addVote(0, BigInteger.ONE);
+    System.out.println(b.getCandidateVote(1));
   }
 }

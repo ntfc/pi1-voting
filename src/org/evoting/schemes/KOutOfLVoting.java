@@ -12,7 +12,6 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cssi.paillier.cipher.PaillierException;
 import org.evoting.exception.NumberOfVotesException;
@@ -100,7 +99,7 @@ public class KOutOfLVoting extends Voting {
       throw new NumberOfVotesException(
               "Maximum number of votes allowed in K-out-of-L is K.");
     }
-    Ballot ballot = new Ballot();
+    Ballot ballot = new Ballot(nrCandidates);
     // add the options choosen by the voter
     for(int vv : votes) {
       vv--; // voting option must be in [0..L-1]
@@ -111,7 +110,8 @@ public class KOutOfLVoting extends Voting {
     }
     // the other options are blank = 0
     for(int i = 0; i < nrCandidates; i++) {
-      if(!ballot.containsVote(i)) {
+      // no vote registered for candidate i
+      if(ballot.getCandidateVote(i) == null) {
         // add blank vote
         BigInteger blank = getCipher().enc(key, BigInteger.ZERO, new SecureRandom());
         ballot.addVote(i, blank);
