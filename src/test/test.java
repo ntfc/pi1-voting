@@ -5,11 +5,20 @@
 package test;
 
 import java.math.BigInteger;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.cssi.numbers.CryptoNumbers;
+import org.cssi.paillier.interfaces.PaillierPublicKey;
+import org.cssi.provider.CssiProvider;
+import org.evoting.zkp.NZKP;
 
 /**
  *
@@ -67,18 +76,24 @@ public class test {
     return sb.toString();
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     cands.add("A");
     cands.add("B");
     cands.add("C");
     cands.add("D");
     cands.add("E");
-    String s = results();
-    System.out.println(s);
-    BigInteger a = new BigInteger("546");
-    System.out.println(a.byteValue());
+//    String s = results();
+//    System.out.println(s);
+    Security.addProvider(new CssiProvider());
+    // Generate keys
+    KeyPairGenerator kGen = KeyPairGenerator.getInstance("Paillier", "CSSI");
+    KeyPair kP = kGen.generateKeyPair();
 
+    PaillierPublicKey pub = (PaillierPublicKey) kP.getPublic();
+    BigInteger m = BigInteger.valueOf(1);
+    NZKP proof = new NZKP(pub, m);
 
+    System.out.println(proof.verify(pub));
 
   }
 }
