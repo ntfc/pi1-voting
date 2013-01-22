@@ -7,23 +7,18 @@ package org.evoting.voter;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Socket;
-import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import org.cssi.paillier.cipher.Paillier;
-import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.paillier.spec.PaillierPublicKeyBetaSpec;
 import org.evoting.exception.VotingSchemeException;
 import org.evoting.schemes.Ballot;
 import org.evoting.schemes.KOutOfLVoting;
-import org.evoting.schemes.OneOutOfLVoting;
 import org.evoting.schemes.Voting;
-import org.evoting.schemes.YesNoVoting;
 import org.utils.DataStreamUtils;
 
 /**
@@ -84,12 +79,6 @@ public class VoterClient {
       int votingType = dsu.readInt();
 
       switch (votingType) {
-        case YesNoVoting.CODE:
-          voting = new YesNoVoting();
-          break;
-        case OneOutOfLVoting.CODE:
-          voting = new OneOutOfLVoting();
-          break;
         case KOutOfLVoting.CODE:
           voting = new KOutOfLVoting();
           break;
@@ -119,63 +108,15 @@ public class VoterClient {
     }
   }
 
-  /**
-   * Submits the client vote
-   *
-   * @param voteOption From 0 to nrCandidates. 0 is blank vote
-   */
-  @Deprecated
-  public void vote(Integer voteOption) throws IOException, PaillierException,
-          InvalidKeyException, VotingSchemeException {
-    // TODO: move this method to Voting, as abstract? Maybe not..
-    BigInteger vote = null;
-    if (voting == null) {
-      throw new VotingSchemeException("No voting scheme defined");
-    }
-
-    if (voting instanceof YesNoVoting) {
-      // yes/no voting
-      vote = new BigInteger(Integer.toString(voteOption));
-    }
-    else {
-      if (voting instanceof OneOutOfLVoting) {
-        // 1-out-of-L voting
-        int base = ((OneOutOfLVoting) getVoting()).getBase();
-        if (voteOption == 0) // blank vote
-        {
-          vote = BigInteger.ZERO;
-        }
-        else { // vote in C1 is = base^(voteOption-1), voteOption=1
-          voteOption--;
-          vote = new BigInteger(Integer.toString(base)).pow(voteOption);
-        }
-      }
-      else {
-        if (voting instanceof KOutOfLVoting) {
-          // K-out-of-L voting
-          int base = ((KOutOfLVoting) getVoting()).getBase();
-          // TODO: fazer isto na classe voting
-        }
-      }
-    }
-    // encrypt the vote
-    BigInteger c = this.paillier.enc(publicKey, vote, new SecureRandom());
-    System.out.println("Vote: " + vote);
-    System.out.println("Vote enc: " + c);
-    // send vote
-    dsu.writeBigInteger(c);
-
-  }
-
   public void submitBallot(Ballot ballot) throws IOException {
     if (ballot == null) {
       //TODO: throw exception
     }
-    // send number of votes in the ballot
-    dsu.writeInt(ballot.getVotes().size());
     // send the votes
-    for (BigInteger v : ballot.getVotes()) {
-      dsu.writeBigInteger(v);
+    // number of votes is always equal to the number of candidates
+
+    for (int i = 0; i < voting.getNrCandidates(); i++) {
+      dsu.writeBigInteger(ballot.getCandidateVote(i));
     }
   }
 }

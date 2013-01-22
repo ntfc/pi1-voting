@@ -6,41 +6,34 @@
 package org.evoting.schemes;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- *
+ * This class implements the ballot that each voter sends to the authority.
  * @author nc
  */
 public class Ballot {
-  private List<BigInteger> votes;
+  BigInteger[] votes;
 
-  public Ballot() {
-    this.votes = new ArrayList<BigInteger>();
-  }
-  public Ballot(List<BigInteger> votes) {
-    this.votes = votes;
+  public Ballot(int nrCands) {
+    this.votes = new BigInteger[nrCands];
   }
 
-  public List<BigInteger> getVotes() {
-    return votes;
-  }
-
-  public boolean addVote(BigInteger vote) {
-    return this.votes.add(vote);
-  }
-
-  public BigInteger tally() {
-    BigInteger mult = BigInteger.ONE;
-    for(BigInteger bb : this.votes) {
-      mult = mult.multiply(bb);
+  public BigInteger getCandidateVote(int cand) {
+    if(cand >= votes.length) {
+      return null;
     }
-    return mult;
+    return this.votes[cand];
   }
 
-  public BigInteger tally(BigInteger nSquare) {
-    return tally().mod(nSquare);
+  /**
+   * Add a encrypted vote to the bulletin
+   * <p>
+   * Vote must come already encrypted
+   * @param index
+   * @param voteEnc
+   * @return
+   */
+  public void addVote(int index, BigInteger voteEnc) {
+    this.votes[index] = voteEnc;
   }
-
 }

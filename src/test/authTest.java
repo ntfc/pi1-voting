@@ -14,7 +14,6 @@ import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.provider.CssiProvider;
 import org.evoting.authority.VotingServer;
 import org.evoting.schemes.KOutOfLVoting;
-import org.evoting.schemes.OneOutOfLVoting;
 import org.evoting.schemes.Voting;
 
 /**
@@ -35,10 +34,10 @@ public class authTest {
     List<String> cands = new ArrayList<String>();
     cands.add("Antonio");
     cands.add("Jose");
-    /*cands.add("Carlos");
+    cands.add("Carlos");
     cands.add("Zé");
     cands.add("Manuel");
-     cands.add("Jesus");
+   /*  cands.add("Jesus");
      cands.add("Cristo");
      cands.add("Nuno");
      cands.add("Rafael");
@@ -47,27 +46,32 @@ public class authTest {
 
 
     //Voting votingType = new OneOutOfLVoting(cands, 14, 16);
-    //Voting votingType = new KOutOfLVoting(1, 36, 34, cands);
+    Voting votingType = new KOutOfLVoting(1, 300, cands);
     //Voting votingType = new YesNoVoting(5, "Sim", "Não");
-    Voting votingType = new KOutOfLVoting(1, 10, 11, cands); // Yes/No voting if cands.size = 2
+    //Voting votingType = new KOutOfLVoting(1, 10, 11, cands); // Yes/No voting if cands.size = 2
 
     VotingServer votingServer = new VotingServer(votingType, kP);
 
     votingServer.startVoting(5000, 4545);
-    BigInteger tally = votingServer.getVoting().tallying(kP.getPrivate());
+    //BigInteger tally = votingServer.getVoting().tallying(kP.getPrivate());
+    for(int i = 0; i < cands.size(); i++) {
+      BigInteger tallyI = votingType.tallying(kP.getPrivate(), i);
+      System.err.println("Tally of candidate " + i + ": " + tallyI);
+      System.err.println("Tally dec: " + new PaillierSimple().dec(kP.getPrivate(), tallyI));
+    }
     //int winner = votingServer.getVoting().winner(kP.getPrivate(), tally);
-    System.out.println("Results: " + tally);
-    System.out.println("Total votes: " + votingServer.getVoting().totalVotes());
+    //System.out.println("Results: " + tally);
+    //System.out.println("Total votes: " + votingServer.getVoting().totalVotes());
 
     /*int winner = votingServer.getVoting().winner(kP.getPrivate(), tally);
      System.out.println("Winner: " + winner + " (" + votingServer.getVoting().
      getCandidateNames().get(winner) + ")");*/
 
-    BigInteger tallyDec = new PaillierSimple().dec(kP.getPrivate(), tally);
-    System.out.println("Tally dec: " + tallyDec);
+    //BigInteger tallyDec = new PaillierSimple().dec(kP.getPrivate(), tally);
+    //System.out.println("Tally dec: " + tallyDec);
 //    int base = ((OneOutOfLVoting)votingType).getBase();
 //    System.out.println("Tally base " + base + ": " + tallyDec.toString(base));
 
-    System.out.println(votingType.votingResults(tallyDec));
+    //System.out.println(votingType.votingResults(tallyDec));
   }
 }

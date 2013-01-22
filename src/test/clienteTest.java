@@ -19,15 +19,17 @@ public class clienteTest implements Runnable {
   /**
    * @param args the command line arguments
    */
-  int vote;
+  int vote1, vote2;
 
-  public clienteTest(int vote) {
-    this.vote = vote;
+  public clienteTest(int vote1, int vote2) {
+    Security.addProvider(new CssiProvider());
+    this.vote1 = vote1;
+    this.vote2 = vote2;
   }
 
   public void run() {
     try {
-      Security.addProvider(new CssiProvider());
+      
       VoterClient client = new VoterClient(new Socket("localhost", 4545));
       // receive voting properties from authority like candidate names, base, etc
       client.setUpVoting();
@@ -37,21 +39,20 @@ public class clienteTest implements Runnable {
       for (String cand : client.getVoting().getCandidateNames()) {
         System.out.println((i++) + ": " + cand);
       }
-      //String option;
-      //BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-      //option = stdIn.readLine();
-
-
-      // if (option.isEmpty()) {
-      //   option = "0";
-      //}
-      int optionInt = vote; //Integer.valueOf(option);
-      //Vote
-      //client.vote(optionInt);
-      Ballot ballot = client.getVoting().createBallot(client.getPublicKey(),
-                                                      optionInt);
+      
+      Ballot ballot;
+      if(vote1 != vote2) {
+        ballot = client.getVoting().createBallot(client.getPublicKey(),
+                                                      vote1, vote2);
+        System.out.println("Voted for: " + vote1 + ", " + vote2);
+      }
+      else {
+        ballot = client.getVoting().createBallot(client.getPublicKey(),vote1);
+        System.out.println("Voted for: " + vote1);
+      }
+      
       client.submitBallot(ballot);
-      System.out.println("Voted for: " + optionInt);
+      
     }
     catch (Exception e) {
     }
