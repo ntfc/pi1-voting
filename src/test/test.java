@@ -136,15 +136,16 @@ public class test {
 
 
 
-    // prove that u_k is an n-th power
+    // prove that u_k is an n-th power IFF k == i
     // --
     // -- i = 0; k = 2 ========>>>> i != k
-
+    //BigInteger u0 = v0.divide(g.modPow(BigInteger.ONE, nSquare)).mod(nSquare);
+    BigInteger u0 = v0.divide(g.pow(1)).mod(nSquare);
     // -- i = 1; k = 2 ========>>>> i != k
-
+    BigInteger u1 = v1.divide(g.modPow(BigInteger.ZERO, nSquare)).mod(nSquare);
     // -- i = 2; k = 2 ========>>>> i == k
     // u_i = v_i / g^m_k
-    BigInteger u2 = v2.divide(g.modPow(BigInteger.ZERO, nSquare)).mod(nSquare); // m2 = 0
+    BigInteger u2 = v2.divide(g.modPow(BigInteger.ZERO, nSquare)).mod(nSquare);
 
 
     BigInteger w = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
@@ -169,7 +170,7 @@ public class test {
     // e_i of length b IFF k == i
     // 2^b < min(p,q)
     // e_i < 2^b
-    BigInteger e2 = new BigInteger(b, new SecureRandom());
+    BigInteger e2 = CryptoNumbers.genRandomNumber(b, new SecureRandom());
 
     // --- prover computes z_
     // --
@@ -193,7 +194,20 @@ public class test {
     // z_i^n = a_i * u_i^(e_i) mod n^2
     BigInteger z2POWn = a2.mod(nSquare).multiply(u2.modPow(e2, nSquare)).mod(nSquare);
     System.out.println("verification = " + (z2.modPow(n, nSquare).compareTo(z2POWn) == 0));
-    
+
+    // -- k != i
+    // proves chooses  z_k and random e_k
+    // z_k = Z_n^*
+    // e_k < 2^b
+    BigInteger z0 = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
+    BigInteger e0 = new BigInteger(b, new SecureRandom());
+
+    BigInteger z1 = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
+    BigInteger e1 = CryptoNumbers.genRandomNumber(b, new SecureRandom());
+
+    // commitment
+    // prover computes a_k
+    BigInteger a0 = z0.modPow(n, nSquare).divide(u0.modPow(e0, nSquare));
     
   }
 }
