@@ -13,6 +13,7 @@ import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cssi.numbers.CryptoNumbers;
@@ -124,6 +125,10 @@ public class test {
     BigInteger r1 = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
     BigInteger r2 = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
 
+    BigInteger m0 = BigInteger.ONE;
+    BigInteger m1 = BigInteger.ZERO;
+    BigInteger m2 = BigInteger.ZERO;
+    
     BigInteger v0 = paillier.enc(pub, BigInteger.ONE, r0);
     BigInteger v1 = paillier.enc(pub, BigInteger.ZERO, r1);
     BigInteger v2 = paillier.enc(pub, BigInteger.ZERO, r2);
@@ -138,17 +143,31 @@ public class test {
 
     // prove that u_k is an n-th power IFF k == i
     // --
-    // -- i = 0; k = 2 ========>>>> i != k
-    //BigInteger u0 = v0.divide(g.modPow(BigInteger.ONE, nSquare)).mod(nSquare);
-    BigInteger u0 = v0.divide(g.pow(1)).mod(nSquare);
-    // -- i = 1; k = 2 ========>>>> i != k
-    BigInteger u1 = v1.divide(g.modPow(BigInteger.ZERO, nSquare)).mod(nSquare);
+    BigInteger tmp00[] = v0.divideAndRemainder(g.pow(m0.intValue()));
+    BigInteger u0;
+    System.err.println("tmp00 = " + Arrays.toString(tmp00));
+    if(tmp00[0].compareTo(BigInteger.ZERO) == 0 || tmp00[0].compareTo(BigInteger.ONE) == 0)
+      u0 = tmp00[1].mod(nSquare);
+    else
+      u0 = tmp00[0].mod(nSquare);
+    BigInteger tmp10[] = v1.divideAndRemainder(g.pow(m1.intValue()));
+    BigInteger u1;
+    System.err.println("tmp10 = " + Arrays.toString(tmp10));
+    if(tmp10[0].compareTo(BigInteger.ZERO) == 0 || tmp10[0].compareTo(BigInteger.ONE) == 0)
+      u1 = tmp10[1].mod(nSquare);
+    else
+      u1 = tmp10[0].mod(nSquare);
     // -- i = 2; k = 2 ========>>>> i == k
     // u_i = v_i / g^m_k
     BigInteger u2 = v2.divide(g.modPow(BigInteger.ZERO, nSquare)).mod(nSquare);
 
+    System.err.println("u0 = " + u0);
+    System.err.println("u1 = " + u1);
+    System.err.println("u2 = " + u2);
 
+    
     BigInteger w = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
+
     // --- prover generates commitment
     // --
     // -- i = 0; k = 2 ========>>>> i != k
@@ -193,21 +212,41 @@ public class test {
     // z_i recebido do prover
     // z_i^n = a_i * u_i^(e_i) mod n^2
     BigInteger z2POWn = a2.mod(nSquare).multiply(u2.modPow(e2, nSquare)).mod(nSquare);
-    System.out.println("verification = " + (z2.modPow(n, nSquare).compareTo(z2POWn) == 0));
+    System.out.println("verification z2 k==i = " + (z2.modPow(n, nSquare).compareTo(z2POWn) == 0));
+
+    
+
+    System.err.println("b = " + b);
+    BigInteger b2 = BigInteger.valueOf(2).pow(b);
+    System.err.println("2^b = " + b2);
 
     // -- k != i
     // proves chooses  z_k and random e_k
     // z_k = Z_n^*
     // e_k < 2^b
     BigInteger z0 = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
-    BigInteger e0 = new BigInteger(b, new SecureRandom());
-
+    BigInteger e0 = CryptoNumbers.genRandomNumber(b, new SecureRandom());
+    System.err.println("e0 = " + e0 + ", length = " + e0.bitLength());
     BigInteger z1 = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
     BigInteger e1 = CryptoNumbers.genRandomNumber(b, new SecureRandom());
+    System.err.println("e1 = " + e1 + ", length = " + e1.bitLength());
 
     // commitment
     // prover computes a_k
+    // a_k = z_k^n / u_k^(e_k) mod n^2
     BigInteger a0 = z0.modPow(n, nSquare).divide(u0.modPow(e0, nSquare));
-    
+    BigInteger a1 = z1.modPow(n, nSquare).divide(u1.modPow(e1, nSquare));
+
+
+    // verifier challenge
+    BigInteger ee = CryptoNumbers.genRandomNumber(b, new SecureRandom());
+
+    // response. prover sends zk and ek
+
+    // verification
+    BigInteger z0POWn = a0.multiply(u0.modPow(e0, nSquare));
+    BigInteger z1POWn = a1.multiply(u1.modPow(e1, nSquare));
+    System.out.println("verification z0 k!=i = " + (z0.modPow(n, nSquare).compareTo(z0POWn) == 0));
+    System.out.println("verification z1 k!=i = " + (z1.modPow(n, nSquare).compareTo(z1POWn) == 0));
   }
 }
