@@ -134,14 +134,17 @@ public class test {
     BigInteger v2 = paillier.enc(pub, BigInteger.ZERO, r2);
     // interactive ZKP
     int b = 5; // random small integer
-    L = 3;
+    L = 2;
     // k = 0 .. L-1
     Ballot ballot = new Ballot(L); // B = < 1, 0, 0>
-    ballot.addVote(0, v0); ballot.addVote(1, v1); ballot.addVote(2, v2);
+    ballot.addVote(0, v0); ballot.addVote(1, v1);
 
 
+    BigInteger E1 = paillier.enc(pub, BigInteger.ONE, r1);
+    BigInteger E2 = paillier.enc(pub, BigInteger.ZERO, r2);
 
-    // prove that u_k is an n-th power IFF k == i
+
+    /*// prove that u_k is an n-th power IFF k == i
     // --
     BigInteger tmp00[] = v0.divideAndRemainder(g.pow(m0.intValue()));
     BigInteger u0;
@@ -247,6 +250,6 @@ public class test {
     BigInteger z0POWn = a0.multiply(u0.modPow(e0, nSquare));
     BigInteger z1POWn = a1.multiply(u1.modPow(e1, nSquare));
     System.out.println("verification z0 k!=i = " + (z0.modPow(n, nSquare).compareTo(z0POWn) == 0));
-    System.out.println("verification z1 k!=i = " + (z1.modPow(n, nSquare).compareTo(z1POWn) == 0));
+    System.out.println("verification z1 k!=i = " + (z1.modPow(n, nSquare).compareTo(z1POWn) == 0));*/
   }
 }
