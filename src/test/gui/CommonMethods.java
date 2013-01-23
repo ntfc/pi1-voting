@@ -15,9 +15,7 @@ import javax.swing.JComboBox;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.evoting.exception.VotingSchemeException;
 import org.evoting.schemes.KOutOfLVoting;
-import org.evoting.schemes.OneOutOfLVoting;
 import org.evoting.schemes.Voting;
-import org.evoting.schemes.YesNoVoting;
 
 /**
  *
@@ -25,14 +23,6 @@ import org.evoting.schemes.YesNoVoting;
  */
 public class CommonMethods {
 
-  public static String[] votingSchemes() {
-    String[] schemes = new String[]{
-      org.evoting.schemes.YesNoVoting.class.getSimpleName(),
-      org.evoting.schemes.OneOutOfLVoting.class.getSimpleName(),
-      org.evoting.schemes.KOutOfLVoting.class.getSimpleName()
-    };
-    return schemes;
-  }
 
   public static ComboBoxModel generateComboBoxModel(Object[] itens) {
     ComboBoxModel model = new DefaultComboBoxModel(itens);
@@ -70,21 +60,7 @@ public class CommonMethods {
     return (Voting) instance;
   }
 
-  public static YesNoVoting createYesNoVoting(int voters, String c1, String c2) {
-    return new YesNoVoting(voters, c1, c2);
-  }
-
-  public static OneOutOfLVoting createOneOutOfLVoting(List<String> cs, int vs,
-                                                      int b) throws
-          VotingSchemeException {
-    return new OneOutOfLVoting(cs, vs, b);
-  }
-
-  public static KOutOfLVoting createKOutOfLVoting(int k, int b, int vs,
-                                                  List<String> cands) throws
-          VotingSchemeException {
-    return new KOutOfLVoting(k, b, vs, cands);
-  }
+  
 
   public static List<String> getCandidatesFromText(String text) {
     List<String> cands = new ArrayList<>();

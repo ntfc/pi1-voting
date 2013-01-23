@@ -14,8 +14,11 @@ import java.security.KeyPair;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cssi.paillier.cipher.PaillierException;
+import org.cssi.paillier.cipher.PaillierSimple;
 import org.evoting.exception.VotingSchemeException;
 import org.evoting.schemes.Voting;
+import java.math.BigInteger;
+import java.security.PrivateKey;
 
 /**
  *
@@ -94,5 +97,22 @@ public class VotingServer {
       }
     }
 
+  }
+  /**
+   * Return array of voting results
+   * 
+   * @throws VotingSchemeException
+   * @throws InvalidKeyException
+   * @throws PaillierException
+   */
+  public BigInteger[] votingResults() throws InvalidKeyException, PaillierException, VotingSchemeException{
+    BigInteger[] res = new BigInteger[voting.getNrCandidates()];  
+    PrivateKey privKey = keyPair.getPrivate();
+    for(int i = 0; i <voting.getNrCandidates(); i++){
+        BigInteger tally = voting.tallying(privKey, i);
+                
+        res[i] = new PaillierSimple().dec(privKey, tally);
+    }
+    return res;
   }
 }
