@@ -240,7 +240,7 @@ public class JAuthorityMain extends javax.swing.JFrame {
           JOptionPane.showMessageDialog(rootPane, "Voting ended on port " + port);
           // show voting results
           try {
-            BigInteger[] results = server.votingResults();
+            String[][] results = server.votingResults();
             JOptionPane.showMessageDialog(rootPane, results);
           }
           catch (Exception ex) {

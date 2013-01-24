@@ -34,6 +34,8 @@ public class JVoterMain extends javax.swing.JFrame {
 	/** Creates new form JVoterMain */
 	public JVoterMain() {
 		initComponents();
+                jLabel1.setVisible(false);
+                jButton1.setVisible(false);
 	}
 
 	/** This method is called from within the constructor to
@@ -59,7 +61,6 @@ public class JVoterMain extends javax.swing.JFrame {
         setLocation(new java.awt.Point(450, 200));
         setMinimumSize(new java.awt.Dimension(455, 296));
         setPreferredSize(new java.awt.Dimension(455, 296));
-        setSize(new java.awt.Dimension(455, 296));
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         jPanel1.setSize(new java.awt.Dimension(10, 10));
@@ -135,6 +136,9 @@ public class JVoterMain extends javax.swing.JFrame {
         this.voter.setUpVoting();
         // show voting options
         generateVotingOptions();
+        //show buttons
+        jLabel1.setVisible(true);
+        jButton1.setVisible(true);        
       }
       catch (Exception ex) {
         JOptionPane.showMessageDialog(this, ex.getMessage());

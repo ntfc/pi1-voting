@@ -19,6 +19,8 @@ import org.evoting.exception.VotingSchemeException;
 import org.evoting.schemes.Voting;
 import java.math.BigInteger;
 import java.security.PrivateKey;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -105,13 +107,14 @@ public class VotingServer {
    * @throws InvalidKeyException
    * @throws PaillierException
    */
-  public BigInteger[] votingResults() throws InvalidKeyException, PaillierException, VotingSchemeException{
-    BigInteger[] res = new BigInteger[voting.getNrCandidates()];  
+  public String[][] votingResults() throws InvalidKeyException, PaillierException, VotingSchemeException{
+    String[][] res = new String[voting.getNrCandidates()][voting.getNrCandidates()];  
     PrivateKey privKey = keyPair.getPrivate();
+    List<String> cands = voting.getCandidateNames();
     for(int i = 0; i <voting.getNrCandidates(); i++){
         BigInteger tally = voting.tallying(privKey, i);
-                
-        res[i] = new PaillierSimple().dec(privKey, tally);
+        res[i][0] = cands.get(i).concat(":");     
+        res[i][1] = new PaillierSimple().dec(privKey, tally).toString().concat(" votos");
     }
     return res;
   }
