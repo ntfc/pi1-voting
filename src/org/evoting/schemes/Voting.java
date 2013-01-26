@@ -260,29 +260,14 @@ public abstract class Voting {
   }
 
   /**
-   * Determine who the winner of the voting was
-   * <p>
-   * TODO: considere the tie case
-   * TODO: implement it on all subclasses
-   *
-   * @param key
-   * @param tally
-   * @return
-   * @throws PaillierException
-   * @throws InvalidKeyException
-   */
-  public abstract int winner(PrivateKey key, BigInteger tally) throws
-          PaillierException, InvalidKeyException;
-
-  /**
    * Creates a String with the voting results
    * <p>
    * In the voting results we can see how many votes each candidate got
    *
-   * @param tally
+   * @param key
    * @return
    */
-  public abstract String votingResults(BigInteger tallyDec);
+  public abstract BigInteger[] votingResults(PrivateKey key) throws InvalidKeyException, PaillierException, VotingSchemeException;
 
   /**
    * Receive a vote (or K votes) and creates a ballot

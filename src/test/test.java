@@ -5,8 +5,10 @@
 package test;
 
 import java.math.BigInteger;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.Security;
@@ -18,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cssi.numbers.CryptoNumbers;
 import org.cssi.paillier.cipher.Paillier;
+import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.paillier.interfaces.PaillierPrivateKey;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
@@ -73,13 +76,129 @@ public class test {
     StringBuilder sb = new StringBuilder();
 
     // append zeros
-    for(int toprepend = strLength-n.length(); toprepend > 0; toprepend--) {
+    for (int toprepend = strLength - n.length(); toprepend > 0; toprepend--) {
       sb.append('0');
     }
     // append string n
     sb.append(n);
     return sb.toString();
   }
+
+  public static BigInteger calcU(PaillierPublicKey pub, BigInteger m, BigInteger c) {
+    BigInteger nSquare = pub.getNSquare();
+    // u = c/g^m mod n^2 <=> c * (g^m)^-1 mod n^2
+    BigInteger u = c.multiply(pub.getG().modPow(m, nSquare).modInverse(nSquare));
+
+    return u.mod(nSquare);
+  }
+
+  public static BigInteger[] nthPowerProtocol(PaillierPublicKey pub, BigInteger m) throws PaillierException, InvalidKeyException {
+    BigInteger r = CryptoNumbers.genRandomZStarN(pub.getN(), new SecureRandom());
+    BigInteger c = new PaillierSimple().enc(pub, m, r);
+    return nthPowerProtocol(pub, m, c, r);
+  }
+  /**
+   * 
+   * @param pub
+   * @param m Plaintext
+   */
+  public static BigInteger[] nthPowerProtocol(PaillierPublicKey pub, BigInteger m, BigInteger c, BigInteger r) throws PaillierException, InvalidKeyException {
+    BigInteger n = pub.getN();
+    BigInteger nSquare = pub.getNSquare();
+
+
+    BigInteger u = calcU(pub, m, c);
+    
+    if(u.compareTo(r.modPow(n, nSquare)) != 0) {
+      System.err.println("U is wrong. Throw exception");
+    }
+    BigInteger rr = CryptoNumbers.genRandomZN(nSquare, new SecureRandom());
+    
+    BigInteger a = rr.modPow(n, nSquare);
+    // send a to V
+    System.err.println("a: " + a + " P --------> V");
+
+    int k = n.bitLength();
+    BigInteger e = new BigInteger(k, new SecureRandom());
+
+    // send e to P
+    System.err.println("e: " + e + " V --------> P");
+
+    // send z to V
+    BigInteger z = rr.multiply(r.modPow(e, nSquare)).mod(nSquare);
+    System.err.println("z: " + z + " P --------> V");
+
+    // verification
+    BigInteger zPowN = z.modPow(n, nSquare);
+    BigInteger toCheck = a.multiply(u.modPow(e, nSquare)).mod(nSquare);
+
+    boolean verification = zPowN.compareTo(toCheck) == 0;
+    System.err.println("z^n = a*u^e mod n^2 is " + verification);
+
+    return new BigInteger[]{a, e, z};
+  }
+
+  public static BigInteger[] oneOutOfTwoProtocol(PaillierPublicKey pub, BigInteger m) throws PaillierException, InvalidKeyException {
+    // init
+    BigInteger n = pub.getN();
+    BigInteger nSquare = pub.getNSquare();
+    BigInteger g = pub.getG();
+    Paillier paillier = new PaillierSimple();
+
+    BigInteger r = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
+    // vote encrypted
+    BigInteger C = paillier.enc(pub, m, r);
+
+    // yes/no plaintext
+    BigInteger i1 = BigInteger.ZERO;
+    BigInteger i2 = BigInteger.ONE;
+
+    BigInteger u1 = calcU(pub, i1, C);
+    BigInteger u2 = calcU(pub, i2, C);
+
+
+    // starts here
+    // r1 in Z_{n^2}^*
+    BigInteger r1 = CryptoNumbers.genRandomZN(nSquare, new SecureRandom());
+    
+
+    // Invoke M on input n, u2
+    /****/
+    // u = u2
+    // v =
+
+    /****/
+
+    BigInteger[] M = nthPowerProtocol(pub, BigInteger.ONE, C, r);
+    BigInteger a2 = M[0];
+    BigInteger e2 = M[1];
+    BigInteger z2 = M[2];
+
+    BigInteger a1 = r1.modPow(n, nSquare);
+
+
+    int t = n.bitLength()/2;
+    BigInteger s = new BigInteger(t, new SecureRandom());
+
+    BigInteger twoPowT = new BigInteger("2").pow(t);
+    BigInteger e1 = s.subtract(e2).mod(twoPowT);
+    BigInteger z1 = r1.multiply(r.modPow(e1, nSquare)).mod(nSquare);
+
+    BigInteger sToCheck = e1.add(e2).mod(twoPowT);
+    System.err.println("s = e1 + e2 mod 2^t is " + (s.compareTo(sToCheck)==0));
+
+    BigInteger z1ToCheck = a1.multiply(u1.modPow(e1, nSquare)).mod(nSquare);
+    BigInteger z1PowN = z1.modPow(n, nSquare);
+
+    System.err.println("z1^n = a1*u1^e1 mod n^2 is " + (z1PowN.compareTo(z1ToCheck) == 0));
+
+    BigInteger z2ToCheck = a2.multiply(u2.modPow(e2, nSquare)).mod(nSquare);
+    BigInteger z2PowN = z2.modPow(n, nSquare);
+
+    System.err.println("z2^n = a2*u2^e2 mod n^2 is " + (z2PowN.compareTo(z2ToCheck) == 0));
+    return new BigInteger[] {a1, a2, s, e1, e2, z1, z2};
+  }
+
 
   public static void main(String[] args) throws Exception {
     cands.add("A");
@@ -117,8 +236,7 @@ public class test {
     System.err.println("q^2 = " + qSquare);
     System.err.println("n^2 = " + nSquare);
     System.err.println("p^2 * q^2 = " + pSquare.multiply(qSquare));
-    BigInteger e = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
-    System.err.println("e = " + e);
+
 
     Paillier paillier = new PaillierSimple();
     BigInteger r0 = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
@@ -128,128 +246,25 @@ public class test {
     BigInteger m0 = BigInteger.ONE;
     BigInteger m1 = BigInteger.ZERO;
     BigInteger m2 = BigInteger.ZERO;
-    
-    BigInteger v0 = paillier.enc(pub, BigInteger.ONE, r0);
-    BigInteger v1 = paillier.enc(pub, BigInteger.ZERO, r1);
-    BigInteger v2 = paillier.enc(pub, BigInteger.ZERO, r2);
+
+    BigInteger c0 = paillier.enc(pub, m0, r0);
+    BigInteger c1 = paillier.enc(pub, m1, r1);
+    BigInteger c2 = paillier.enc(pub, m2, r2);
     // interactive ZKP
     int b = 5; // random small integer
-    L = 2;
+    L = 3;
     // k = 0 .. L-1
     Ballot ballot = new Ballot(L); // B = < 1, 0, 0>
-    ballot.addVote(0, v0); ballot.addVote(1, v1);
+    ballot.addVote(0, c0);
+    ballot.addVote(1, c1);
+    ballot.addVote(2, c2);
 
-
-    BigInteger E1 = paillier.enc(pub, BigInteger.ONE, r1);
-    BigInteger E2 = paillier.enc(pub, BigInteger.ZERO, r2);
-
-
-    /*// prove that u_k is an n-th power IFF k == i
-    // --
-    BigInteger tmp00[] = v0.divideAndRemainder(g.pow(m0.intValue()));
-    BigInteger u0;
-    System.err.println("tmp00 = " + Arrays.toString(tmp00));
-    if(tmp00[0].compareTo(BigInteger.ZERO) == 0 || tmp00[0].compareTo(BigInteger.ONE) == 0)
-      u0 = tmp00[1].mod(nSquare);
-    else
-      u0 = tmp00[0].mod(nSquare);
-    BigInteger tmp10[] = v1.divideAndRemainder(g.pow(m1.intValue()));
-    BigInteger u1;
-    System.err.println("tmp10 = " + Arrays.toString(tmp10));
-    if(tmp10[0].compareTo(BigInteger.ZERO) == 0 || tmp10[0].compareTo(BigInteger.ONE) == 0)
-      u1 = tmp10[1].mod(nSquare);
-    else
-      u1 = tmp10[0].mod(nSquare);
-    // -- i = 2; k = 2 ========>>>> i == k
-    // u_i = v_i / g^m_k
-    BigInteger u2 = v2.divide(g.modPow(BigInteger.ZERO, nSquare)).mod(nSquare);
-
-    System.err.println("u0 = " + u0);
-    System.err.println("u1 = " + u1);
-    System.err.println("u2 = " + u2);
-
-    
-    BigInteger w = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
-
-    // --- prover generates commitment
-    // --
-    // -- i = 0; k = 2 ========>>>> i != k
-
-    // -- i = 1; k = 2 ========>>>> i != k
-
-    // -- i = 2; k = 2 ========>>>> i == k
-    // a_i = w^n mod n^2 IFF k == i
-    BigInteger a2 = w.modPow(n, nSquare);
-
-    // --- verifier chooses a random bit string e_i of length b
-    // -- 
-    // --
-    // -- i = 0; k = 2 ========>>>> i != k
-
-    // -- i = 1; k = 2 ========>>>> i != k
-
-    // -- i = 2; k = 2 ========>>>> i == k
-    // e_i of length b IFF k == i
-    // 2^b < min(p,q)
-    // e_i < 2^b
-    BigInteger e2 = CryptoNumbers.genRandomNumber(b, new SecureRandom());
-
-    // --- prover computes z_
-    // --
-    // -- i = 0; k = 2 ========>>>> i != k
-
-    // -- i = 1; k = 2 ========>>>> i != k
-
-    // -- i = 2; k = 2 ========>>>> i == k
-    // z_i = (w * r^e_i) mod n ====> r = random usado para cifrar
-    BigInteger z2 = w.mod(n).multiply(r2.modPow(e2, n));
-
-
-    // --- verification
-    // --
-    // -- i = 0; k = 2 ========>>>> i != k
-
-    // -- i = 1; k = 2 ========>>>> i != k
-
-    // -- i = 2; k = 2 ========>>>> i == k
-    // z_i recebido do prover
-    // z_i^n = a_i * u_i^(e_i) mod n^2
-    BigInteger z2POWn = a2.mod(nSquare).multiply(u2.modPow(e2, nSquare)).mod(nSquare);
-    System.out.println("verification z2 k==i = " + (z2.modPow(n, nSquare).compareTo(z2POWn) == 0));
+    //nthPowerProtocol(pub, m0);
+    //nthPowerProtocol(pub, m1);
+    //nthPowerProtocol(pub, m2);
+    oneOutOfTwoProtocol(pub, m1);
 
     
 
-    System.err.println("b = " + b);
-    BigInteger b2 = BigInteger.valueOf(2).pow(b);
-    System.err.println("2^b = " + b2);
-
-    // -- k != i
-    // proves chooses  z_k and random e_k
-    // z_k = Z_n^*
-    // e_k < 2^b
-    BigInteger z0 = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
-    BigInteger e0 = CryptoNumbers.genRandomNumber(b, new SecureRandom());
-    System.err.println("e0 = " + e0 + ", length = " + e0.bitLength());
-    BigInteger z1 = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
-    BigInteger e1 = CryptoNumbers.genRandomNumber(b, new SecureRandom());
-    System.err.println("e1 = " + e1 + ", length = " + e1.bitLength());
-
-    // commitment
-    // prover computes a_k
-    // a_k = z_k^n / u_k^(e_k) mod n^2
-    BigInteger a0 = z0.modPow(n, nSquare).divide(u0.modPow(e0, nSquare));
-    BigInteger a1 = z1.modPow(n, nSquare).divide(u1.modPow(e1, nSquare));
-
-
-    // verifier challenge
-    BigInteger ee = CryptoNumbers.genRandomNumber(b, new SecureRandom());
-
-    // response. prover sends zk and ek
-
-    // verification
-    BigInteger z0POWn = a0.multiply(u0.modPow(e0, nSquare));
-    BigInteger z1POWn = a1.multiply(u1.modPow(e1, nSquare));
-    System.out.println("verification z0 k!=i = " + (z0.modPow(n, nSquare).compareTo(z0POWn) == 0));
-    System.out.println("verification z1 k!=i = " + (z1.modPow(n, nSquare).compareTo(z1POWn) == 0));*/
   }
 }

@@ -13,7 +13,9 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+import javax.crypto.Cipher;
 import org.cssi.paillier.cipher.PaillierException;
+import org.cssi.paillier.interfaces.PaillierPrivateKey;
 import org.evoting.exception.NumberOfVotesException;
 import org.evoting.exception.VotingSchemeException;
 import org.utils.DataStreamUtils;
@@ -23,7 +25,9 @@ import org.utils.DataStreamUtils;
  * @author nc
  */
 public class KOutOfLVoting extends Voting {
-  private static final Logger LOG = Logger.getLogger(KOutOfLVoting.class.getName());
+
+  private static final Logger LOG = Logger.getLogger(KOutOfLVoting.class.
+          getName());
   public static final int CODE = 0x14;
   private int k, l;
 
@@ -43,6 +47,7 @@ public class KOutOfLVoting extends Voting {
     this.l = cands.size();
 
   }
+
   public int getK() {
     return k;
   }
@@ -55,7 +60,6 @@ public class KOutOfLVoting extends Voting {
   public int getCode() {
     return CODE;
   }
-
 
   @Override
   public void sendVotingProperties(DataStreamUtils dsu) throws IOException {
@@ -101,19 +105,21 @@ public class KOutOfLVoting extends Voting {
     }
     Ballot ballot = new Ballot(nrCandidates);
     // add the options choosen by the voter
-    for(int vv : votes) {
+    for (int vv : votes) {
       vv--; // voting option must be in [0..L-1]
       // voting option is one
-      BigInteger voteEnc = getCipher().enc(key, BigInteger.ONE, new SecureRandom());
+      BigInteger voteEnc = getCipher().enc(key, BigInteger.ONE,
+                                           new SecureRandom());
       // add to the ballot
       ballot.addVote(vv, voteEnc);
     }
     // the other options are blank = 0
-    for(int i = 0; i < nrCandidates; i++) {
+    for (int i = 0; i < nrCandidates; i++) {
       // no vote registered for candidate i
-      if(ballot.getCandidateVote(i) == null) {
+      if (ballot.getCandidateVote(i) == null) {
         // add blank vote
-        BigInteger blank = getCipher().enc(key, BigInteger.ZERO, new SecureRandom());
+        BigInteger blank = getCipher().enc(key, BigInteger.ZERO,
+                                           new SecureRandom());
         ballot.addVote(i, blank);
       }
     }
@@ -121,13 +127,15 @@ public class KOutOfLVoting extends Voting {
   }
 
   @Override
-  public int winner(PrivateKey key, BigInteger tally) throws PaillierException,
-          InvalidKeyException {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  @Override
-  public String votingResults(BigInteger tallyDec) {
-    throw new UnsupportedOperationException("Not supported yet.");
+  public BigInteger[] votingResults(PrivateKey key) throws InvalidKeyException,
+          PaillierException, VotingSchemeException {
+    BigInteger[] results = new BigInteger[nrCandidates];
+    for (int i = 0; i < nrCandidates; i++) {
+      // number of votes for candidate
+      BigInteger candTallyDec = tallying(key, i);
+      BigInteger candTally = getCipher().dec(key, candTallyDec);
+      results[i] = candTally;
+    }
+    return results;
   }
 }
