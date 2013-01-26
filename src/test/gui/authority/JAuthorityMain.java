@@ -5,6 +5,7 @@
 package test.gui.authority;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyException;
 import java.security.KeyPair;
@@ -13,6 +14,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.Security;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,6 +22,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.cssi.paillier.cipher.PaillierException;
+import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.provider.CssiProvider;
 import org.evoting.authority.VotingServer;
 import org.evoting.exception.VotingSchemeException;
@@ -244,7 +247,7 @@ public class JAuthorityMain extends javax.swing.JFrame {
       KeyPairGenerator keygen = KeyPairGenerator.getInstance("Paillier", "CSSI");
       KeyPair kp = keygen.generateKeyPair();
       this.privKey = kp.getPrivate();
-      server = new VotingServer(voting, kp);
+      server = new VotingServer(voting, kp, new PaillierSimple());
       server.canEncrypt();
 
       // create new SwingWorker thread
@@ -256,8 +259,13 @@ public class JAuthorityMain extends javax.swing.JFrame {
           JOptionPane.showMessageDialog(rootPane, "Voting ended on port " + port);
           // show voting results
           try {
-            String[][] results = server.votingResults();
-            JOptionPane.showMessageDialog(rootPane, results);
+            BigInteger[] results = server.getVoting().votingResults(privKey);
+            JOptionPane.showMessageDialog(rootPane, "Resultado serao apresentados de seguida");
+
+            JDialogVotingResults votingResults = new JDialogVotingResults(JAuthorityMain.getFrames()[0],
+                                                                          results,
+                                                                          server.getVoting().getCandidateNames());
+            votingResults.setVisible(true);
           }
           catch (Exception ex) {
             JOptionPane.showMessageDialog(rootPane, ex.getMessage());
@@ -291,7 +299,7 @@ public class JAuthorityMain extends javax.swing.JFrame {
   }//GEN-LAST:event_jButtonStartActionPerformed
 
     private void jButtonCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCloseActionPerformed
-        System.exit(WIDTH);
+      this.dispose();
     }//GEN-LAST:event_jButtonCloseActionPerformed
 
   

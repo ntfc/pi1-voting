@@ -87,7 +87,6 @@ public class JDialogConnect extends javax.swing.JDialog {
     }
     catch (Exception ex) {
       JOptionPane.showMessageDialog(this, ex.getMessage());
-      ex.printStackTrace();
     }
   }//GEN-LAST:event_jButton2ActionPerformed
 

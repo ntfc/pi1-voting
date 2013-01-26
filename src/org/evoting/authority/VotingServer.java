@@ -13,14 +13,10 @@ import java.security.KeyException;
 import java.security.KeyPair;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.cssi.paillier.cipher.Paillier;
 import org.cssi.paillier.cipher.PaillierException;
-import org.cssi.paillier.cipher.PaillierSimple;
 import org.evoting.exception.VotingSchemeException;
 import org.evoting.schemes.Voting;
-import java.math.BigInteger;
-import java.security.PrivateKey;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -33,9 +29,10 @@ public class VotingServer {
   private static final Logger LOG = Logger.getLogger(VotingServer.class.
           getName());
 
-  public VotingServer(Voting vot, KeyPair kP) throws VotingSchemeException,
+  public VotingServer(Voting vot, KeyPair kP, Paillier cipher) throws VotingSchemeException,
           KeyException {
     this.voting = vot;
+    this.voting.setCipher(cipher);
     this.keyPair = kP;
     // modulo n is not valid
     canEncrypt(); // throws exception if it cannot encrypt
@@ -99,23 +96,5 @@ public class VotingServer {
       }
     }
 
-  }
-  /**
-   * Return array of voting results
-   * 
-   * @throws VotingSchemeException
-   * @throws InvalidKeyException
-   * @throws PaillierException
-   */
-  public String[][] votingResults() throws InvalidKeyException, PaillierException, VotingSchemeException{
-    String[][] res = new String[voting.getNrCandidates()][voting.getNrCandidates()];  
-    PrivateKey privKey = keyPair.getPrivate();
-    List<String> cands = voting.getCandidateNames();
-    for(int i = 0; i <voting.getNrCandidates(); i++){
-        BigInteger tally = voting.tallying(privKey, i);
-        res[i][0] = cands.get(i).concat(":");     
-        res[i][1] = new PaillierSimple().dec(privKey, tally).toString().concat(" votos");
-    }
-    return res;
   }
 }

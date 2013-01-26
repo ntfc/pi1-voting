@@ -50,7 +50,7 @@ public class authTest {
     //Voting votingType = new YesNoVoting(5, "Sim", "Não");
     //Voting votingType = new KOutOfLVoting(1, 10, 11, cands); // Yes/No voting if cands.size = 2
 
-    VotingServer votingServer = new VotingServer(votingType, kP);
+    VotingServer votingServer = new VotingServer(votingType, kP, new PaillierSimple());
 
     votingServer.startVoting(5000, 4545);
     //BigInteger tally = votingServer.getVoting().tallying(kP.getPrivate());
