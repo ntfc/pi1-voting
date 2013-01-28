@@ -20,7 +20,8 @@ import org.cssi.paillier.interfaces.PaillierPrivateKey;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.cssi.provider.CssiProvider;
 import org.evoting.schemes.Ballot;
-import org.evoting.zkp.ZKP;
+import org.utils.ByteUtils;
+import org.utils.DataStreamUtils;
 
 /**
  *
@@ -102,14 +103,14 @@ public class test {
   }
 
   // Prover
-  public static void NZKP_step3(PaillierPublicKey pub, int i, BigInteger r, BigInteger ee, BigInteger peta,
+  public static void NZKP_step3(PaillierPublicKey pub, int i, BigInteger r, BigInteger ch, BigInteger peta,
                                       BigInteger[] e, BigInteger[] v) {
     BigInteger n = pub.getN();
     BigInteger g = pub.getG();
 
     // i dont need to return the arrays!
 
-    BigInteger eeSubtract = ee.subtract(arraySum(e));
+    BigInteger eeSubtract = ch.subtract(arraySum(e));
     // e_i = ee - sum(e) mod n
     e[i] = eeSubtract.mod(n);
 
@@ -118,7 +119,7 @@ public class test {
   }
 
   // verifier
-  public static boolean NZKP_step4(PaillierPublicKey pub, BigInteger ee, BigInteger[] e, BigInteger v[], BigInteger[] u, BigInteger C) {
+  public static boolean NZKP_step4(PaillierPublicKey pub, BigInteger ch, BigInteger[] e, BigInteger v[], BigInteger[] u, BigInteger C) {
     BigInteger n = pub.getN();
     BigInteger nSquare = pub.getNSquare();
     BigInteger g = pub.getG();
@@ -126,7 +127,7 @@ public class test {
     // sum(ej) mod n
     BigInteger ejSum = arraySum(e).mod(n);
     // check that e = sum(ej) mod n
-    ret = ee.compareTo(ejSum) == 0;
+    ret = ch.compareTo(ejSum) == 0;
 
     for(int j = 0; j < e.length && ret; j++) {
       BigInteger vjN = v[j].modPow(n, nSquare);
@@ -214,6 +215,12 @@ public class test {
     BigInteger ee3 = NZKP_step2(pub);
     NZKP_step3(pub, 0, r2, ee3, peta3, e3, v3);
     System.out.println(NZKP_step4(pub, ee3, e3, v3, u3, c2));
+
+    System.out.println(Arrays.toString(e3));
+    byte[] a = ByteUtils.arrayBigIntegerToByte(e3);
+    BigInteger[] eeeee = ByteUtils.byteToArrayBigInteger(a);
+    System.out.println(Arrays.toString(eeeee));
+
 
 
   }
