@@ -217,9 +217,7 @@ public class test {
     System.out.println(NZKP_step4(pub, ee3, e3, v3, u3, c2));
 
     System.out.println(Arrays.toString(e3));
-    byte[] a = ByteUtils.arrayBigIntegerToByte(e3);
-    BigInteger[] eeeee = ByteUtils.byteToArrayBigInteger(a);
-    System.out.println(Arrays.toString(eeeee));
+    System.out.println(Arrays.toString(ByteUtils.arrayBigIntegerToByte(e3)));
 
 
 

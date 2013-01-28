@@ -14,11 +14,13 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import org.cssi.paillier.cipher.Paillier;
 import org.cssi.paillier.cipher.PaillierSimple;
+import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.cssi.paillier.spec.PaillierPublicKeyBetaSpec;
 import org.evoting.exception.VotingSchemeException;
 import org.evoting.schemes.Ballot;
 import org.evoting.schemes.KOutOfLVoting;
 import org.evoting.schemes.Voting;
+import org.evoting.zkp.NZKP;
 import org.utils.DataStreamUtils;
 
 /**
