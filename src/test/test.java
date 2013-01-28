@@ -5,28 +5,22 @@
 package test;
 
 import java.math.BigInteger;
-import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cssi.numbers.CryptoNumbers;
 import org.cssi.paillier.cipher.Paillier;
-import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.paillier.interfaces.PaillierPrivateKey;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.cssi.provider.CssiProvider;
 import org.evoting.schemes.Ballot;
-import org.evoting.zkp.NZKP;
+import org.evoting.zkp.ZKP;
 
 /**
  *
@@ -40,165 +34,117 @@ public class test {
   public static List<String> cands = new ArrayList<>();
   private static final Logger LOG = Logger.getLogger(test.class.getName());
   private static int votersWhoVoted = 19;
+  private static BigInteger[] S = new BigInteger[]{BigInteger.ZERO,
+    BigInteger.ONE};
 
-  public static String results() {
-    StringBuilder s = new StringBuilder("Results\n");
-    LOG.log(Level.INFO, "tallyDec = {0}", tallyDec.toString());
-    // convert tallyDec from base 10 to base defined in the voting scheme
-    String tallyBase = tallyDec.toString(base);
-    LOG.log(Level.INFO, "tally base {0} = {1}", new Object[]{base, tallyBase});
-    // add zeros
-    String tallyBaseStr = paddingZeros(tallyBase, L);
-
-    // count non blank votes
-    int nonBlank = 0;
-    for (int j = (L - 1), index = 0; j >= 0; j--, index++) {
-      // count votes for candidate_index
-      char nVotesChar = tallyBaseStr.charAt(j);
-      // convert from base to base 10
-      int nVotes = Integer.parseInt(String.valueOf(nVotesChar), base);
-      nonBlank += nVotes;
-      // get candidate name from the list of candidates
-      String candName = cands.get(index);
-      // and append the number of votes in the candidate
-      s.append(candName).append(" : ").append(nVotes).append("\n");
-      LOG.log(Level.INFO, "votes for candidate {0}(index {1}) = {2}",
-              new Object[]{candName,
-                index, nVotes});
-    }
-    int blankVotes = votersWhoVoted - nonBlank;
-    s.append("TOTAL: ").append(nonBlank).append(" votos, ");
-    s.append(blankVotes).append(" em branco").append("\n");
-    return s.toString().trim(); // trim to remove useless \n
-  }
-
-  public static String paddingZeros(String n, int strLength) {
-    StringBuilder sb = new StringBuilder();
-
-    // append zeros
-    for (int toprepend = strLength - n.length(); toprepend > 0; toprepend--) {
-      sb.append('0');
-    }
-    // append string n
-    sb.append(n);
-    return sb.toString();
-  }
-
-  public static BigInteger calcU(PaillierPublicKey pub, BigInteger m, BigInteger c) {
-    BigInteger nSquare = pub.getNSquare();
-    // u = c/g^m mod n^2 <=> c * (g^m)^-1 mod n^2
-    BigInteger u = c.multiply(pub.getG().modPow(m, nSquare).modInverse(nSquare));
-
-    return u.mod(nSquare);
-  }
-
-  public static BigInteger[] nthPowerProtocol(PaillierPublicKey pub, BigInteger m) throws PaillierException, InvalidKeyException {
-    BigInteger r = CryptoNumbers.genRandomZStarN(pub.getN(), new SecureRandom());
-    BigInteger c = new PaillierSimple().enc(pub, m, r);
-    return nthPowerProtocol(pub, m, c, r);
-  }
-  /**
-   * 
-   * @param pub
-   * @param m Plaintext
-   */
-  public static BigInteger[] nthPowerProtocol(PaillierPublicKey pub, BigInteger m, BigInteger c, BigInteger r) throws PaillierException, InvalidKeyException {
-    BigInteger n = pub.getN();
-    BigInteger nSquare = pub.getNSquare();
-
-
-    BigInteger u = calcU(pub, m, c);
-    
-    if(u.compareTo(r.modPow(n, nSquare)) != 0) {
-      System.err.println("U is wrong. Throw exception");
-    }
-    BigInteger rr = CryptoNumbers.genRandomZN(nSquare, new SecureRandom());
-    
-    BigInteger a = rr.modPow(n, nSquare);
-    // send a to V
-    System.err.println("a: " + a + " P --------> V");
-
-    int k = n.bitLength();
-    BigInteger e = new BigInteger(k, new SecureRandom());
-
-    // send e to P
-    System.err.println("e: " + e + " V --------> P");
-
-    // send z to V
-    BigInteger z = rr.multiply(r.modPow(e, nSquare)).mod(nSquare);
-    System.err.println("z: " + z + " P --------> V");
-
-    // verification
-    BigInteger zPowN = z.modPow(n, nSquare);
-    BigInteger toCheck = a.multiply(u.modPow(e, nSquare)).mod(nSquare);
-
-    boolean verification = zPowN.compareTo(toCheck) == 0;
-    System.err.println("z^n = a*u^e mod n^2 is " + verification);
-
-    return new BigInteger[]{a, e, z};
-  }
-
-  public static BigInteger[] oneOutOfTwoProtocol(PaillierPublicKey pub, BigInteger m) throws PaillierException, InvalidKeyException {
-    // init
+  // TODO: meter isto mais bonito, numa classe ZKP no provider
+  // TODO: also, nao usar [][]
+  // Prover
+  private static BigInteger[][] NZKP_step1(PaillierPublicKey pub, int i,
+                                           BigInteger C, BigInteger r) {
+    // length of the set of messages
+    int p = S.length;
+    BigInteger e[] = new BigInteger[p];
+    BigInteger v[] = new BigInteger[p];
+    BigInteger u[] = new BigInteger[p];
     BigInteger n = pub.getN();
     BigInteger nSquare = pub.getNSquare();
     BigInteger g = pub.getG();
-    Paillier paillier = new PaillierSimple();
 
-    BigInteger r = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
-    // vote encrypted
-    BigInteger C = paillier.enc(pub, m, r);
+    // randomly pick peta
+    BigInteger peta = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
 
-    // yes/no plaintext
-    BigInteger i1 = BigInteger.ZERO;
-    BigInteger i2 = BigInteger.ONE;
+    // randomly pick p-1 values e_j (j != i)
+    for (int j = 0; j < p; j++) {
+      // in all positions different from i, e_j = random Z_n
+      if (j != i) {
+        e[j] = CryptoNumbers.genRandomZN(n, new SecureRandom());
+      }
+      else {
+        // e_i is 0, for now
+        e[i] = BigInteger.ZERO;
+      }
+    }
 
-    BigInteger u1 = calcU(pub, i1, C);
-    BigInteger u2 = calcU(pub, i2, C);
+    // randomly pick p-1 values v_j (j != i)
+    for (int j = 0; j < p; j++) {
+      // in all positions different from i, v_j = random Z_n^*
+      if (j != i) {
+        v[j] = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
+      }
+      else {
+        // v_i is 0, for now
+        v[i] = BigInteger.ZERO;
+      }
+    }
 
+    for (int j = 0; j < p; j++) {
+      if (j != i) {
+        // u_j = v_j^n * (g^m_j / C)^e_j mod n^2
+        BigInteger tmp1 = g.pow(S[j].intValue()).multiply(C.modInverse(nSquare));
+        u[j] = v[j].modPow(n, nSquare).multiply(tmp1.modPow(e[j], nSquare)).mod(
+                nSquare);
+      }
+      else {
+        // compute ui = peta^n mod n^2
+        u[i] = peta.modPow(n, nSquare);
+      }
+    }
 
-    // starts here
-    // r1 in Z_{n^2}^*
-    BigInteger r1 = CryptoNumbers.genRandomZN(nSquare, new SecureRandom());
-    
-
-    // Invoke M on input n, u2
-    /****/
-    // u = u2
-    // v =
-
-    /****/
-
-    BigInteger[] M = nthPowerProtocol(pub, BigInteger.ONE, C, r);
-    BigInteger a2 = M[0];
-    BigInteger e2 = M[1];
-    BigInteger z2 = M[2];
-
-    BigInteger a1 = r1.modPow(n, nSquare);
-
-
-    int t = n.bitLength()/2;
-    BigInteger s = new BigInteger(t, new SecureRandom());
-
-    BigInteger twoPowT = new BigInteger("2").pow(t);
-    BigInteger e1 = s.subtract(e2).mod(twoPowT);
-    BigInteger z1 = r1.multiply(r.modPow(e1, nSquare)).mod(nSquare);
-
-    BigInteger sToCheck = e1.add(e2).mod(twoPowT);
-    System.err.println("s = e1 + e2 mod 2^t is " + (s.compareTo(sToCheck)==0));
-
-    BigInteger z1ToCheck = a1.multiply(u1.modPow(e1, nSquare)).mod(nSquare);
-    BigInteger z1PowN = z1.modPow(n, nSquare);
-
-    System.err.println("z1^n = a1*u1^e1 mod n^2 is " + (z1PowN.compareTo(z1ToCheck) == 0));
-
-    BigInteger z2ToCheck = a2.multiply(u2.modPow(e2, nSquare)).mod(nSquare);
-    BigInteger z2PowN = z2.modPow(n, nSquare);
-
-    System.err.println("z2^n = a2*u2^e2 mod n^2 is " + (z2PowN.compareTo(z2ToCheck) == 0));
-    return new BigInteger[] {a1, a2, s, e1, e2, z1, z2};
+    return new BigInteger[][]{new BigInteger[]{peta}, e, v, u};
   }
 
+  // Verifier
+  public static BigInteger NZKP_step2(PaillierPublicKey pub) {
+    // generate a random number, with t = k/2 bits (k = bitLength(n))
+    int nBits = pub.getN().bitLength() / 2;
+    return CryptoNumbers.genRandomNumber(nBits, new SecureRandom());
+  }
+
+  // Prover
+  public static void NZKP_step3(PaillierPublicKey pub, int i, BigInteger r, BigInteger ee, BigInteger peta,
+                                      BigInteger[] e, BigInteger[] v) {
+    BigInteger n = pub.getN();
+    BigInteger g = pub.getG();
+
+    // i dont need to return the arrays!
+
+    BigInteger eeSubtract = ee.subtract(arraySum(e));
+    // e_i = ee - sum(e) mod n
+    e[i] = eeSubtract.mod(n);
+
+    // Mod(peta * (r^ei) * g^(eeSubstract/ n), n)
+    v[i] = peta.multiply(r.modPow(e[i], n).multiply(g.modPow(eeSubtract.divide(n), n))).mod(n);
+  }
+
+  // verifier
+  public static boolean NZKP_step4(PaillierPublicKey pub, BigInteger ee, BigInteger[] e, BigInteger v[], BigInteger[] u, BigInteger C) {
+    BigInteger n = pub.getN();
+    BigInteger nSquare = pub.getNSquare();
+    BigInteger g = pub.getG();
+    boolean ret;
+    // sum(ej) mod n
+    BigInteger ejSum = arraySum(e).mod(n);
+    // check that e = sum(ej) mod n
+    ret = ee.compareTo(ejSum) == 0;
+
+    for(int j = 0; j < e.length && ret; j++) {
+      BigInteger vjN = v[j].modPow(n, nSquare);
+      // vjNToCheck = u_j * (C/g^m_j)^e_j mod n^2
+      BigInteger vjNToCheck = u[j].multiply(C.multiply(g.pow(S[j].intValue()).modInverse(nSquare)).modPow(e[j], nSquare)).mod(nSquare);
+      // verification
+      ret = vjN.compareTo(vjNToCheck) == 0;
+
+    }
+    return ret;
+  }
+
+  private static BigInteger arraySum(BigInteger[] a) {
+    BigInteger res = BigInteger.ZERO;
+    for(BigInteger b : a)
+      res = res.add(b);
+    return res;
+  }
 
   public static void main(String[] args) throws Exception {
     cands.add("A");
@@ -218,25 +164,7 @@ public class test {
     PaillierPrivateKey priv = (PaillierPrivateKey) kP.getPrivate();
     BigInteger n = pub.getN();
     BigInteger g = pub.getG();
-    System.err.println("n = " + n);
-    BigInteger p = priv.getP();
-    BigInteger pMinusOne = p.subtract(BigInteger.ONE);
-    System.err.println("p = " + p);
-    System.err.println("p-1 = " + pMinusOne);
-    BigInteger q = priv.getQ();
-    BigInteger qMinusOne = q.subtract(BigInteger.ONE);
-    System.err.println("q = " + q);
-    System.err.println("q-1 = " + qMinusOne);
-    System.err.println("g = " + g);
-    System.err.println("phi(n) = " + pMinusOne.multiply(qMinusOne));
-    BigInteger pSquare = p.pow(2);
-    BigInteger qSquare = q.pow(2);
-    BigInteger nSquare = n.pow(2);
-    System.err.println("p^2 = " + pSquare);
-    System.err.println("q^2 = " + qSquare);
-    System.err.println("n^2 = " + nSquare);
-    System.err.println("p^2 * q^2 = " + pSquare.multiply(qSquare));
-
+    BigInteger nSquare = pub.getNSquare();
 
     Paillier paillier = new PaillierSimple();
     BigInteger r0 = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
@@ -259,12 +187,34 @@ public class test {
     ballot.addVote(1, c1);
     ballot.addVote(2, c2);
 
-    //nthPowerProtocol(pub, m0);
-    //nthPowerProtocol(pub, m1);
-    //nthPowerProtocol(pub, m2);
-    oneOutOfTwoProtocol(pub, m1);
+    // step 1
+    BigInteger[][] step1_1 = NZKP_step1(pub, 1, c0, r0);
+    BigInteger peta1 = step1_1[0][0];
+    BigInteger[] e1 = step1_1[1];
+    BigInteger[] v1 = step1_1[2];
+    BigInteger[] u1 = step1_1[3];
+    BigInteger ee1 = NZKP_step2(pub);
+    NZKP_step3(pub, 1, r0, ee1, peta1, e1, v1);
+    System.out.println(NZKP_step4(pub, ee1, e1, v1, u1, c0));
 
-    
+    BigInteger[][] step1_2 = NZKP_step1(pub, 0, c1, r1);
+    BigInteger peta2 = step1_2[0][0];
+    BigInteger[] e2 = step1_2[1];
+    BigInteger[] v2 = step1_2[2];
+    BigInteger[] u2 = step1_2[3];
+    BigInteger ee2 = NZKP_step2(pub);
+    NZKP_step3(pub, 0, r1, ee2, peta2, e2, v2);
+    System.out.println(NZKP_step4(pub, ee2, e2, v2, u2, c1));
+
+    BigInteger[][] step1_3 = NZKP_step1(pub, 0, c2, r2);
+    BigInteger peta3 = step1_3[0][0];
+    BigInteger[] e3 = step1_3[1];
+    BigInteger[] v3 = step1_3[2];
+    BigInteger[] u3 = step1_3[3];
+    BigInteger ee3 = NZKP_step2(pub);
+    NZKP_step3(pub, 0, r2, ee3, peta3, e3, v3);
+    System.out.println(NZKP_step4(pub, ee3, e3, v3, u3, c2));
+
 
   }
 }
