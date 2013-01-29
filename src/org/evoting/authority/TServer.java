@@ -5,14 +5,17 @@
 package org.evoting.authority;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.Socket;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.evoting.schemes.Ballot;
 import org.evoting.schemes.Voting;
+import org.evoting.zkp.ZKPVerifier;
 import org.utils.DataStreamUtils;
 
 /**
@@ -59,11 +62,27 @@ public class TServer extends Thread {
         voting.sendVotingCandidates(dsu);
         // send publickey
         dsu.writeBytes(pubKey.getEncoded());
-        System.out.println("Sent public key" + pubKey.getAlgorithm());
-        // receive ballot
+        
+        // receive ballot and zkp
         Ballot ballot = new Ballot(voting.getNrCandidates());
         for(int i = 0; i < voting.getNrCandidates(); i++) {
-          ballot.addVote(i, dsu.readBigInteger());
+          BigInteger C = dsu.readBigInteger();
+          ballot.addVote(i, C);
+          // zkp
+          BigInteger[] S = new  BigInteger[]{BigInteger.ZERO, BigInteger.ONE};
+          ZKPVerifier zkp = new ZKPVerifier(S, (PaillierPublicKey)pubKey, C);
+          // receive step1
+          zkp.receiveStep1(dsu.readBytes());
+
+          // send challeng
+          dsu.writeBytes(zkp.generateStep2());
+
+          // receive step3
+          zkp.receiveStep3(new byte[][]{dsu.readBytes(), dsu.readBytes()});
+
+          // verify
+          boolean ver = zkp.verify();
+          System.err.println("Verification of C_" + i + " = " + ver);
         }
         boolean receivedVote = voting.receiveBallot(ballot);
         System.out.println("Ballot accepted: " + receivedVote);

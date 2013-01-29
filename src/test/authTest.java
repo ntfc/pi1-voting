@@ -52,7 +52,7 @@ public class authTest {
 
     VotingServer votingServer = new VotingServer(votingType, kP, new PaillierSimple());
 
-    votingServer.startVoting(5000, 4545);
+    votingServer.startVoting(100000, 4545);
     //BigInteger tally = votingServer.getVoting().tallying(kP.getPrivate());
     for(int i = 0; i < cands.size(); i++) {
       BigInteger tallyI = votingType.tallying(kP.getPrivate(), i);

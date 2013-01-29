@@ -20,6 +20,7 @@ import org.cssi.paillier.interfaces.PaillierPrivateKey;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.cssi.provider.CssiProvider;
 import org.evoting.schemes.Ballot;
+import org.evoting.zkp.ZKPProver;
 import org.utils.ByteUtils;
 import org.utils.DataStreamUtils;
 
@@ -219,7 +220,7 @@ public class test {
     System.out.println(Arrays.toString(e3));
     System.out.println(Arrays.toString(ByteUtils.arrayBigIntegerToByte(e3)));
 
-
+    ZKPProver zkp = new ZKPProver(S, pub, b, c2, ee3)
 
   }
 }

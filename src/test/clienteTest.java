@@ -40,7 +40,7 @@ public class clienteTest implements Runnable {
         System.out.println((i++) + ": " + cand);
       }
       
-      Ballot ballot;
+      /*Ballot ballot;
       if(vote1 != vote2) {
         ballot = client.getVoting().createBallot(client.getPublicKey(),
                                                       vote1, vote2);
@@ -50,8 +50,10 @@ public class clienteTest implements Runnable {
         ballot = client.getVoting().createBallot(client.getPublicKey(),vote1);
         System.out.println("Voted for: " + vote1);
       }
+
       
-      client.submitBallot(ballot);
+      client.submitBallot(ballot);*/
+      client.submitVote(vote1, vote2);
       
     }
     catch (Exception e) {
