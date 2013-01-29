@@ -10,6 +10,7 @@ import java.security.InvalidKeyException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import org.cssi.paillier.cipher.Paillier;
 import org.cssi.paillier.cipher.PaillierException;
@@ -61,8 +62,8 @@ public abstract class Voting {
     this.nrCandidates = cands;
     this.nrVoters = voters;
     // initializate everything here
-    this.candidateNames = new ArrayList<String>();
-    this.votes = new ArrayList<Ballot>();
+    this.candidateNames = new ArrayList<>();
+    this.votes = new LinkedList<>(); //LinkedLists more effient in adding and sequencial search
   }
 
   /**
@@ -78,7 +79,7 @@ public abstract class Voting {
     this.nrCandidates = cands.size();
     this.nrVoters = voters;
     this.candidateNames = cands;
-    this.votes = new ArrayList<Ballot>();
+    this.votes = new LinkedList<>();
   }
 
   /**
@@ -283,5 +284,5 @@ public abstract class Voting {
           NumberOfVotesException, VotingSchemeException, InvalidKeyException,
           IOException, PaillierException;
 
-  public abstract String winner();
+  public abstract List<Integer> winner(BigInteger[] results);
 }

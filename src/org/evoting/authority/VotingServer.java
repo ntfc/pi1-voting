@@ -78,7 +78,6 @@ public class VotingServer {
       try {
         Socket voter = server.accept();
         // if the number of max voter has been reached, break
-        // TODO: improve this
         if (!voting.canAcceptMoreVotes()) {
           //Close the socket,  the accept() call will throw a SocketException. No need for a break;
           server.close();
