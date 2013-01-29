@@ -11,7 +11,11 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import org.cssi.paillier.cipher.PaillierException;
 import org.evoting.exception.NumberOfVotesException;
@@ -161,10 +165,10 @@ public class KOutOfLVoting extends Voting {
   public String winner() {
     StringBuilder sb = new StringBuilder();
     int i = 0;
-    Iterator it = this.Winners.keySet().iterator();
+    Iterator it = this.winners.keySet().iterator();
     while(it.hasNext() || i<k ) {
       String candidate = (String) it.next();
-      sb.append(candidate+":"+this.Winners.get(candidate));
+      sb.append(candidate+":"+this.winners.get(candidate));
       i++;
     }
     return sb.toString();
