@@ -166,8 +166,8 @@ public class KOutOfLVoting extends Voting {
     
   
     
-    List<Integer> winners = new ArrayList<>(); // List with the winners;
-    Map<Integer, BigInteger> sortedResults = new HashMap<>(); //auxiliar collection to store the results
+    List<Integer> winners = new ArrayList<>(); // returning List with the winners;
+    Map<Integer, BigInteger> sortedResults = new TreeMap<>(); //auxiliar collection to store the results before and after being sorted
     int i;
     for (i = 0; i < results.length; i++) {
       sortedResults.put(i, results[i]); // copy the results, key = Candidate, value = number of votes in BigInteger
@@ -175,10 +175,10 @@ public class KOutOfLVoting extends Voting {
 
     //Sort the results using a Comparator
     Comparator cpv = new ValueComparator(sortedResults);
-    TreeMap<Integer, BigInteger> treeSortedResults = new TreeMap<>(cpv);
+    sortedResults = new TreeMap<>(cpv);
 
     i = 0;
-    Iterator it = treeSortedResults.keySet().iterator();
+    Iterator it = sortedResults.keySet().iterator();
     while (it.hasNext() || i < k) {
       winners.add((Integer) it.next()); //Copy the results to the returning list
     }
