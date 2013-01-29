@@ -80,9 +80,10 @@ public class VotingServer {
         // if the number of max voter has been reached, break
         // TODO: improve this
         if (!voting.canAcceptMoreVotes()) {
+          //Close the socket,  the accept() call will throw a SocketException. No need for a break;
+          server.close();
           LOG.log(Level.INFO,
                   "Cannot receive more votes. Max number of voters reached");
-          break;
         }
         LOG.log(Level.INFO, "Voter connected");
         // start the voter thread

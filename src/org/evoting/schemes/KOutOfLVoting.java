@@ -28,6 +28,9 @@ public class KOutOfLVoting extends Voting {
           getName());
   public static final int CODE = 0x14;
   private int k, l;
+  // TODO: no need to use a Map
+  // TODO: dont retrun String. Return an Integer/int
+  private Map<String,Integer> winners = new HashMap<>(); 
 
   /**
    * Only used by the voter Default K=1, base is 10
@@ -44,6 +47,23 @@ public class KOutOfLVoting extends Voting {
     this.k = K;
     this.l = cands.size();
 
+  }
+
+  class ValueComparator implements Comparator<String> {
+
+    private Map<String, Integer> base;
+    public ValueComparator(Map<String, Integer> base) {
+        this.base = base;
+    }
+
+    // Note: this comparator imposes orderings that are inconsistent with equals.    
+    public int compare(String a, String b) {
+        if (base.get(a) >= base.get(b)) {
+            return -1;
+        } else {
+            return 1;
+        } // returning 0 would merge keys
+    }
   }
 
   public int getK() {
@@ -136,4 +156,18 @@ public class KOutOfLVoting extends Voting {
     }
     return results;
   }
+
+  @Override
+  public String winner() {
+    StringBuilder sb = new StringBuilder();
+    int i = 0;
+    Iterator it = this.Winners.keySet().iterator();
+    while(it.hasNext() || i<k ) {
+      String candidate = (String) it.next();
+      sb.append(candidate+":"+this.Winners.get(candidate));
+      i++;
+    }
+    return sb.toString();
+  }
+ 
 }

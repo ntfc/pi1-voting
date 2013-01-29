@@ -282,4 +282,6 @@ public abstract class Voting {
   public abstract Ballot createBallot(PublicKey key, int... votes) throws
           NumberOfVotesException, VotingSchemeException, InvalidKeyException,
           IOException, PaillierException;
+
+  public abstract String winner();
 }
