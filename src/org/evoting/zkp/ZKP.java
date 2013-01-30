@@ -139,7 +139,7 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
     BigInteger sum = BigInteger.ZERO;
     for (int j = 0; j < a.length; j++) {
       if (j != i) {
-        sum = sum.add(a[i]);
+        sum = sum.add(a[j]);
       }
     }
     return sum;

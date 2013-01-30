@@ -50,8 +50,10 @@ public class ZKPVerifier extends ZKP {
       throw new VariableNotSetException("PaillierPublicKey not set");
     // generate a random number, with t = k/2 bits (k = bitLength(n))
     int nBits = n.bitLength() / 2;
-    return CryptoNumbers.genRandomNumber(nBits, new SecureRandom()).
-            toByteArray();
+    this.ch = CryptoNumbers.genRandomNumber(nBits, new SecureRandom());
+    
+    return this.ch.toByteArray();
+
   }
 
   /**

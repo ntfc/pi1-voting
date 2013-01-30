@@ -143,7 +143,7 @@ public class VoterClient {
     Arrays.fill(options, 0); // default option is 0
     // put 1's where the voter voted
     for(int i = 0; i < votes.length; i++) {
-      options[votes[i]] += 1; // WARNING: using += 1 just to be able to cheat
+      options[votes[i]] = 1; // WARNING: using += 1 just to be able to cheat
     }
 
     BigInteger[] S = new BigInteger[]{BigInteger.ZERO, BigInteger.ONE};
