@@ -7,8 +7,10 @@ package org.evoting.zkp;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import org.cssi.numbers.CryptoNumbers;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
+import org.evoting.exception.VariableNotSetException;
 import org.utils.ByteUtils;
 
 /**
@@ -43,7 +45,9 @@ public class ZKPVerifier extends ZKP {
    * <b>NOTE:</b> used by the verifier V
    * @return The BigInteger as an array
    */
-  public byte[] generateStep2() {
+  public byte[] generateStep2() throws VariableNotSetException {
+    if(pubKey == null)
+      throw new VariableNotSetException("PaillierPublicKey not set");
     // generate a random number, with t = k/2 bits (k = bitLength(n))
     int nBits = n.bitLength() / 2;
     return CryptoNumbers.genRandomNumber(nBits, new SecureRandom()).
@@ -67,8 +71,9 @@ public class ZKPVerifier extends ZKP {
    * <b>NOTE:</b> used by the verifier V
    * @return
    */
-  public boolean verify() {
-
+  public boolean verify() throws VariableNotSetException {
+    if(pubKey == null)
+      throw new VariableNotSetException("PaillierPublicKey not set");
     boolean ret;
     // sum(ej) mod n
     BigInteger ejSum = arraySum(e).mod(n);

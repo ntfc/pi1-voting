@@ -79,7 +79,9 @@ public class ZKPProver extends ZKP {
    * @return Returns an array with 2 arrays of BigIntegers (both of them as
    * a byte array): v in the first position, and e in the second
    */
-  public byte[][] generateStep3() {
+  public byte[][] generateStep3() throws VariableNotSetException {
+    if(pubKey == null)
+      throw new VariableNotSetException("PaillierPublicKey not set");
     BigInteger eeSubtract = ch.subtract(arraySum(e));
     // e_i = ee - sum(e) mod n
     e[i] = eeSubtract.mod(n);

@@ -14,7 +14,7 @@ public class testClient {
 
   public static void main(String[] args) {
     int i;
-    for (i = 0; i < 300; i++) {
+    for (i = 0; i < 1; i++) {
       Random generator = new Random();
       int max = 5;
 

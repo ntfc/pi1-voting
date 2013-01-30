@@ -220,7 +220,7 @@ public class test {
     System.out.println(Arrays.toString(e3));
     System.out.println(Arrays.toString(ByteUtils.arrayBigIntegerToByte(e3)));
 
-    ZKPProver zkp = new ZKPProver(S, pub, b, c2, ee3)
+
 
   }
 }
