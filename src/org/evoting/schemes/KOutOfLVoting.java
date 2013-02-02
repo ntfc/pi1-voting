@@ -111,6 +111,7 @@ public class KOutOfLVoting extends Voting {
    * @throws IOException
    * @throws PaillierException
    */
+  @Deprecated
   @Override
   public Ballot createBallot(PublicKey key, int... votes) throws
     NumberOfVotesException,

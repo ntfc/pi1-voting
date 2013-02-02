@@ -40,7 +40,7 @@ public class clienteTest implements Runnable {
         System.out.println((i++) + ": " + cand);
       }
       
-      Ballot ballot;
+      /*Ballot ballot;
       if(vote1 != vote2) {
         ballot = client.getVoting().createBallot(client.getPublicKey(),
                                                       vote1, vote2);
@@ -50,11 +50,21 @@ public class clienteTest implements Runnable {
         ballot = client.getVoting().createBallot(client.getPublicKey(),vote1);
         System.out.println("Voted for: " + vote1);
       }
+
       
-      client.submitBallot(ballot);
+      client.submitBallot(ballot);*/
+      client.submitVote(vote1, vote2);
       
     }
     catch (Exception e) {
     }
+  }
+
+  public static void main(String[] args) throws Exception{
+    Security.addProvider(new CssiProvider());
+    VoterClient client = new VoterClient(new Socket("localhost", 4545));
+    // receive voting properties from authority like candidate names, base, etc
+    client.setUpVoting();
+    client.submitVote(0, 1);
   }
 }

@@ -12,7 +12,7 @@ import java.math.BigInteger;
  * @author nc
  */
 public class Ballot {
-  BigInteger[] votes;
+  private BigInteger[] votes;
 
   public Ballot(int nrCands) {
     this.votes = new BigInteger[nrCands];
