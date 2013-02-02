@@ -57,7 +57,7 @@ public class ZKPProver extends ZKP {
     pickRandomVValues();
     // compute p values of u
     computeUValues();
-
+    
     // byte array to be sent to the Verifier
     return ByteUtils.arrayBigIntegerToByte(u);
   }
@@ -85,15 +85,15 @@ public class ZKPProver extends ZKP {
     BigInteger eeSubtract = ch.subtract(arraySum(e));
     // e_i = ee - sum(e) mod n
     e[i] = eeSubtract.mod(n);
-
+    
     // Mod(peta * (r^ei) * g^(eeSubstract/ n), n)
     v[i] = peta.multiply(this.r.modPow(e[i], n).multiply(g.modPow(eeSubtract.
             divide(n), n))).mod(n);
-
+    
     // send v and e
     return new byte[][]{
-                         ByteUtils.arrayBigIntegerToByte(v),
-                         ByteUtils.arrayBigIntegerToByte(e)
+                         ByteUtils.arrayBigIntegerToByte(e),
+                         ByteUtils.arrayBigIntegerToByte(v)
                        };
   }
 }

@@ -64,10 +64,12 @@ public class TServer extends Thread {
         // send publickey
         dsu.writeBytes(pubKey.getEncoded());
         
+        //zkp boolean verifier
+        boolean zkpVerifier = true;
+        
         // receive ballot and zkp
         Ballot ballot = new Ballot(voting.getNrCandidates());
         for(int i = 0; i < voting.getNrCandidates(); i++) {
-          System.err.println("olaaaa");
           BigInteger C = dsu.readBigInteger();
           ballot.addVote(i, C);
           // zkp
@@ -79,23 +81,32 @@ public class TServer extends Thread {
           // send challenge
           try {
             dsu.writeBytes(zkp.generateStep2());
-
+            
             // receive step3
-            byte[] v = dsu.readBytes();
             byte[] e = dsu.readBytes();
+            byte[] v = dsu.readBytes();
+            
             zkp.receiveStep3(new byte[][]{v, e});
 
             // verify
             boolean ver = zkp.verify();
             System.err.println("Verification of C_" + i + " = " + ver);
+            if(ver == false){
+              zkpVerifier = false;
+            }
           }
           catch(VariableNotSetException ex) {
             System.err.println(ex.getMessage());
           }
         }
-        boolean receivedVote = voting.receiveBallot(ballot);
-        System.out.println("Ballot accepted: " + receivedVote);
-
+        
+        if(zkpVerifier == true){
+          boolean receivedVote = voting.receiveBallot(ballot);
+          System.out.println("Ballot accepted: " + receivedVote);
+        }
+        else{
+          System.out.println("Invalid ballot");
+        }
       }
       catch (IOException e) {
         log.log(Level.SEVERE, e.getMessage(), e);

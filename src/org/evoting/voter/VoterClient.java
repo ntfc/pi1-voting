@@ -138,14 +138,23 @@ public class VoterClient {
   public void submitVote(int... votes) throws NumberOfVotesException,
     VotingSchemeException, InvalidKeyException, IOException, PaillierException, VariableNotSetException {
 
-    // this array contains 1's and 0's: 1 if voted for candidate i, 0 otherwise
+    // sum 1 if voted for candidate i, 0 otherwise
     int[] options = new int[voting.getNrCandidates()];
     Arrays.fill(options, 0); // default option is 0
     // put 1's where the voter voted
     for(int i = 0; i < votes.length; i++) {
-      options[votes[i]] = 1; // WARNING: using += 1 just to be able to cheat
+      options[votes[i]] += 1; // WARNING: using += 1 just to be able to cheat
+    }
+    
+    // this array contains 1's and 0's: 1 if voted for candidate i, 0 otherwise
+    int[] optionsI = new int[voting.getNrCandidates()];
+    Arrays.fill(optionsI, 0); // default option is 0
+    // put 1's where the voter voted
+    for(int i = 0; i < votes.length; i++) {
+      optionsI[votes[i]] = 1;
     }
 
+    // this array contains 1's and 0's: 1 if voted for candidate i, 0 otherwise
     BigInteger[] S = new BigInteger[]{BigInteger.ZERO, BigInteger.ONE};
     // send vote and create ZKP for each voting option
     for(int i = 0; i < options.length; i++) {
@@ -160,16 +169,25 @@ public class VoterClient {
       ZKPProver zkp = new ZKPProver(S, (PaillierPublicKey)publicKey, i, C, r);
 
       // send step1
-      dsu.writeBytes(zkp.generateStep1(C, i));
+      byte[] stp1 = zkp.generateStep1(C, optionsI[i]);
+      dsu.writeBytes(stp1);
 
       // receive step2
-      byte[] challenge = dsu.readBytes();
+      byte[] challenge = dsu.readBytes();  
       zkp.receiveStep2(challenge);
 
-      // send step3
+    /// send step3
       byte[][] step3 = zkp.generateStep3();
-      dsu.writeBytes(step3[0]);
-      dsu.writeBytes(step3[1]);
+      
+      
+      byte[] step31 = step3[0];
+      dsu.writeBytes(step31);
+      
+      byte[] step32 = step3[1];
+      dsu.writeBytes(step32);
+
+    
+    
     }
   }
 }

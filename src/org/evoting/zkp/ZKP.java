@@ -141,7 +141,7 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
       if (j != i) {
         sum = sum.add(a[j]);
       }
-    }
+    } 
     return sum;
   }
 }

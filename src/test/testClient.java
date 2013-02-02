@@ -19,7 +19,7 @@ public class testClient {
       int max = 5;
 
       int roll = generator.nextInt(max) + 1;
-      Thread t1 = new Thread(new clienteTest(roll, roll));
+      Thread t1 = new Thread(new clienteTest(4, 4));
       //Thread t1 = new Thread(new clienteTest(generator.nextInt(max) + 1, generator.nextInt(max) + 1));
       t1.start();
     }
