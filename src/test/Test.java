@@ -24,13 +24,13 @@ import org.evoting.schemes.Ballot;
  *
  * @author nc
  */
-public class test {
+public class Test {
 
   public static BigInteger tallyDec = new BigInteger("235");
   public static int base = 25;
   public static int K = 1, L = 3;
   public static List<String> cands = new ArrayList<>();
-  private static final Logger LOG = Logger.getLogger(test.class.getName());
+  private static final Logger LOG = Logger.getLogger(Test.class.getName());
   private static int votersWhoVoted = 19;
   private static BigInteger[] S = new BigInteger[]{BigInteger.ZERO,
     BigInteger.ONE};
@@ -110,7 +110,7 @@ public class test {
     BigInteger eeSubtract = ch.subtract(arraySum(e));
     // e_i = ee - sum(e) mod n
     e[i] = eeSubtract.mod(n);
-    
+
     // Mod(peta * (r^ei) * g^(eeSubstract/ n), n)
     v[i] = peta.multiply(r.modPow(e[i], n).multiply(g.modPow(eeSubtract.divide(n), n))).mod(n);
   }
@@ -213,8 +213,7 @@ public class test {
     NZKP_step3(pub, 0, r2, ee3, peta3, e3, v3);
     System.out.println(NZKP_step4(pub, ee3, e3, v3, u3, c2));
 
-    System.out.println(Arrays.toString(e3));
-    System.out.println(Arrays.toString(ByteUtils.arrayBigIntegerToByte(e3)));
+
 
 
 
