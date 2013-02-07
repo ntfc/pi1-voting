@@ -15,3 +15,10 @@ and add the libs/ folder
  - validate client voting option (partially done)
  - validate receive votes (partially done)
  - DONT USE A LIST TO STORE CANDIDATE NAMES NOR THE VOTES
+
+#CODES
+ - create a static class HomoCipher, that contains a `public static Cipher getChiper(code)`
+ - PaillierSimple: 0x1
+ - PaillierFast: 0x2
+ - PaillierOutra: 0x3
+ - ElGamal: 0x4
