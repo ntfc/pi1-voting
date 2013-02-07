@@ -157,6 +157,7 @@ public class KOutOfLVoting extends Voting {
       // number of votes for candidate
       BigInteger candTallyDec = tallying(key, i);
       BigInteger candTally = getCipher().dec(key, candTallyDec);
+      // TODO: blank votes = K - candTally
       results[i] = candTally;
     }
     return results;

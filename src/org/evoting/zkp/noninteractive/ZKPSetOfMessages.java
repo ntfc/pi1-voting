@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.evoting.zkp;
+package org.evoting.zkp.noninteractive;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -14,7 +14,7 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
  * <p/>
  * @author nc
  */
-/*public*/ abstract class ZKP {
+/*public*/ abstract class ZKPSetOfMessages {
 
   protected BigInteger[] u;
   protected BigInteger[] e;
@@ -35,7 +35,7 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
    * @param pub
    * @param c
    */
-  public ZKP(BigInteger[] S, PaillierPublicKey pub, BigInteger c) {
+  public ZKPSetOfMessages(BigInteger[] S, PaillierPublicKey pub, BigInteger c) {
     this(S, pub, -1, c, null);
   }
 
@@ -47,7 +47,7 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
    * @param c
    * @param rUsedInEncryption
    */
-  public ZKP(BigInteger[] S, PaillierPublicKey pub, int i, BigInteger c, BigInteger rUsedInEncryption) {
+  public ZKPSetOfMessages(BigInteger[] S, PaillierPublicKey pub, int i, BigInteger c, BigInteger rUsedInEncryption) {
     this.S = S.clone();
     this.p = this.S.length;
     this.pubKey = pub;

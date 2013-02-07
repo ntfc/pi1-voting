@@ -27,7 +27,7 @@ import org.evoting.exception.VotingSchemeException;
 import org.evoting.schemes.Ballot;
 import org.evoting.schemes.KOutOfLVoting;
 import org.evoting.schemes.Voting;
-import org.evoting.zkp.ZKPProver;
+import org.evoting.zkp.noninteractive.ZKPSetOfMessagesProver;
 import org.utils.DataStreamUtils;
 
 /**
@@ -117,6 +117,7 @@ public class VoterClient {
     }
   }
 
+  @Deprecated
   public void submitBallot(Ballot ballot) throws IOException {
     if (ballot == null) {
       //TODO: throw exception
@@ -166,7 +167,7 @@ public class VoterClient {
       // send vote
       dsu.writeBigInteger(C);
       // zkp
-      ZKPProver zkp = new ZKPProver(S, (PaillierPublicKey)publicKey, i, C, r);
+      ZKPSetOfMessagesProver zkp = new ZKPSetOfMessagesProver(S, (PaillierPublicKey)publicKey, i, C, r);
 
       // send step1
       byte[] stp1 = zkp.generateStep1(C, optionsI[i]);

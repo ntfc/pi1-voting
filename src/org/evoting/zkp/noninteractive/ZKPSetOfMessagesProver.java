@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.evoting.zkp;
+package org.evoting.zkp.noninteractive;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -16,22 +16,22 @@ import org.utils.ByteUtils;
  *
  * @author nc
  */
-public class ZKPProver extends ZKP {
+public class ZKPSetOfMessagesProver extends ZKPSetOfMessages {
 
   /**
-   * Create the prover ZKP part
+   * Create the prover ZKPSetOfMessages part
    * @param S Set of messages allowed
    * @param pub Paillier public key
    * @param i Index of the message in the set S
    * @param c Message encrypted
    * @param rUsedInEnc Random r such that c = E(S[i], r)
    */
-  public ZKPProver(BigInteger[] S, PaillierPublicKey pub, int i, BigInteger c, BigInteger rUsedInEnc) {
+  public ZKPSetOfMessagesProver(BigInteger[] S, PaillierPublicKey pub, int i, BigInteger c, BigInteger rUsedInEnc) {
     super(S, pub, i, c, rUsedInEnc);
   }
 
   /**
-   * Step 1 of Non-Interactive ZKP
+   * Step 1 of Non-Interactive ZKPSetOfMessages
    * <p>
    * <b>NOTE:</b> used by the prover P
    * @param c

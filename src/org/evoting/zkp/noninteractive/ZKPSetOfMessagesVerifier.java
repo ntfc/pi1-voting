@@ -3,11 +3,10 @@
  * and open the template in the editor.
  */
 
-package org.evoting.zkp;
+package org.evoting.zkp.noninteractive;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import org.cssi.numbers.CryptoNumbers;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.evoting.exception.VariableNotSetException;
@@ -17,15 +16,15 @@ import org.utils.ByteUtils;
  *
  * @author nc
  */
-public class ZKPVerifier extends ZKP {
+public class ZKPSetOfMessagesVerifier extends ZKPSetOfMessages {
 
   /**
-   * Create the verifier ZKP part
+   * Create the verifier ZKPSetOfMessages part
    * @param S Set of messages allowed
    * @param pub Paillier public key
    * @param C Encrypted message received from prover
    */
-  public ZKPVerifier(BigInteger[] S, PaillierPublicKey pub, BigInteger C) {
+  public ZKPSetOfMessagesVerifier(BigInteger[] S, PaillierPublicKey pub, BigInteger C) {
     super(S, pub, C);
   }
 

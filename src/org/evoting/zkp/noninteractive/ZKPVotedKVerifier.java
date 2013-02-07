@@ -37,9 +37,18 @@ public class ZKPVotedKVerifier extends ZKPVotedK {
   }
 
   public boolean verify() throws PaillierException, InvalidKeyException {
-    BigInteger c2 = new PaillierSimple().enc(pubKey, BigInteger.valueOf(K), productR.mod(n));
+    int kAux = K;
+    // NOTE: neste momento, prova-se que se votou entre 0 e K candidatos
+    while(kAux >= 0) {
+      // E(K, productR) == productC ==> tudo ok, votou em kAux candidatos
+      BigInteger cc = new PaillierSimple().enc(pubKey, BigInteger.valueOf(kAux), productR.mod(n));
+      if(cc.compareTo(productC) == 0) {
+        return true;
+      }
+      kAux--;
+    }
     // E(K, productR) == productC ==> tudo ok, votou em K candidatos
-    return c2.compareTo(productC) == 0;
+    return false;
   }
 
 }

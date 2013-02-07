@@ -16,7 +16,7 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.evoting.exception.VariableNotSetException;
 import org.evoting.schemes.Ballot;
 import org.evoting.schemes.Voting;
-import org.evoting.zkp.ZKPVerifier;
+import org.evoting.zkp.noninteractive.ZKPSetOfMessagesVerifier;
 import org.utils.DataStreamUtils;
 
 /**
@@ -74,7 +74,7 @@ public class TServer extends Thread {
           ballot.addVote(i, C);
           // zkp
           BigInteger[] S = new  BigInteger[]{BigInteger.ZERO, BigInteger.ONE};
-          ZKPVerifier zkp = new ZKPVerifier(S, (PaillierPublicKey)pubKey, C);
+          ZKPSetOfMessagesVerifier zkp = new ZKPSetOfMessagesVerifier(S, (PaillierPublicKey)pubKey, C);
           // receive step1
           zkp.receiveStep1(dsu.readBytes());
 
