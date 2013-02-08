@@ -59,6 +59,8 @@ public class authTest {
       System.err.println("Tally of candidate " + i + ": " + tallyI);
       System.err.println("Tally dec: " + new PaillierSimple().dec(kP.getPrivate(), tallyI));
     }
+    
+    System.out.println("Votos nulos: "+ votingServer.getVoting().getInvalidVotes());
     //int winner = votingServer.getVoting().winner(kP.getPrivate(), tally);
     //System.out.println("Results: " + tally);
     //System.out.println("Total votes: " + votingServer.getVoting().totalVotes());

@@ -105,6 +105,7 @@ public class TServer extends Thread {
           System.out.println("Ballot accepted: " + receivedVote);
         }
         else{
+          voting.addInvalidVote();
           System.out.println("Invalid ballot");
         }
       }

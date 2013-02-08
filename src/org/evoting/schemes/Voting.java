@@ -42,6 +42,7 @@ public abstract class Voting {
   protected List<Ballot> votes;
   private Paillier cipher; //TODO: add constructor with cipher as param
   private int votersWhoVoted = 0;
+  private int invalidvotes;
 
   /**
    * Create an empty voting scheme <p> This is used only by the voter
@@ -64,6 +65,7 @@ public abstract class Voting {
     // initializate everything here
     this.candidateNames = new ArrayList<>();
     this.votes = new LinkedList<>(); //LinkedLists more effient in adding and sequencial search
+    this.invalidvotes = 0;
   }
 
   /**
@@ -80,6 +82,7 @@ public abstract class Voting {
     this.nrVoters = voters;
     this.candidateNames = cands;
     this.votes = new LinkedList<>();
+    this.invalidvotes = 0;
   }
 
   /**
@@ -94,7 +97,15 @@ public abstract class Voting {
   public Paillier getCipher() {
     return cipher;
   }
+  
+  public void addInvalidVote(){
+    this.invalidvotes++;
+  }
 
+  public int getInvalidVotes(){
+    return this.invalidvotes;
+  }
+  
   public void setCipher(Paillier cipher) {
     this.cipher = cipher;
   }

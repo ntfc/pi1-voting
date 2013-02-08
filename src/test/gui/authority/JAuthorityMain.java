@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -42,6 +43,7 @@ public class JAuthorityMain extends javax.swing.JFrame {
    */
   public JAuthorityMain() {
     initComponents();
+    setLocationRelativeTo(null);
   }
 
   /**
@@ -74,6 +76,7 @@ public class JAuthorityMain extends javax.swing.JFrame {
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
     setTitle("eVoting");
+    setLocation(new java.awt.Point(320, 400));
     setMinimumSize(new java.awt.Dimension(405, 350));
     setPreferredSize(new java.awt.Dimension(405, 350));
     getContentPane().setLayout(new java.awt.GridBagLayout());
@@ -260,11 +263,12 @@ public class JAuthorityMain extends javax.swing.JFrame {
           // show voting results
           try {
             BigInteger[] results = server.getVoting().votingResults(privKey);
+            int invalidvotes = server.getVoting().getInvalidVotes();
             JOptionPane.showMessageDialog(rootPane, "Resultado serao apresentados de seguida");
 
             JDialogVotingResults votingResults = new JDialogVotingResults(JAuthorityMain.getFrames()[0],
                                                                           results,
-                                                                          server.getVoting().getCandidateNames());
+                                                                          server.getVoting().getCandidateNames(), invalidvotes);
             votingResults.setVisible(true);
           }
           catch (Exception ex) {

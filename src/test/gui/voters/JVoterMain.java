@@ -18,6 +18,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.provider.CssiProvider;
 import org.evoting.exception.NumberOfVotesException;
+import org.evoting.exception.VariableNotSetException;
 import org.evoting.exception.VotingSchemeException;
 import org.evoting.schemes.Ballot;
 import org.evoting.schemes.Voting;
@@ -42,6 +43,7 @@ public class JVoterMain extends javax.swing.JFrame {
    */
   public JVoterMain() {
     initComponents();
+    setLocationRelativeTo(null);
     jLabel1.setVisible(false);
     jButton1.setVisible(false);
   }
@@ -182,31 +184,25 @@ public class JVoterMain extends javax.swing.JFrame {
     int j = 0;
     for (int i = 0; i < options.length; i++) {
       if (((JCheckBox) options[i]).isSelected()) {
-        int opcao = i + 1;
+        int opcao = i;
         arrayVotes[j] = opcao;
         j++;
       }
     }
-
-
-    //create ballot
+    
+    
     try {
-      b = voting.createBallot(voter.getPublicKey(), arrayVotes);
-    }
-    catch (NumberOfVotesException | VotingSchemeException | InvalidKeyException | IOException | PaillierException ex) {
-      JOptionPane.showMessageDialog(this, ex.getMessage());
-      LOG.log(Level.SEVERE, ex.getMessage(), ex);
-    }
-
-    //submit ballot    
-    try {
-      voter.submitBallot(b);
+      
+      //submit votes
+      voter.submitVote(arrayVotes);
       JOptionPane.showMessageDialog(this, "Vote submitted");
     }
-    catch (IOException ex) {
+    catch (NumberOfVotesException | VotingSchemeException | InvalidKeyException | IOException | PaillierException | VariableNotSetException ex) {
       JOptionPane.showMessageDialog(this, ex.getMessage());
       LOG.log(Level.SEVERE, ex.getMessage(), ex);
     }
+    
+    
     this.dispose();
   }//GEN-LAST:event_jButton1ActionPerformed
 

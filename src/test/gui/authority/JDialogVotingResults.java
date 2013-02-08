@@ -17,13 +17,16 @@ import javax.swing.table.DefaultTableModel;
 public class JDialogVotingResults extends javax.swing.JDialog {
   private BigInteger[] results;
   private List<String> candidates;
+  private int invalidvotes; 
 	/** Creates new form JDialogVotingResults */
-	public JDialogVotingResults(java.awt.Frame parent, BigInteger[] res, List<String> cands) {
+	public JDialogVotingResults(java.awt.Frame parent, BigInteger[] res, List<String> cands, int invVotes) {
 		super(parent);
 		initComponents();
     this.results = res;
     this.candidates = cands;
     this.setVotingResults();
+    this.invalidvotes = invVotes;
+    setLocationRelativeTo(null);
 	}
 
   private void setVotingResults() {
@@ -33,6 +36,10 @@ public class JDialogVotingResults extends javax.swing.JDialog {
               "\n");
       jTextArea1.setText(t);
     }
+    //print invalid votes
+    String t = jTextArea1.getText();
+    t += "Votos nulos : ".concat(String.valueOf(invalidvotes)).concat("\n");
+    jTextArea1.setText(t);
   }
 
 	/** This method is called from within the constructor to
@@ -49,6 +56,7 @@ public class JDialogVotingResults extends javax.swing.JDialog {
     jTextArea1 = new javax.swing.JTextArea();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+    setTitle("Resultados:");
     getContentPane().setLayout(new java.awt.GridBagLayout());
 
     jPanel1.setLayout(new java.awt.GridBagLayout());
