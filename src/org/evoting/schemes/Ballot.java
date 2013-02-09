@@ -36,4 +36,8 @@ public class Ballot {
   public void addVote(int index, BigInteger voteEnc) {
     this.votes[index] = voteEnc;
   }
+  
+  public BigInteger[] getVotes(){
+    return this.votes;
+  }
 }
