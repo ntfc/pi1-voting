@@ -55,11 +55,6 @@ public class TServer extends Thread {
               getOutputStream());
 
       try {
-        // first of all, send the voting type, so the voter can create its instance
-        int votingType = voting.getCode();
-        System.out.println("Voting type: " + votingType);
-        
-        dsu.writeInt(votingType);
         // send voting properties, like base
         voting.sendVotingProperties(dsu);
         // send voting candidates to the voter

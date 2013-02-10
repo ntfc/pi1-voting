@@ -14,11 +14,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.Security;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -27,7 +25,6 @@ import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.provider.CssiProvider;
 import org.evoting.authority.VotingServer;
 import org.evoting.exception.VotingSchemeException;
-import org.evoting.schemes.KOutOfLVoting;
 import org.evoting.schemes.Voting;
 import test.gui.CommonMethods;
 
@@ -232,14 +229,7 @@ public class JAuthorityMain extends javax.swing.JFrame {
     }
 
     
-    //create voting
-    try {
-      voting = new KOutOfLVoting(K, nVoters, cands);
-    }
-    catch(VotingSchemeException ex) {
-      JOptionPane.showMessageDialog(this, ex.getMessage());
-      return;
-    }
+    voting = new Voting(K, nVoters, cands);
      
 
     final int port = Integer.parseInt(jTextFieldPort.getText());

@@ -25,7 +25,6 @@ import org.evoting.exception.NumberOfVotesException;
 import org.evoting.exception.VariableNotSetException;
 import org.evoting.exception.VotingSchemeException;
 import org.evoting.schemes.Ballot;
-import org.evoting.schemes.KOutOfLVoting;
 import org.evoting.schemes.Voting;
 import org.evoting.zkp.noninteractive.ZKPSetOfMessagesProver;
 import org.evoting.zkp.noninteractive.ZKPVotedKProver;
@@ -85,16 +84,8 @@ public class VoterClient {
     // receive voting properties from server
     try {
 
-      // first, receive the kind of voting that is taking place
-      int votingType = dsu.readInt();
-
-      switch (votingType) {
-        case KOutOfLVoting.CODE:
-          voting = new KOutOfLVoting();
-          break;
-        default:
-          throw new VotingSchemeException("No such voting scheme");
-      }
+      // first, create the voting
+      voting = new Voting();
 
       //------- receive voting properties
       voting.readVotingProperties(dsu);

@@ -8,14 +8,17 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.logging.Logger;
 import org.cssi.paillier.cipher.Paillier;
 import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.interfaces.PaillierPrivateKey;
-import org.evoting.exception.NumberOfVotesException;
 import org.evoting.exception.VotingSchemeException;
 import org.utils.DataStreamUtils;
 
@@ -29,60 +32,40 @@ import org.utils.DataStreamUtils;
  *
  * @author miltonnunes52
  */
-public abstract class Voting {
-  /*
-   * these variables are protected so that they can be accessible only from the
-   * classes in this package
-   */
-
-  protected int nrCandidates; // this is L
-  protected int nrVoters;
-  protected List<String> candidateNames;
-  //protected List<BigInteger> votes;
-  protected List<Ballot> votes;
+public class Voting {
+  private int nrCandidates; // this is L
+  private int nrVoters;
+  private List<String> candidateNames;
+  private List<Ballot> votes;
   private Paillier cipher; //TODO: add constructor with cipher as param
   private int votersWhoVoted = 0;
-  private int invalidvotes;
+  private int invalidvotes = 0;
+  private static final Logger LOG = Logger.getLogger(Voting.class.
+    getName());
+  public static final int CODE = 0x14;
+  private int nrOptions; // this is K
 
   /**
    * Create an empty voting scheme <p> This is used only by the voter
    */
   public Voting() {
-    this(-1, -1);
+    this(-1, -1, new ArrayList<String>());
   }
 
   /**
-   * Create a voting scheme with
-   * <code>cands</code> candidates and a maximum of
-   * <code>voters</voters> voters allowed
-   *
-   * @param cands Number of candidates
-   * @param voters Number of voters
-   */
-  public Voting(int cands, int voters) {
-    this.nrCandidates = cands;
-    this.nrVoters = voters;
-    // initializate everything here
-    this.candidateNames = new ArrayList<>();
-    this.votes = new LinkedList<>(); //LinkedLists more effient in adding and sequencial search
-    this.invalidvotes = 0;
-  }
-
-  /**
-   * Create a voting scheme with
-   * <code>cands.size()</code> candidates and a maximum of
-   * <code>voters</code> allowed.
-   * <code>cands</code> contains the names of the candidates
-   *
+   * Create a new K-out-of-L voting.
+   * <p>
+   * L is the lengths of the cands param
+   * @param k
    * @param voters
    * @param cands
    */
-  public Voting(int voters, List<String> cands) {
+  public Voting(int k, int voters, List<String> cands) {
     this.nrCandidates = cands.size();
     this.nrVoters = voters;
     this.candidateNames = cands;
     this.votes = new LinkedList<>();
-    this.invalidvotes = 0;
+    this.nrOptions = k;
   }
 
   /**
@@ -93,6 +76,10 @@ public abstract class Voting {
   public int getNrCandidates() {
     return nrCandidates;
   }
+  public int getL() { return nrCandidates;}
+  public int getK() { return nrOptions; }
+  private void setL(int l) { nrCandidates = l; }
+  private void setK(int k) { nrOptions = k; }
 
   public Paillier getCipher() {
     return cipher;
@@ -118,8 +105,6 @@ public abstract class Voting {
   public int getNrVoters() {
     return nrVoters;
   }
-
-  public abstract int getCode();
 
   /**
    * Return the candidate names
@@ -177,8 +162,12 @@ public abstract class Voting {
    * @param dsu
    * @throws IOException
    */
-  public abstract void sendVotingProperties(DataStreamUtils dsu) throws
-          IOException;
+  public void sendVotingProperties(DataStreamUtils dsu) throws IOException {
+    // send k
+    dsu.writeInt(getK());
+    // send l
+    dsu.writeInt(getL());
+  }
 
   /**
    * Read the voting properties sent by the authority
@@ -191,8 +180,12 @@ public abstract class Voting {
    * @throws IOException
    */
   // TODO: receive the cipher used
-  public abstract void readVotingProperties(DataStreamUtils dsu) throws
-          IOException;
+  public void readVotingProperties(DataStreamUtils dsu) throws IOException {
+    // read k
+    setK(dsu.readInt());
+    // read l
+    setL(dsu.readInt());
+  }
 
   /**
    * Send the candidates to the voter
@@ -272,30 +265,65 @@ public abstract class Voting {
   }
 
   /**
-   * Creates a String with the voting results
+   * Returns an array with the results of each candidate.
    * <p>
    * In the voting results we can see how many votes each candidate got
    *
    * @param key
    * @return
    */
-  public abstract BigInteger[] votingResults(PrivateKey key) throws InvalidKeyException, PaillierException, VotingSchemeException;
+  public BigInteger[] votingResults(PrivateKey key) throws InvalidKeyException,
+    PaillierException, VotingSchemeException {
+    BigInteger[] results = new BigInteger[nrCandidates];
+    for (int i = 0; i < nrCandidates; i++) {
+      // number of votes for candidate
+      BigInteger candTallyDec = tallying(key, i);
+      BigInteger candTally = getCipher().dec(key, candTallyDec);
+      // TODO: blank votes = K - candTally
+      results[i] = candTally;
+    }
+    return results;
+  }
 
-  /**
-   * Receive a vote (or K votes) and creates a ballot
-   * 
-   * @param key
-   * @param votes
-   * @throws NumberOfVotesException
-   * @throws VotingSchemeException
-   * @throws InvalidKeyException
-   * @throws IOException
-   */
-  public abstract Ballot createBallot(PublicKey key, int... votes) throws
-          NumberOfVotesException, VotingSchemeException, InvalidKeyException,
-          IOException, PaillierException;
+  class ValueComparator implements Comparator<Integer> {
 
-  public abstract List<Integer> winner(BigInteger[] results);
-  
-  public abstract int getK();
+    private Map<Integer, BigInteger> base;
+
+    public ValueComparator(Map<Integer, BigInteger> base) {
+      this.base = base;
+    }
+
+    // Note: this comparator imposes orderings that are inconsistent with equals.
+    public int compare(Integer a, Integer b) {
+      if (base.get(a).intValue() >= base.get(b).intValue()) {
+        return -1;
+      } else {
+        return 1;
+      } // returning 0 would merge keys
+    }
+  }
+  public List<Integer> winner(BigInteger[] results) {
+    // returning List with the winners;
+    List<Integer> winners = new ArrayList<>();
+    //auxiliar collection to store the results before and after being sorted
+    Map<Integer, BigInteger> sortedResults = new TreeMap<>();
+    int i;
+    for (i = 0; i < results.length; i++) {
+      // copy the results, key = Candidate, value = number of votes in BigInteger
+      sortedResults.put(i, results[i]);
+    }
+
+    //Sort the results using a Comparator
+    Comparator cpv = new ValueComparator(sortedResults);
+    sortedResults = new TreeMap<>(cpv);
+
+    i = 0;
+    Iterator it = sortedResults.keySet().iterator();
+    while (it.hasNext() || i < getK()) {
+      //Copy the results to the returning list
+      winners.add((Integer) it.next());
+    }
+    return winners;
+  }
+
 }

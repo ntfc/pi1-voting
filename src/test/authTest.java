@@ -13,7 +13,6 @@ import java.util.List;
 import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.provider.CssiProvider;
 import org.evoting.authority.VotingServer;
-import org.evoting.schemes.KOutOfLVoting;
 import org.evoting.schemes.Voting;
 
 /**
@@ -46,18 +45,22 @@ public class authTest {
 
 
     //Voting votingType = new OneOutOfLVoting(cands, 14, 16);
-    Voting votingType = new KOutOfLVoting(2, 300, cands);
+    Voting votingType = new Voting(2, 300, cands);
     //Voting votingType = new YesNoVoting(5, "Sim", "Não");
     //Voting votingType = new KOutOfLVoting(1, 10, 11, cands); // Yes/No voting if cands.size = 2
 
     VotingServer votingServer = new VotingServer(votingType, kP, new PaillierSimple());
 
-    votingServer.startVoting(10000, 4545);
+    votingServer.startVoting(5000, 4545);
     //BigInteger tally = votingServer.getVoting().tallying(kP.getPrivate());
+
     for(int i = 0; i < cands.size(); i++) {
       BigInteger tallyI = votingType.tallying(kP.getPrivate(), i);
       System.err.println("Tally of candidate " + i + ": " + tallyI);
       System.err.println("Tally dec: " + new PaillierSimple().dec(kP.getPrivate(), tallyI));
+    }
+    for(BigInteger ii : votingType.votingResults(kP.getPrivate())) {
+      System.err.println("Result i = " + ii);
     }
     
     System.out.println("Votos nulos: "+ votingServer.getVoting().getInvalidVotes());
