@@ -68,15 +68,14 @@ public class TServer extends Thread {
         
         // receive ballot and zkp
         Ballot ballot = new Ballot(voting.getL(), voting.getK());
-        // TODO: define S at the very beginning
-        BigInteger[] S = new  BigInteger[]{BigInteger.ZERO, BigInteger.ONE};
+
         for(int i = 0; i < ballot.size(); i++) {
           BigInteger C = dsu.readBigInteger();
           ballot.addVote(i, C);
           
 
           // zkp
-          ZKPSetOfMessagesVerifier zkp = new ZKPSetOfMessagesVerifier(S, (PaillierPublicKey)pubKey, C);
+          ZKPSetOfMessagesVerifier zkp = new ZKPSetOfMessagesVerifier(voting.getS(), (PaillierPublicKey)pubKey, C);
           // receive step1
           Proof stp1 = new Proof(dsu.readBytes());
           

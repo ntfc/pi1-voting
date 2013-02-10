@@ -38,7 +38,7 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
   public ZKPSetOfMessages(BigInteger[] S, PaillierPublicKey pub, BigInteger c) {
     this(S, pub, -1, c, null);
   }
-
+  
   /**
    * <b>Used only by the prover</b>
    * @param S

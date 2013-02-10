@@ -9,6 +9,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.Security;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.provider.CssiProvider;
@@ -45,7 +46,8 @@ public class authTest {
 
 
     //Voting votingType = new OneOutOfLVoting(cands, 14, 16);
-    Voting votingType = new Voting(2, 300, cands);
+    BigInteger[] S = new BigInteger[]{BigInteger.ZERO, BigInteger.ZERO};
+    Voting votingType = new Voting(2, 300, cands, S);
     //Voting votingType = new YesNoVoting(5, "Sim", "Não");
     //Voting votingType = new KOutOfLVoting(1, 10, 11, cands); // Yes/No voting if cands.size = 2
 

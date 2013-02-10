@@ -142,7 +142,7 @@ public class VoterClient {
 
     BigInteger[] arrayS = new BigInteger[ballotSize];
     // this array contains 1's and 0's: 1 if voted for candidate i, 0 otherwise
-    BigInteger[] S = new BigInteger[]{BigInteger.ZERO, BigInteger.ONE};
+
     // send vote and create ZKP for each voting option
     // DUMMY VOTES ARE DEALED IN THE NEXT LOOP
     for(int i = 0; i < voting.getL(); i++) {
@@ -157,7 +157,7 @@ public class VoterClient {
       // send vote
       dsu.writeBigInteger(C);
       // zkp
-      ZKPSetOfMessagesProver zkp = new ZKPSetOfMessagesProver(S, (PaillierPublicKey)publicKey, i, C, r);
+      ZKPSetOfMessagesProver zkp = new ZKPSetOfMessagesProver(voting.getS(), (PaillierPublicKey)publicKey, i, C, r);
 
       // send step1
       // use this if, just in case of cheating..
@@ -191,7 +191,7 @@ public class VoterClient {
       // send vote
       dsu.writeBigInteger(C);
       // zkp
-      ZKPSetOfMessagesProver zkp = new ZKPSetOfMessagesProver(S, (PaillierPublicKey)publicKey, i, C, r);
+      ZKPSetOfMessagesProver zkp = new ZKPSetOfMessagesProver(voting.getS(), (PaillierPublicKey)publicKey, i, C, r);
 
       // send step1
       // use this if, just in case of cheating..

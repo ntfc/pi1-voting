@@ -19,9 +19,9 @@ import java.util.TreeMap;
 import java.util.logging.Logger;
 import org.cssi.paillier.cipher.Paillier;
 import org.cssi.paillier.cipher.PaillierException;
-import org.cssi.paillier.interfaces.PaillierPrivateKey;
 import org.evoting.exception.VotingSchemeException;
 import org.evoting.zkp.Proof;
+import org.utils.ByteUtils;
 import org.utils.DataStreamUtils;
 
 /**
@@ -47,12 +47,13 @@ public class Voting {
     getName());
   public static final int CODE = 0x14;
   private int nrOptions; // this is K
+  private BigInteger[] S; // set of allowed messages
 
   /**
    * Create an empty voting scheme <p> This is used only by the voter
    */
   public Voting() {
-    this(-1, -1, new ArrayList<String>());
+    this(-1, -1, new ArrayList<String>(), null);
   }
 
   /**
@@ -63,13 +64,14 @@ public class Voting {
    * @param voters
    * @param cands
    */
-  public Voting(int k, int voters, List<String> cands) {
+  public Voting(int k, int voters, List<String> cands, BigInteger[] messages) {
     this.nrCandidates = cands.size();
     this.nrVoters = voters;
     this.candidateNames = cands;
     //this.votes = new LinkedList<>();
     this.votes = new HashMap<>();
     this.nrOptions = k;
+    this.S = messages;
   }
 
   /**
@@ -87,6 +89,13 @@ public class Voting {
 
   public Paillier getCipher() {
     return cipher;
+  }
+
+  public BigInteger[] getS() {
+    return S;
+  }
+  public void setS(BigInteger[] s) {
+    this.S = s;
   }
   
   public void addInvalidVote(){
@@ -171,6 +180,8 @@ public class Voting {
     dsu.writeInt(getK());
     // send l
     dsu.writeInt(getL());
+    // send S
+    dsu.writeBytes(ByteUtils.arrayBigIntegerToByte(getS()));
   }
 
   /**
@@ -189,6 +200,8 @@ public class Voting {
     setK(dsu.readInt());
     // read l
     setL(dsu.readInt());
+    // read S
+    setS(ByteUtils.byteToArrayBigInteger(dsu.readBytes()));
   }
 
   /**
