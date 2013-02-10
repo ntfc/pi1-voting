@@ -5,6 +5,7 @@
 
 package org.evoting.zkp.noninteractive;
 
+import org.evoting.zkp.Proof;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import org.cssi.numbers.CryptoNumbers;
@@ -40,7 +41,7 @@ public class ZKPSetOfMessagesProver extends ZKPSetOfMessages {
    * @throws VariableNotSetException
    * @return The array to be sent to the verifier
    */
-  public byte[] generateStep1(BigInteger c, int i)
+  public Proof generateStep1(BigInteger c, int i)
           throws
           VariableNotSetException {
     if (pubKey == null) {
@@ -59,7 +60,7 @@ public class ZKPSetOfMessagesProver extends ZKPSetOfMessages {
     computeUValues();
     
     // byte array to be sent to the Verifier
-    return ByteUtils.arrayBigIntegerToByte(u);
+    return new Proof(ByteUtils.arrayBigIntegerToByte(u));
   }
 
   /**
@@ -68,8 +69,8 @@ public class ZKPSetOfMessagesProver extends ZKPSetOfMessages {
    * <b>NOTE:</b> used by the prover P
    * @param data
    */
-  public void receiveStep2(byte[] data) {
-    this.ch = new BigInteger(data);
+  public void receiveStep2(Proof p) {
+    this.ch = p.getProofAsBigIntegerArray()[0];
   }
 
   /**
@@ -79,7 +80,7 @@ public class ZKPSetOfMessagesProver extends ZKPSetOfMessages {
    * @return Returns an array with 2 arrays of BigIntegers (both of them as
    * a byte array): v in the first position, and e in the second
    */
-  public byte[][] generateStep3() throws VariableNotSetException {
+  public Proof[] generateStep3() throws VariableNotSetException {
     if(pubKey == null)
       throw new VariableNotSetException("PaillierPublicKey not set");
     BigInteger eeSubtract = ch.subtract(arraySum(e));
@@ -91,9 +92,9 @@ public class ZKPSetOfMessagesProver extends ZKPSetOfMessages {
             divide(n), n))).mod(n);
     
     // send v and e
-    return new byte[][]{
-                         ByteUtils.arrayBigIntegerToByte(e),
-                         ByteUtils.arrayBigIntegerToByte(v)
+    return new Proof[]{
+                         new Proof(ByteUtils.arrayBigIntegerToByte(e)),
+                         new Proof(ByteUtils.arrayBigIntegerToByte(v))
                        };
   }
 }

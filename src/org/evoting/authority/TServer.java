@@ -18,6 +18,7 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.evoting.exception.VariableNotSetException;
 import org.evoting.schemes.Ballot;
 import org.evoting.schemes.Voting;
+import org.evoting.zkp.Proof;
 import org.evoting.zkp.noninteractive.ZKPSetOfMessagesVerifier;
 import org.evoting.zkp.noninteractive.ZKPVotedKVerifier;
 import org.utils.DataStreamUtils;
@@ -74,17 +75,18 @@ public class TServer extends Thread {
           BigInteger[] S = new  BigInteger[]{BigInteger.ZERO, BigInteger.ONE};
           ZKPSetOfMessagesVerifier zkp = new ZKPSetOfMessagesVerifier(S, (PaillierPublicKey)pubKey, C);
           // receive step1
-          zkp.receiveStep1(dsu.readBytes());
+          Proof stp1 = new Proof(dsu.readBytes());
+          zkp.receiveStep1(stp1);
 
           // send challenge
           try {
-            dsu.writeBytes(zkp.generateStep2());
+            dsu.writeBytes(zkp.generateStep2().getProofAsByteArray());
             
             // receive step3
             byte[] e = dsu.readBytes();
             byte[] v = dsu.readBytes();
             
-            zkp.receiveStep3(new byte[][]{v, e});
+            zkp.receiveStep3(e, v);
 
             // verify
             boolean ver = zkp.verify();

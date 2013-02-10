@@ -5,6 +5,7 @@
 
 package org.evoting.zkp.noninteractive;
 
+import org.evoting.zkp.Proof;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import org.cssi.numbers.CryptoNumbers;
@@ -34,8 +35,8 @@ public class ZKPSetOfMessagesVerifier extends ZKPSetOfMessages {
    * <b>NOTE:</b> used by the verifier V
    * @param data
    */
-  public void receiveStep1(byte[] data) {
-    this.u = ByteUtils.byteToArrayBigInteger(data);
+  public void receiveStep1(Proof p) {
+    this.u = p.getProofAsBigIntegerArray();
   }
 
   /**
@@ -44,14 +45,14 @@ public class ZKPSetOfMessagesVerifier extends ZKPSetOfMessages {
    * <b>NOTE:</b> used by the verifier V
    * @return The BigInteger as an array
    */
-  public byte[] generateStep2() throws VariableNotSetException {
+  public Proof generateStep2() throws VariableNotSetException {
     if(pubKey == null)
       throw new VariableNotSetException("PaillierPublicKey not set");
     // generate a random number, with t = k/2 bits (k = bitLength(n))
     int nBits = n.bitLength() / 2;
     this.ch = CryptoNumbers.genRandomNumber(nBits, new SecureRandom());
     
-    return this.ch.toByteArray();
+    return new Proof(ByteUtils.arrayBigIntegerToByte(this.ch));
 
   }
 
@@ -61,9 +62,13 @@ public class ZKPSetOfMessagesVerifier extends ZKPSetOfMessages {
    * <b>NOTE:</b> used by the verifier V
    * @param data
    */
-  public void receiveStep3(byte[][] data) {
-    this.v = ByteUtils.byteToArrayBigInteger(data[0]);
-    this.e = ByteUtils.byteToArrayBigInteger(data[1]);
+  public void receiveStep3(Proof e, Proof v) {
+    this.v = v.getProofAsBigIntegerArray();
+    this.e = e.getProofAsBigIntegerArray();
+  }
+  public void receiveStep3(byte[] e, byte[] v) {
+    this.v = ByteUtils.byteToArrayBigInteger(v);
+    this.e = ByteUtils.byteToArrayBigInteger(e);
   }
 
   /**

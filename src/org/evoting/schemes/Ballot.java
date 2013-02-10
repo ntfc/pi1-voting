@@ -6,6 +6,8 @@
 package org.evoting.schemes;
 
 import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * This class implements the ballot that each voter sends to the authority.
