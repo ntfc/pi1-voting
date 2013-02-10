@@ -19,6 +19,7 @@ import java.util.TreeMap;
 import java.util.logging.Logger;
 import org.cssi.paillier.cipher.Paillier;
 import org.cssi.paillier.cipher.PaillierException;
+import org.cssi.paillier.cipher.PaillierSimple;
 import org.evoting.exception.VotingSchemeException;
 import org.evoting.zkp.Proof;
 import org.utils.ByteUtils;
@@ -182,6 +183,8 @@ public class Voting {
     dsu.writeInt(getL());
     // send S
     dsu.writeBytes(ByteUtils.arrayBigIntegerToByte(getS()));
+    // send cipher code
+    dsu.writeInt(getCipher().getCODE());
   }
 
   /**
@@ -195,13 +198,22 @@ public class Voting {
    * @throws IOException
    */
   // TODO: receive the cipher used
-  public void readVotingProperties(DataStreamUtils dsu) throws IOException {
+  public void readVotingProperties(DataStreamUtils dsu) throws IOException, VotingSchemeException {
     // read k
     setK(dsu.readInt());
     // read l
     setL(dsu.readInt());
     // read S
     setS(ByteUtils.byteToArrayBigInteger(dsu.readBytes()));
+    // read cipher code
+    int cipherCode = dsu.readInt();
+    switch(cipherCode) {
+      case PaillierSimple.CODE:
+        setCipher(new PaillierSimple());
+        break;
+      default: // TODO: VotingSchemeException?
+        throw new VotingSchemeException("No cipher with code " + cipherCode + " was found.");
+    }
   }
 
   /**
@@ -256,10 +268,8 @@ public class Voting {
     
     for(int i = 0; i < ballot.size(); i++) {
       if(votes.get(i) == null) {
-        System.err.println("votes.get " + i + " is null");
         votes.put(i, new HashMap<BigInteger, Proof>());
       }
-      System.err.println("add " + ballot.getVote(i));
       // add ballot and proof
       votes.get(i).put(ballot.getVote(i), ballot.getProof(i));
 
@@ -307,7 +317,7 @@ public class Voting {
       // number of votes for candidate
       BigInteger candTallyDec = tallying(key, i);
       BigInteger candTally = getCipher().dec(key, candTallyDec);
-      // TODO: blank votes = K - candTally
+      
       results[i] = candTally;
     }
     // count blank votes

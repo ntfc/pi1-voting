@@ -64,11 +64,10 @@ public class TServer extends Thread {
         dsu.writeBytes(pubKey.getEncoded());
         
         //zkp boolean verifier
-        boolean zkpVerifierSetMessages = false;
+        boolean zkpVerifierSetMessages = true;
         
         // receive ballot and zkp
         Ballot ballot = new Ballot(voting.getL(), voting.getK());
-
         for(int i = 0; i < ballot.size(); i++) {
           BigInteger C = dsu.readBigInteger();
           ballot.addVote(i, C);
@@ -92,8 +91,10 @@ public class TServer extends Thread {
             zkp.receiveStep3(e, v);
 
             // verify
-            zkpVerifierSetMessages = zkp.verify();
-            System.err.println("Verification of C_" + i + " = " + zkpVerifierSetMessages);
+            boolean msgVerif = zkp.verify();
+            System.err.println("Verification of C_" + i + " = " + msgVerif);
+            zkpVerifierSetMessages = zkpVerifierSetMessages && msgVerif;
+
           }
           catch(VariableNotSetException ex) {
             System.err.println(ex.getMessage());

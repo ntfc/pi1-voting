@@ -93,8 +93,8 @@ public class VoterClient {
 
       //------- receive voting properties
       voting.readVotingProperties(dsu);
-      // TODO: do this in readVotingProperties(); auth send the cipher being used
-      voting.setCipher(new PaillierSimple());
+      //// TODO: do this in readVotingProperties(); auth send the cipher being used
+      //voting.setCipher(new PaillierSimple());
 
       //------- receive voting candidates
       voting.readVotingCandidates(dsu);
@@ -140,7 +140,7 @@ public class VoterClient {
     }
     System.err.println("Ballot = " + Arrays.toString(options));
 
-    BigInteger[] arrayS = new BigInteger[ballotSize];
+    BigInteger[] arrayWithR = new BigInteger[ballotSize];
     // this array contains 1's and 0's: 1 if voted for candidate i, 0 otherwise
 
     // send vote and create ZKP for each voting option
@@ -152,7 +152,7 @@ public class VoterClient {
       BigInteger C = voting.getCipher().enc(publicKey, opt, r);
       
       //save r value
-      arrayS[i] = r;
+      arrayWithR[i] = r;
       
       // send vote
       dsu.writeBigInteger(C);
@@ -186,7 +186,7 @@ public class VoterClient {
       BigInteger C = voting.getCipher().enc(publicKey, opt, r);
 
       //save r value
-      arrayS[i] = r;
+      arrayWithR[i] = r;
 
       // send vote
       dsu.writeBigInteger(C);
@@ -219,7 +219,7 @@ public class VoterClient {
     ZKPVotedKProver kProver = new ZKPVotedKProver(publicKey);
     
     //gen step 1
-    byte[] step1KProver = kProver.generateStep1(arrayS);
+    byte[] step1KProver = kProver.generateStep1(arrayWithR);
     
     //send step 1
     dsu.writeBytes(step1KProver);
