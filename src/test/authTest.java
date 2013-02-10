@@ -54,9 +54,11 @@ public class authTest {
     votingServer.startVoting(5000, 4545);
     //BigInteger tally = votingServer.getVoting().tallying(kP.getPrivate());
 
-    for(BigInteger ii : votingType.votingResults(kP.getPrivate())) {
-      System.err.println("Result i = " + ii);
+    BigInteger[] results = votingType.votingResults(kP.getPrivate());
+    for(int i = 0; i < results.length-1; i++) {
+      System.err.println("Candidate " + i + ": " + results[i] + " votos");
     }
+    System.err.println("Votos em branco: " + results[votingType.getL()]);
     
     System.out.println("Votos nulos: "+ votingServer.getVoting().getInvalidVotes());
     //int winner = votingServer.getVoting().winner(kP.getPrivate(), tally);

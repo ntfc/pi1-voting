@@ -135,11 +135,10 @@ public class VoterClient {
     }
     // put the necessary blank votes in the dummy votes
     int blank = voting.getK() - votes.length;
-    for(int i = voting.getL()-1; i < blank ; i++) {
+    for(int i = voting.getL(); i < (voting.getL() + blank) ; i++) {
       options[i] = 1;
     }
-    System.err.println(Arrays.toString(options));
-
+    System.err.println("Ballot = " + Arrays.toString(options));
     // this array contains 1's and 0's: 1 if voted for candidate i, 0 otherwise
     // NOTE: array size is getL() + getK() because of dummy votes
     /*int[] optionsIndexes = new int[voting.getL() + voting.getK()];

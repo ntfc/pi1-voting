@@ -246,15 +246,16 @@ public class Voting {
    * NOTE: Tally is not decrypted!!!
    *
    * @param key
-   * @return The unencrypted tally of all votes
+   * @param candIndex
+   * @return The unencrypted tally of all votes in candidate candIndex
    * @throws InvalidKeyException
    * @throws PaillierException
    */
-  public BigInteger tallying(PrivateKey key, int candIndex) throws InvalidKeyException,
+  private BigInteger tallying(PrivateKey key, int candIndex) throws InvalidKeyException,
           PaillierException,
           VotingSchemeException {
-    if(candIndex >= nrCandidates) {
-      throw new VotingSchemeException("Candidate index must be between 0 and nrCandidates-1");
+    if(candIndex >= (getL() + getK())) {
+      throw new VotingSchemeException("Candidate index must be between 0 and nrCandidates + nrOptions");
     }
     BigInteger mult = BigInteger.ONE;
     BigInteger nSquare = ((PaillierPrivateKey) key).getN().pow(2);
@@ -265,22 +266,33 @@ public class Voting {
   }
 
   /**
-   * Returns an array with the results of each candidate.
+   * Returns an array with the results of each candidate. Also, it includes the
+   * blank votes.
    * <p>
    * In the voting results we can see how many votes each candidate got
    *
    * @param key
-   * @return
+   * @return An array containing the results for each candidate, and the blank
+   * votes in the last position
    */
   public BigInteger[] votingResults(PrivateKey key) throws InvalidKeyException,
     PaillierException, VotingSchemeException {
-    BigInteger[] results = new BigInteger[nrCandidates];
+    // TODO: create a VotingResults class
+    // blank votes are in the last position
+    BigInteger[] results = new BigInteger[nrCandidates + 1];
     for (int i = 0; i < nrCandidates; i++) {
       // number of votes for candidate
       BigInteger candTallyDec = tallying(key, i);
       BigInteger candTally = getCipher().dec(key, candTallyDec);
       // TODO: blank votes = K - candTally
       results[i] = candTally;
+    }
+    // count blank votes
+    results[getL()] = BigInteger.ZERO; // initial number of blank votes
+    for(int i = getL(); i < (getL() + getK()); i++) {
+      BigInteger blankTallyDec = tallying(key, i);
+      BigInteger blanks = getCipher().dec(key, blankTallyDec);
+      results[getL()] = results[getL()].add(blanks);
     }
     return results;
   }
