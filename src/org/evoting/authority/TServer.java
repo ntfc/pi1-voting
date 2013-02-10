@@ -11,8 +11,6 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cssi.paillier.cipher.PaillierException;
@@ -66,7 +64,7 @@ public class TServer extends Thread {
         dsu.writeBytes(pubKey.getEncoded());
         
         //zkp boolean verifier
-        boolean zkpVerifierSetMessages = true;
+        boolean zkpVerifierSetMessages = false;
         
         // receive ballot and zkp
         Ballot ballot = new Ballot(voting.getL(), voting.getK());
@@ -95,18 +93,15 @@ public class TServer extends Thread {
             zkp.receiveStep3(e, v);
 
             // verify
-            boolean ver = zkp.verify();
-            System.err.println("Verification of C_" + i + " = " + ver);
-            if(ver == false){
-              zkpVerifierSetMessages = false;
-            }
+            zkpVerifierSetMessages = zkp.verify();
+            System.err.println("Verification of C_" + i + " = " + zkpVerifierSetMessages);
           }
           catch(VariableNotSetException ex) {
             System.err.println(ex.getMessage());
           }
         }
         
-        System.out.println("ZKPSetOfMessages: "+zkpVerifierSetMessages);
+        System.out.println("ZKPSetOfMessages: " + zkpVerifierSetMessages);
         
         
         //gen VotedKVerifier
@@ -129,15 +124,15 @@ public class TServer extends Thread {
         catch (PaillierException |InvalidKeyException ex) {
           log.log(Level.SEVERE, ex.getMessage(), ex);
         }
-        
-        
-        if(zkpVerifierSetMessages == true && zkpVerifierVotedK == true){
-          boolean receivedVote = voting.receiveBallot(ballot);
-          System.out.println("Ballot accepted: " + receivedVote);
+
+        // TODO: invalid votes are discarded or not?
+        if(zkpVerifierSetMessages && zkpVerifierVotedK){
+          voting.receiveBallot(ballot);
+          System.err.println("Valid ballot");
         }
         else{
           voting.addInvalidVote();
-          System.out.println("Invalid ballot");
+          System.err.println("Invalid ballot");
         }
       }
       catch (IOException e) {

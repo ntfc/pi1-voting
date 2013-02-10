@@ -10,6 +10,7 @@ import java.security.InvalidKeyException;
 import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.cssi.paillier.cipher.Paillier;
 import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.interfaces.PaillierPrivateKey;
 import org.evoting.exception.VotingSchemeException;
+import org.evoting.zkp.Proof;
 import org.utils.DataStreamUtils;
 
 /**
@@ -36,7 +38,8 @@ public class Voting {
   private int nrCandidates; // this is L
   private int nrVoters;
   private List<String> candidateNames;
-  private List<Ballot> votes;
+  //private List<Ballot> votes;
+  private Map<Integer, Map<BigInteger, Proof>> votes;
   private Paillier cipher; //TODO: add constructor with cipher as param
   private int votersWhoVoted = 0;
   private int invalidvotes = 0;
@@ -64,7 +67,8 @@ public class Voting {
     this.nrCandidates = cands.size();
     this.nrVoters = voters;
     this.candidateNames = cands;
-    this.votes = new LinkedList<>();
+    //this.votes = new LinkedList<>();
+    this.votes = new HashMap<>();
     this.nrOptions = k;
   }
 
@@ -235,9 +239,19 @@ public class Voting {
    * @param vote
    * @return
    */
-  public boolean receiveBallot(Ballot ballot) {
+  public void receiveBallot(Ballot ballot) {
+    
+    for(int i = 0; i < ballot.size(); i++) {
+      if(votes.get(i) == null) {
+        System.err.println("votes.get " + i + " is null");
+        votes.put(i, new HashMap<BigInteger, Proof>());
+      }
+      System.err.println("add " + ballot.getVote(i));
+      // add ballot and proof
+      votes.get(i).put(ballot.getVote(i), ballot.getProof(i));
+
+    }
     votersWhoVoted++;
-    return votes.add(ballot);
   }
 
   /**
@@ -257,12 +271,8 @@ public class Voting {
     if(candIndex >= (getL() + getK())) {
       throw new VotingSchemeException("Candidate index must be between 0 and nrCandidates + nrOptions");
     }
-    BigInteger mult = BigInteger.ONE;
-    BigInteger nSquare = ((PaillierPrivateKey) key).getN().pow(2);
-    for (Ballot ballot : this.votes) {
-      mult = mult.multiply(ballot.getVote(candIndex));
-    }
-    return mult.mod(nSquare);
+    Map<BigInteger, Proof> candVotes = votes.get(candIndex);
+    return getCipher().mult(key, candVotes.keySet());
   }
 
   /**

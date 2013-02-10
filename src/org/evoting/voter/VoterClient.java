@@ -139,14 +139,6 @@ public class VoterClient {
       options[i] = 1;
     }
     System.err.println("Ballot = " + Arrays.toString(options));
-    // this array contains 1's and 0's: 1 if voted for candidate i, 0 otherwise
-    // NOTE: array size is getL() + getK() because of dummy votes
-    /*int[] optionsIndexes = new int[voting.getL() + voting.getK()];
-    Arrays.fill(optionsIndexes, 0); // default option is 0
-    // put 1's where the voter voted
-    for(int i = 0; i < votes.length; i++) {
-      optionsIndexes[votes[i]] = 1;
-    }*/
 
     BigInteger[] arrayS = new BigInteger[ballotSize];
     // this array contains 1's and 0's: 1 if voted for candidate i, 0 otherwise
