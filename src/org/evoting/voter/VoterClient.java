@@ -93,8 +93,6 @@ public class VoterClient {
 
       //------- receive voting properties
       voting.readVotingProperties(dsu);
-      //// TODO: do this in readVotingProperties(); auth send the cipher being used
-      //voting.setCipher(new PaillierSimple());
 
       //------- receive voting candidates
       voting.readVotingCandidates(dsu);

@@ -41,7 +41,7 @@ public class Voting {
   private List<String> candidateNames;
   //private List<Ballot> votes;
   private Map<Integer, Map<BigInteger, Proof>> votes;
-  private Paillier cipher; //TODO: add constructor with cipher as param
+  private Paillier cipher;
   private int votersWhoVoted = 0;
   private int invalidvotes = 0;
   private static final Logger LOG = Logger.getLogger(Voting.class.
@@ -54,7 +54,7 @@ public class Voting {
    * Create an empty voting scheme <p> This is used only by the voter
    */
   public Voting() {
-    this(-1, -1, new ArrayList<String>(), null);
+    this(null, -1, -1, new ArrayList<String>(), null);
   }
 
   /**
@@ -65,7 +65,7 @@ public class Voting {
    * @param voters
    * @param cands
    */
-  public Voting(int k, int voters, List<String> cands, BigInteger[] messages) {
+  public Voting(Paillier cipher, int k, int voters, List<String> cands, BigInteger[] messages) {
     this.nrCandidates = cands.size();
     this.nrVoters = voters;
     this.candidateNames = cands;
@@ -73,6 +73,7 @@ public class Voting {
     this.votes = new HashMap<>();
     this.nrOptions = k;
     this.S = messages;
+    this.cipher = cipher;
   }
 
   /**
@@ -197,7 +198,6 @@ public class Voting {
    * @param dsu
    * @throws IOException
    */
-  // TODO: receive the cipher used
   public void readVotingProperties(DataStreamUtils dsu) throws IOException, VotingSchemeException {
     // read k
     setK(dsu.readInt());
