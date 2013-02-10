@@ -7,7 +7,6 @@ package test;
 import java.net.Socket;
 import java.security.Security;
 import org.cssi.provider.CssiProvider;
-import org.evoting.schemes.Ballot;
 import org.evoting.voter.VoterClient;
 
 /**
@@ -65,6 +64,6 @@ public class clienteTest implements Runnable {
     VoterClient client = new VoterClient(new Socket("localhost", 4545));
     // receive voting properties from authority like candidate names, base, etc
     client.setUpVoting();
-    client.submitVote(0, 1);
+    client.submitVote(0, 1, 2);
   }
 }

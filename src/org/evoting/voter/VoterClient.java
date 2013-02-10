@@ -15,6 +15,8 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.cssi.numbers.CryptoNumbers;
 import org.cssi.paillier.cipher.Paillier;
 import org.cssi.paillier.cipher.PaillierException;
@@ -45,6 +47,7 @@ public class VoterClient {
   private PublicKey publicKey;
   private Paillier paillier;
   private Voting voting;
+  private static final Logger LOG = Logger.getLogger(VoterClient.class.getName());
 
   public VoterClient(Socket soc) throws IOException {
     this.socket = soc;
@@ -110,21 +113,10 @@ public class VoterClient {
     }
   }
 
-  @Deprecated
-  public void submitBallot(Ballot ballot) throws IOException {
-    if (ballot == null) {
-      //TODO: throw exception
-    }
-    // send the votes
-    // number of votes is always equal to the number of candidates
-
-    for (int i = 0; i < voting.getNrCandidates(); i++) {
-      // first, the voter sends the encrypted vote
-      dsu.writeBigInteger(ballot.getCandidateVote(i));
-      // then, he proves that the message is encrypted in the allowed set of messages
-    }
+  public Ballot createBallot(int... votes) {
+    // TODO: seria o metodo usado com ZKP nao interactivo..
+    return null;
   }
-
   /**
    *
    * @param votes The array containing the indexes of the voter options
@@ -132,27 +124,37 @@ public class VoterClient {
   public void submitVote(int... votes) throws NumberOfVotesException,
     VotingSchemeException, InvalidKeyException, IOException, PaillierException, VariableNotSetException {
 
+    int ballotSize = voting.getL() + voting.getK();
     // sum 1 if voted for candidate i, 0 otherwise
-    int[] options = new int[voting.getNrCandidates()];
+    // NOTE: array size is getL() + getK() because of dummy votes
+    int[] options = new int[ballotSize];
     Arrays.fill(options, 0); // default option is 0
     // put 1's where the voter voted
     for(int i = 0; i < votes.length; i++) {
       options[votes[i]] += 1; // WARNING: using += 1 just to be able to cheat
     }
-    
+    // put the necessary blank votes in the dummy votes
+    int blank = voting.getK() - votes.length;
+    for(int i = voting.getL()-1; i < blank ; i++) {
+      options[i] = 1;
+    }
+    System.err.println(Arrays.toString(options));
+
     // this array contains 1's and 0's: 1 if voted for candidate i, 0 otherwise
-    int[] optionsI = new int[voting.getNrCandidates()];
-    Arrays.fill(optionsI, 0); // default option is 0
+    // NOTE: array size is getL() + getK() because of dummy votes
+    /*int[] optionsIndexes = new int[voting.getL() + voting.getK()];
+    Arrays.fill(optionsIndexes, 0); // default option is 0
     // put 1's where the voter voted
     for(int i = 0; i < votes.length; i++) {
-      optionsI[votes[i]] = 1;
-    }
+      optionsIndexes[votes[i]] = 1;
+    }*/
 
-    BigInteger[] arrayS = new BigInteger[options.length];
+    BigInteger[] arrayS = new BigInteger[ballotSize];
     // this array contains 1's and 0's: 1 if voted for candidate i, 0 otherwise
     BigInteger[] S = new BigInteger[]{BigInteger.ZERO, BigInteger.ONE};
     // send vote and create ZKP for each voting option
-    for(int i = 0; i < options.length; i++) {
+    // DUMMY VOTES ARE DEALED IN THE NEXT LOOP
+    for(int i = 0; i < voting.getL(); i++) {
       // encrypt vote
       BigInteger r = CryptoNumbers.genRandomZN(((PaillierPublicKey)publicKey).getN(), new SecureRandom());
       BigInteger opt = BigInteger.valueOf(options[i]);
@@ -167,7 +169,9 @@ public class VoterClient {
       ZKPSetOfMessagesProver zkp = new ZKPSetOfMessagesProver(S, (PaillierPublicKey)publicKey, i, C, r);
 
       // send step1
-      Proof stp1 = zkp.generateStep1(C, optionsI[i]);
+      // use this if, just in case of cheating..
+      int zkpIndex = (options[i] < 1) ? 0 : 1;
+      Proof stp1 = zkp.generateStep1(C, zkpIndex);
       dsu.writeBytes(stp1.getProofAsByteArray());
 
       // receive step2
@@ -182,10 +186,42 @@ public class VoterClient {
       dsu.writeBytes(step31);
       
       byte[] step32 = step3[1].getProofAsByteArray();
-      dsu.writeBytes(step32);
+      dsu.writeBytes(step32); 
+    }
+    // deal with dummy votes now
+    for(int i = voting.getL(); i < ballotSize; i++) {
+      BigInteger r = CryptoNumbers.genRandomZN(((PaillierPublicKey)publicKey).getN(), new SecureRandom());
+      BigInteger opt = BigInteger.valueOf(options[i]);
+      BigInteger C = voting.getCipher().enc(publicKey, opt, r);
 
-    
-    
+      //save r value
+      arrayS[i] = r;
+
+      // send vote
+      dsu.writeBigInteger(C);
+      // zkp
+      ZKPSetOfMessagesProver zkp = new ZKPSetOfMessagesProver(S, (PaillierPublicKey)publicKey, i, C, r);
+
+      // send step1
+      // use this if, just in case of cheating..
+      int zkpIndex = (options[i] < 1) ? 0 : 1;
+      
+      Proof stp1 = zkp.generateStep1(C, zkpIndex);
+      dsu.writeBytes(stp1.getProofAsByteArray());
+
+      // receive step2
+      Proof challenge = new Proof(dsu.readBytes());
+      zkp.receiveStep2(challenge);
+
+      // send step3
+      Proof[] step3 = zkp.generateStep3();
+
+
+      byte[] step31 = step3[0].getProofAsByteArray();
+      dsu.writeBytes(step31);
+
+      byte[] step32 = step3[1].getProofAsByteArray();
+      dsu.writeBytes(step32);
     }
     
     //zkpVotedkProver

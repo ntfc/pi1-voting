@@ -54,11 +54,6 @@ public class authTest {
     votingServer.startVoting(5000, 4545);
     //BigInteger tally = votingServer.getVoting().tallying(kP.getPrivate());
 
-    for(int i = 0; i < cands.size(); i++) {
-      BigInteger tallyI = votingType.tallying(kP.getPrivate(), i);
-      System.err.println("Tally of candidate " + i + ": " + tallyI);
-      System.err.println("Tally dec: " + new PaillierSimple().dec(kP.getPrivate(), tallyI));
-    }
     for(BigInteger ii : votingType.votingResults(kP.getPrivate())) {
       System.err.println("Result i = " + ii);
     }

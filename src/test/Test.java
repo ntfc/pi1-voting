@@ -7,6 +7,7 @@ package test;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.util.ArrayList;
@@ -19,8 +20,12 @@ import org.cssi.paillier.interfaces.PaillierPrivateKey;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.cssi.provider.CssiProvider;
 import org.evoting.schemes.Ballot;
+import org.evoting.zkp.Proof;
+import org.evoting.zkp.noninteractive.ZKPSetOfMessagesProver;
+import org.evoting.zkp.noninteractive.ZKPSetOfMessagesVerifier;
 import org.evoting.zkp.noninteractive.ZKPVotedKProver;
 import org.evoting.zkp.noninteractive.ZKPVotedKVerifier;
+import org.utils.ByteUtils;
 
 /**
  *
@@ -171,9 +176,9 @@ public class Test {
     BigInteger r1 = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
     BigInteger r2 = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
 
-    BigInteger m0 = BigInteger.ZERO;
-    BigInteger m1 = BigInteger.ONE;
-    BigInteger m2 = BigInteger.ONE;
+    BigInteger m0 = BigInteger.ONE;
+    BigInteger m1 = BigInteger.ZERO;
+    BigInteger m2 = BigInteger.ZERO;
 
     BigInteger c0 = paillier.enc(pub, m0, r0);
     BigInteger c1 = paillier.enc(pub, m1, r1);
@@ -182,10 +187,10 @@ public class Test {
     int b = 5; // random small integer
     L = 3;
     // k = 0 .. L-1
-    Ballot ballot = new Ballot(L); // B = < 1, 0, 0>
+    /*Ballot ballot = new Ballot(L, k); // B = < 1, 0, 0>
     ballot.addVote(0, c0);
     ballot.addVote(1, c1);
-    ballot.addVote(2, c2);
+    ballot.addVote(2, c2);*/
 
     // step 1
     BigInteger[][] step1_1 = NZKP_step1(pub, 1, c0, r0);
@@ -194,6 +199,7 @@ public class Test {
     BigInteger[] v1 = step1_1[2];
     BigInteger[] u1 = step1_1[3];
     BigInteger ee1 = NZKP_step2(pub);
+    //BigInteger ee1 = new BigInteger(cc1);
     NZKP_step3(pub, 1, r0, ee1, peta1, e1, v1);
     System.out.println(NZKP_step4(pub, ee1, e1, v1, u1, c0));
 
@@ -225,5 +231,24 @@ public class Test {
     System.out.println("V calculates productC = " + new BigInteger(step2));
 
     System.out.println("Verification = " + kVerifier.verify());
+
+    ZKPSetOfMessagesProver prover = new ZKPSetOfMessagesProver(S, pub, 1, c0, r0);
+    ZKPSetOfMessagesVerifier verifier = new ZKPSetOfMessagesVerifier(S, pub, c0);
+    Proof stp1 = prover.generateStep1(c0, 1);
+    verifier.receiveStep1(stp1);
+    //Proof stp2 = verifier.generateStep2();
+    //prover.receiveStep2(stp2);
+
+    MessageDigest hash = MessageDigest.getInstance("SHA-1");
+    hash.update(BigInteger.TEN.toByteArray());
+    hash.update(c0.toByteArray());
+    BigInteger[] stp2 = ByteUtils.byteToArrayBigInteger((hash.digest(stp1.getProofAsByteArray())));
+    
+    prover.receiveStep2(new Proof(stp2));
+    verifier.setCh(stp2[0].toByteArray());
+    
+    Proof stp3[] = prover.generateStep3();
+    verifier.receiveStep3(stp3[0], stp3[1]);
+    System.out.println("ZKP = " + verifier.verify());
   }
 }

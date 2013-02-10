@@ -36,7 +36,6 @@ public class ZKPSetOfMessagesProver extends ZKPSetOfMessages {
    * <p>
    * <b>NOTE:</b> used by the prover P
    * @param c
-   * @param rUsedToObtainC
    * @param i
    * @throws VariableNotSetException
    * @return The array to be sent to the verifier
@@ -78,7 +77,7 @@ public class ZKPSetOfMessagesProver extends ZKPSetOfMessages {
    * <p>
    * <b>NOTE:</b> used by the prover P
    * @return Returns an array with 2 arrays of BigIntegers (both of them as
-   * a byte array): v in the first position, and e in the second
+   * a byte array): e in the first position, and v in the second
    */
   public Proof[] generateStep3() throws VariableNotSetException {
     if(pubKey == null)

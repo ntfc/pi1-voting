@@ -259,7 +259,7 @@ public class Voting {
     BigInteger mult = BigInteger.ONE;
     BigInteger nSquare = ((PaillierPrivateKey) key).getN().pow(2);
     for (Ballot ballot : this.votes) {
-      mult = mult.multiply(ballot.getCandidateVote(candIndex));
+      mult = mult.multiply(ballot.getVote(candIndex));
     }
     return mult.mod(nSquare);
   }

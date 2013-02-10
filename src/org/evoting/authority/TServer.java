@@ -11,6 +11,8 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cssi.paillier.cipher.PaillierException;
@@ -67,15 +69,19 @@ public class TServer extends Thread {
         boolean zkpVerifierSetMessages = true;
         
         // receive ballot and zkp
-        Ballot ballot = new Ballot(voting.getNrCandidates());
-        for(int i = 0; i < voting.getNrCandidates(); i++) {
+        Ballot ballot = new Ballot(voting.getL(), voting.getK());
+        // TODO: define S at the very beginning
+        BigInteger[] S = new  BigInteger[]{BigInteger.ZERO, BigInteger.ONE};
+        for(int i = 0; i < ballot.size(); i++) {
           BigInteger C = dsu.readBigInteger();
           ballot.addVote(i, C);
+          
+
           // zkp
-          BigInteger[] S = new  BigInteger[]{BigInteger.ZERO, BigInteger.ONE};
           ZKPSetOfMessagesVerifier zkp = new ZKPSetOfMessagesVerifier(S, (PaillierPublicKey)pubKey, C);
           // receive step1
           Proof stp1 = new Proof(dsu.readBytes());
+          
           zkp.receiveStep1(stp1);
 
           // send challenge

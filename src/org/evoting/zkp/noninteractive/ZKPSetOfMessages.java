@@ -144,4 +144,6 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
     } 
     return sum;
   }
+
+public void setCh(byte[] b) { this.ch = new BigInteger(b); }
 }

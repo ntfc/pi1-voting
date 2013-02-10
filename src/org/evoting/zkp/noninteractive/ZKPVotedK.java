@@ -7,6 +7,7 @@ package org.evoting.zkp.noninteractive;
 
 import java.math.BigInteger;
 import java.security.PublicKey;
+import java.util.List;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 
 /**
@@ -45,6 +46,18 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
    */
   protected final BigInteger productModNSquare(BigInteger ... n) {
     if(n.length < 1) {
+      return BigInteger.ZERO;
+    }
+
+    BigInteger ret = BigInteger.ONE;
+    for(BigInteger a : n) {
+      ret = ret.multiply(a).mod(nSquare);
+    }
+    return ret.mod(nSquare);
+  }
+
+  protected final BigInteger productModNSquare(List<BigInteger> n) {
+    if(n.size() < 1) {
       return BigInteger.ZERO;
     }
 

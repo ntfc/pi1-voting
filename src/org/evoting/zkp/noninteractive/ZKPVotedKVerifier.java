@@ -8,6 +8,7 @@ package org.evoting.zkp.noninteractive;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.PublicKey;
+import java.util.List;
 import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.cipher.PaillierSimple;
 
@@ -32,6 +33,10 @@ public class ZKPVotedKVerifier extends ZKPVotedK {
    * @return
    */
   public byte[] generateStep2(BigInteger[] cj) {
+    super.productC = productModNSquare(cj);
+    return productC.toByteArray();
+  }
+  public byte[] generateStep2(List<BigInteger> cj) {
     super.productC = productModNSquare(cj);
     return productC.toByteArray();
   }
