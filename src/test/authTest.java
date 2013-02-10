@@ -46,7 +46,7 @@ public class authTest {
 
 
     //Voting votingType = new OneOutOfLVoting(cands, 14, 16);
-    Voting votingType = new KOutOfLVoting(1, 300, cands);
+    Voting votingType = new KOutOfLVoting(2, 300, cands);
     //Voting votingType = new YesNoVoting(5, "Sim", "Não");
     //Voting votingType = new KOutOfLVoting(1, 10, 11, cands); // Yes/No voting if cands.size = 2
 

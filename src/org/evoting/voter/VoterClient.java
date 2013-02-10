@@ -27,7 +27,8 @@ import org.evoting.exception.VotingSchemeException;
 import org.evoting.schemes.Ballot;
 import org.evoting.schemes.KOutOfLVoting;
 import org.evoting.schemes.Voting;
-import org.evoting.zkp.ZKPProver;
+import org.evoting.zkp.noninteractive.ZKPSetOfMessagesProver;
+import org.evoting.zkp.noninteractive.ZKPVotedKProver;
 import org.utils.DataStreamUtils;
 
 /**
@@ -117,6 +118,7 @@ public class VoterClient {
     }
   }
 
+  @Deprecated
   public void submitBallot(Ballot ballot) throws IOException {
     if (ballot == null) {
       //TODO: throw exception
@@ -154,6 +156,7 @@ public class VoterClient {
       optionsI[votes[i]] = 1;
     }
 
+    BigInteger[] arrayS = new BigInteger[options.length];
     // this array contains 1's and 0's: 1 if voted for candidate i, 0 otherwise
     BigInteger[] S = new BigInteger[]{BigInteger.ZERO, BigInteger.ONE};
     // send vote and create ZKP for each voting option
@@ -163,10 +166,13 @@ public class VoterClient {
       BigInteger opt = BigInteger.valueOf(options[i]);
       BigInteger C = voting.getCipher().enc(publicKey, opt, r);
       
+      //save r value
+      arrayS[i] = r;
+      
       // send vote
       dsu.writeBigInteger(C);
       // zkp
-      ZKPProver zkp = new ZKPProver(S, (PaillierPublicKey)publicKey, i, C, r);
+      ZKPSetOfMessagesProver zkp = new ZKPSetOfMessagesProver(S, (PaillierPublicKey)publicKey, i, C, r);
 
       // send step1
       byte[] stp1 = zkp.generateStep1(C, optionsI[i]);
@@ -189,5 +195,15 @@ public class VoterClient {
     
     
     }
+    
+    //zkpVotedkProver
+    ZKPVotedKProver kProver = new ZKPVotedKProver(publicKey);
+    
+    //gen step 1
+    byte[] step1KProver = kProver.generateStep1(arrayS);
+    
+    //send step 1
+    dsu.writeBytes(step1KProver);
+    
   }
 }

@@ -19,6 +19,8 @@ import org.cssi.paillier.interfaces.PaillierPrivateKey;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.cssi.provider.CssiProvider;
 import org.evoting.schemes.Ballot;
+import org.evoting.zkp.noninteractive.ZKPVotedKProver;
+import org.evoting.zkp.noninteractive.ZKPVotedKVerifier;
 
 /**
  *
@@ -169,9 +171,9 @@ public class Test {
     BigInteger r1 = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
     BigInteger r2 = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
 
-    BigInteger m0 = BigInteger.ONE;
-    BigInteger m1 = BigInteger.ZERO;
-    BigInteger m2 = BigInteger.ZERO;
+    BigInteger m0 = BigInteger.ZERO;
+    BigInteger m1 = BigInteger.ONE;
+    BigInteger m2 = BigInteger.ONE;
 
     BigInteger c0 = paillier.enc(pub, m0, r0);
     BigInteger c1 = paillier.enc(pub, m1, r1);
@@ -213,9 +215,15 @@ public class Test {
     NZKP_step3(pub, 0, r2, ee3, peta3, e3, v3);
     System.out.println(NZKP_step4(pub, ee3, e3, v3, u3, c2));
 
+    ZKPVotedKProver kProver = new ZKPVotedKProver(pub);
+    byte[] step1 = kProver.generateStep1(new BigInteger[]{r0, r1, r2});
+    System.out.println("P sends " + new BigInteger(step1) + "...");
 
+    ZKPVotedKVerifier kVerifier = new ZKPVotedKVerifier(pub, 3);
+    kVerifier.receiveStep1(step1);
+    byte[] step2 = kVerifier.generateStep2(new BigInteger[]{c0, c1, c2});
+    System.out.println("V calculates productC = " + new BigInteger(step2));
 
-
-
+    System.out.println("Verification = " + kVerifier.verify());
   }
 }

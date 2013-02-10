@@ -296,4 +296,6 @@ public abstract class Voting {
           IOException, PaillierException;
 
   public abstract List<Integer> winner(BigInteger[] results);
+  
+  public abstract int getK();
 }

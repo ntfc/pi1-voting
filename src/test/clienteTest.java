@@ -53,7 +53,7 @@ public class clienteTest implements Runnable {
 
       
       client.submitBallot(ballot);*/
-      client.submitVote(vote1, vote2);
+      client.submitVote();
       
     }
     catch (Exception e) {

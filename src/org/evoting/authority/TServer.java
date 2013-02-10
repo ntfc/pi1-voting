@@ -7,16 +7,19 @@ package org.evoting.authority;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Socket;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.evoting.exception.VariableNotSetException;
 import org.evoting.schemes.Ballot;
 import org.evoting.schemes.Voting;
-import org.evoting.zkp.ZKPVerifier;
+import org.evoting.zkp.noninteractive.ZKPSetOfMessagesVerifier;
+import org.evoting.zkp.noninteractive.ZKPVotedKVerifier;
 import org.utils.DataStreamUtils;
 
 /**
@@ -65,7 +68,7 @@ public class TServer extends Thread {
         dsu.writeBytes(pubKey.getEncoded());
         
         //zkp boolean verifier
-        boolean zkpVerifier = true;
+        boolean zkpVerifierSetMessages = true;
         
         // receive ballot and zkp
         Ballot ballot = new Ballot(voting.getNrCandidates());
@@ -74,7 +77,7 @@ public class TServer extends Thread {
           ballot.addVote(i, C);
           // zkp
           BigInteger[] S = new  BigInteger[]{BigInteger.ZERO, BigInteger.ONE};
-          ZKPVerifier zkp = new ZKPVerifier(S, (PaillierPublicKey)pubKey, C);
+          ZKPSetOfMessagesVerifier zkp = new ZKPSetOfMessagesVerifier(S, (PaillierPublicKey)pubKey, C);
           // receive step1
           zkp.receiveStep1(dsu.readBytes());
 
@@ -92,7 +95,7 @@ public class TServer extends Thread {
             boolean ver = zkp.verify();
             System.err.println("Verification of C_" + i + " = " + ver);
             if(ver == false){
-              zkpVerifier = false;
+              zkpVerifierSetMessages = false;
             }
           }
           catch(VariableNotSetException ex) {
@@ -100,7 +103,32 @@ public class TServer extends Thread {
           }
         }
         
-        if(zkpVerifier == true){
+        System.out.println("ZKPSetOfMessages: "+zkpVerifierSetMessages);
+        
+        
+        //gen VotedKVerifier
+        ZKPVotedKVerifier kVerifier = new ZKPVotedKVerifier(pubKey, voting.getK());
+        
+        //receive step1
+        byte[] step1VotedK = dsu.readBytes();
+        kVerifier.receiveStep1(step1VotedK);
+        
+        //gen step2
+        kVerifier.generateStep2(ballot.getVotes());
+        
+        //verifier VotedK
+        boolean zkpVerifierVotedK = true;
+        try {
+          zkpVerifierVotedK = kVerifier.verify();
+          
+          System.out.println("ZKPVotedK: "+ zkpVerifierVotedK);
+        } 
+        catch (PaillierException |InvalidKeyException ex) {
+          log.log(Level.SEVERE, ex.getMessage(), ex);
+        }
+        
+        
+        if(zkpVerifierSetMessages == true && zkpVerifierVotedK == true){
           boolean receivedVote = voting.receiveBallot(ballot);
           System.out.println("Ballot accepted: " + receivedVote);
         }
