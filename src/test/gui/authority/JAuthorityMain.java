@@ -74,7 +74,6 @@ public class JAuthorityMain extends javax.swing.JFrame {
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
     setTitle("eVoting");
-    setLocation(new java.awt.Point(320, 400));
     setMinimumSize(new java.awt.Dimension(405, 350));
     setPreferredSize(new java.awt.Dimension(405, 350));
     getContentPane().setLayout(new java.awt.GridBagLayout());
@@ -228,6 +227,7 @@ public class JAuthorityMain extends javax.swing.JFrame {
       JOptionPane.showMessageDialog(this, "K must be lower than L");
       return;
     }
+<<<<<<< HEAD
 
     BigInteger[] msg = new BigInteger[2]; 
     msg[0] = BigInteger.ZERO;
@@ -235,6 +235,12 @@ public class JAuthorityMain extends javax.swing.JFrame {
     
     Paillier p = new PaillierSimple();
     voting = new Voting(p,K, nVoters, cands,msg);
+=======
+    // set of possible messages
+    BigInteger[] S = new BigInteger[]{BigInteger.ZERO, BigInteger.ONE};
+    
+    voting = new Voting( new PaillierSimple(), K, nVoters, cands, S);
+>>>>>>> Master
      
 
     final int port = Integer.parseInt(jTextFieldPort.getText());
@@ -245,7 +251,7 @@ public class JAuthorityMain extends javax.swing.JFrame {
       KeyPairGenerator keygen = KeyPairGenerator.getInstance("Paillier", "CSSI");
       KeyPair kp = keygen.generateKeyPair();
       this.privKey = kp.getPrivate();
-      server = new VotingServer(voting, kp, new PaillierSimple());
+      server = new VotingServer(voting, kp);
       server.canEncrypt();
 
       // create new SwingWorker thread
@@ -271,7 +277,7 @@ public class JAuthorityMain extends javax.swing.JFrame {
             server = (VotingServer) get();
             BigInteger[] results = server.getVoting().votingResults(privKey);
             int invalidvotes = server.getVoting().getInvalidVotes();
-            JOptionPane.showMessageDialog(rootPane, "Resultado serao apresentados de seguida");
+            JOptionPane.showMessageDialog(rootPane, "Resultado serão apresentados de seguida");
 
             JDialogVotingResults votingResults = new JDialogVotingResults(JAuthorityMain.getFrames()[0],
                                                                           results,

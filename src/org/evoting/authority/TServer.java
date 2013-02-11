@@ -128,11 +128,12 @@ public class TServer extends Thread {
         // TODO: invalid votes are discarded or not?
         if(zkpVerifierSetMessages && zkpVerifierVotedK){
           voting.receiveBallot(ballot);
-          System.err.println("Valid ballot");
+          System.out.println("Valid ballot");
         }
         else{
           voting.addInvalidVote();
-          System.err.println("Invalid ballot");
+          voting.addVoterWhoVoted();
+          System.out.println("Invalid ballot");
         }
       }
       catch (IOException e) {
