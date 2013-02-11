@@ -36,7 +36,7 @@ public class ZKPSetOfMessagesProver extends ZKPSetOfMessages {
    * <p>
    * <b>NOTE:</b> used by the prover P
    * @param c
-   * @param i
+   * @param i Index of the message in S
    * @throws VariableNotSetException
    * @return The array to be sent to the verifier
    */
@@ -59,6 +59,47 @@ public class ZKPSetOfMessagesProver extends ZKPSetOfMessages {
     // compute p values of u
     computeUValues();
     
+    // byte array to be sent to the Verifier
+    return new Proof(ByteUtils.arrayBigIntegerToByte(u));
+  }
+
+  /**
+   * Step 1 of Non-Interactive ZKPSetOfMessages
+   * <p>
+   * <b>NOTE:</b> used by the prover P
+   * @param c
+   * @param m Message m
+   * @param rUsedInEnc
+   * @return
+   * @throws VariableNotSetException
+   */
+  public Proof generateStep1(BigInteger c, BigInteger m, BigInteger rUsedInEnc)
+          throws
+          VariableNotSetException {
+    if (pubKey == null) {
+      throw new VariableNotSetException("PaillierPublicKey not set");
+    }
+    for(int j = 0; j < p; j++) {
+      if(S[j].compareTo(m) == 0) {
+        this.i = j;
+      }
+    }
+    if(this.i < 0) {
+      // TODO: throw exception ou continuar com i = random(1..p)??
+      throw new IndexOutOfBoundsException("Message m not in S!");
+    }
+    this.r = rUsedInEnc;
+    this.C = c;
+    // generate random peta in Z_n^*
+    peta = CryptoNumbers.genRandomZStarN(n, new SecureRandom());
+
+    // generate p-1 values of e
+    pickRandomEValues();
+    // generate p-1 values of v
+    pickRandomVValues();
+    // compute p values of u
+    computeUValues();
+
     // byte array to be sent to the Verifier
     return new Proof(ByteUtils.arrayBigIntegerToByte(u));
   }

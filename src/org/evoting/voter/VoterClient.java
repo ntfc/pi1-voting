@@ -146,8 +146,8 @@ public class VoterClient {
     for(int i = 0; i < voting.getL(); i++) {
       // encrypt vote
       BigInteger r = CryptoNumbers.genRandomZN(((PaillierPublicKey)publicKey).getN(), new SecureRandom());
-      BigInteger opt = BigInteger.valueOf(options[i]);
-      BigInteger C = voting.getCipher().enc(publicKey, opt, r);
+      BigInteger m = BigInteger.valueOf(options[i]);
+      BigInteger C = voting.getCipher().enc(publicKey, m, r);
       
       //save r value
       arrayWithR[i] = r;
@@ -160,7 +160,7 @@ public class VoterClient {
       // send step1
       // use this if, just in case of cheating..
       int zkpIndex = (options[i] < 1) ? 0 : 1;
-      Proof stp1 = zkp.generateStep1(C, zkpIndex, r);
+      Proof stp1 = zkp.generateStep1(C, m, r);
       dsu.writeBytes(stp1.getProofAsByteArray());
 
       // receive step2
@@ -180,8 +180,8 @@ public class VoterClient {
     // deal with dummy votes now
     for(int i = voting.getL(); i < ballotSize; i++) {
       BigInteger r = CryptoNumbers.genRandomZN(((PaillierPublicKey)publicKey).getN(), new SecureRandom());
-      BigInteger opt = BigInteger.valueOf(options[i]);
-      BigInteger C = voting.getCipher().enc(publicKey, opt, r);
+      BigInteger m = BigInteger.valueOf(options[i]);
+      BigInteger C = voting.getCipher().enc(publicKey, m, r);
 
       //save r value
       arrayWithR[i] = r;
@@ -195,7 +195,7 @@ public class VoterClient {
       // use this if, just in case of cheating..
       int zkpIndex = (options[i] < 1) ? 0 : 1;
       
-      Proof stp1 = zkp.generateStep1(C, zkpIndex, r);
+      Proof stp1 = zkp.generateStep1(C, m, r);
       dsu.writeBytes(stp1.getProofAsByteArray());
 
       // receive step2
