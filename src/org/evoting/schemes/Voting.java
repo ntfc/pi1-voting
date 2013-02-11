@@ -31,7 +31,6 @@ import org.utils.DataStreamUtils;
  * Every voting scheme must store the number of candidates, number of voters
  * allowed, a list with the candidate names and the number of received votes
  * <br>
- * TODO: DONT USE A LIST TO STORE CANDIDATE NAMES NOR THE VOTES
  *
  * @author miltonnunes52
  */

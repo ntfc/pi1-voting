@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.swing.UnsupportedLookAndFeelException;
+import org.cssi.paillier.cipher.Paillier;
 import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.provider.CssiProvider;
@@ -228,8 +229,12 @@ public class JAuthorityMain extends javax.swing.JFrame {
       return;
     }
 
+    BigInteger[] msg = new BigInteger[2]; 
+    msg[0] = BigInteger.ZERO;
+    msg[1] = BigInteger.ONE;
     
-    voting = new Voting(K, nVoters, cands);
+    Paillier p = new PaillierSimple();
+    voting = new Voting(p,K, nVoters, cands,msg);
      
 
     final int port = Integer.parseInt(jTextFieldPort.getText());
@@ -244,14 +249,26 @@ public class JAuthorityMain extends javax.swing.JFrame {
       server.canEncrypt();
 
       // create new SwingWorker thread
-      // TODO: Burns, isto está bem?
       SwingWorker worker = new SwingWorker() {
 
         @Override
+        protected VotingServer doInBackground() {
+          try {
+            server.startVoting(timeout, port);
+          }
+          catch (IOException | InvalidKeyException | PaillierException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+          }
+          return server;
+        }
+        
+        @Override
         protected void done() {
+          
           JOptionPane.showMessageDialog(rootPane, "Voting ended on port " + port);
           // show voting results
           try {
+            server = (VotingServer) get();
             BigInteger[] results = server.getVoting().votingResults(privKey);
             int invalidvotes = server.getVoting().getInvalidVotes();
             JOptionPane.showMessageDialog(rootPane, "Resultado serao apresentados de seguida");
@@ -265,20 +282,13 @@ public class JAuthorityMain extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, ex.getMessage());
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
           }
+          
+         
           // ??
           this.cancel(true);
         }
 
-        @Override
-        protected VotingServer doInBackground() {
-          try {
-            server.startVoting(timeout, port);
-          }
-          catch (IOException | InvalidKeyException | PaillierException ex) {
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-          }
-          return server;
-        }
+        
       };
       // start voting
       worker.execute();

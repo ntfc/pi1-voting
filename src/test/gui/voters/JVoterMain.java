@@ -163,7 +163,7 @@ public class JVoterMain extends javax.swing.JFrame {
 
   private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
     Voting voting = this.voter.getVoting();
-    Ballot b = new Ballot(voting.getNrCandidates());
+    Ballot b = new Ballot(voting.getNrCandidates(),0); //Change THIS!!!!!!!!!!!!!!!!!!!
 
     Component[] options = jPanelOptions.getComponents();
 
