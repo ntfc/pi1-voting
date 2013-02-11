@@ -15,7 +15,6 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cssi.numbers.CryptoNumbers;
 import org.cssi.paillier.cipher.Paillier;
@@ -28,12 +27,9 @@ import org.evoting.exception.VariableNotSetException;
 import org.evoting.exception.VotingSchemeException;
 import org.evoting.schemes.Ballot;
 import org.evoting.schemes.Voting;
-import org.evoting.zkp.InteractiveProof;
-import org.evoting.zkp.Proof;
-import org.evoting.zkp.ZKPValidMProverInt;
+import org.evoting.schemes.proofs.NonInteractiveProof;
 import org.evoting.zkp.ZKPValidMProverNonInt;
 import org.evoting.zkp.ZKPVotedKProver;
-import org.utils.ByteUtils;
 import org.utils.DataStreamUtils;
 
 /**
@@ -161,9 +157,10 @@ public class VoterClient {
       dsu.writeBigInteger(C);
       // zkp
       ZKPValidMProverNonInt niZKP = new ZKPValidMProverNonInt(voting.getS(), (PaillierPublicKey)publicKey);
-      InteractiveProof p = (InteractiveProof) niZKP.generateProof(C, m, r, voterID);
+      //InteractiveProof p = (InteractiveProof) niZKP.generateProof(C, m, r, voterID);
+      NonInteractiveProof p = niZKP.generateProof(C, m, r, voterID);
       // send NI proof
-      dsu.writeBytes(p.getProofAsByteArray());
+      dsu.writeBytes(p.getProofEncoded());
     }
     // deal with dummy votes now
     for(int i = voting.getL(); i < ballotSize; i++) {
@@ -178,9 +175,11 @@ public class VoterClient {
       dsu.writeBigInteger(C);
       // zkp
       ZKPValidMProverNonInt niZKP = new ZKPValidMProverNonInt(voting.getS(), (PaillierPublicKey)publicKey);
-      InteractiveProof p = (InteractiveProof) niZKP.generateProof(C, m, r, voterID);
+      //InteractiveProof p = (InteractiveProof) niZKP.generateProof(C, m, r, voterID);
+
+      NonInteractiveProof p = niZKP.generateProof(C, m, r, voterID);
       // send NI proof
-      dsu.writeBytes(p.getProofAsByteArray());
+      dsu.writeBytes(p.getProofEncoded());
     }
     
     //zkpVotedkProver

@@ -11,17 +11,13 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
-import org.evoting.exception.VariableNotSetException;
 import org.evoting.schemes.Ballot;
 import org.evoting.schemes.Voting;
-import org.evoting.zkp.InteractiveProof;
-import org.evoting.zkp.Proof;
-import org.evoting.zkp.ZKPValidMVerifierInt;
+import org.evoting.schemes.proofs.NonInteractiveProof;
 import org.evoting.zkp.ZKPValidMVerifierNonInt;
 import org.evoting.zkp.ZKPVotedKVerifier;
 import org.utils.ByteUtils;
@@ -80,7 +76,8 @@ public class TServer extends Thread {
           // receive proof
           byte[] proofByte = dsu.readBytes();
           
-          InteractiveProof proof = new InteractiveProof(ByteUtils.byteToArrayByte(proofByte));
+          //InteractiveProof proof = new InteractiveProof(ByteUtils.byteToArrayByte(proofByte));
+          NonInteractiveProof proof = new NonInteractiveProof(ByteUtils.byteToArrayByte(proofByte));
 
           // re-create ballot
           ballot.addVote(i, C, proof);

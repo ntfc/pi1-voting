@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package org.evoting.zkp;
 
 import java.math.BigInteger;
@@ -17,7 +16,7 @@ import org.cssi.paillier.cipher.PaillierSimple;
  * @author nc
  */
 public class ZKPVotedKVerifier extends ZKPVotedK {
-  
+
   public ZKPVotedKVerifier(PublicKey pub, int K) {
     super(pub, K);
   }
@@ -29,6 +28,7 @@ public class ZKPVotedKVerifier extends ZKPVotedK {
 
   /**
    * Calculate the product of all ciphertexts
+   * <p/>
    * @param cj
    * @return
    */
@@ -36,6 +36,7 @@ public class ZKPVotedKVerifier extends ZKPVotedK {
     super.productC = productModNSquare(cj);
     return productC.toByteArray();
   }
+
   public byte[] generateStep2(List<BigInteger> cj) {
     super.productC = productModNSquare(cj);
     return productC.toByteArray();
@@ -44,10 +45,11 @@ public class ZKPVotedKVerifier extends ZKPVotedK {
   public boolean verify() throws PaillierException, InvalidKeyException {
     int kAux = K;
     // NOTE: neste momento, prova-se que se votou entre 0 e K candidatos
-    while(kAux >= 0) {
+    while (kAux >= 0) {
       // E(K, productR) == productC ==> tudo ok, votou em kAux candidatos
-      BigInteger cc = new PaillierSimple().enc(pubKey, BigInteger.valueOf(kAux), productR.mod(n));
-      if(cc.compareTo(productC) == 0) {
+      BigInteger cc = new PaillierSimple().enc(pubKey, BigInteger.valueOf(kAux),
+                                               productR.mod(n));
+      if (cc.compareTo(productC) == 0) {
         return true;
       }
       kAux--;
@@ -55,5 +57,4 @@ public class ZKPVotedKVerifier extends ZKPVotedK {
     // E(K, productR) == productC ==> tudo ok, votou em K candidatos
     return false;
   }
-
 }

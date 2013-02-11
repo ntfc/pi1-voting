@@ -11,11 +11,13 @@ import org.cssi.numbers.CryptoNumbers;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 
 /**
- * Non-interactive Zero Knowledge Proof
+ * Prove that a message lies in a given set of messages
+ * <p>
+ * All non-interactive and interactive proofs must extends this class
  * <p/>
  * @author nc
  */
-/*public*/ abstract class ZKPValidM {
+ /* public */ abstract class ZKPValidM {
 
   protected BigInteger[] u;
   protected BigInteger[] e;
@@ -33,6 +35,7 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
 
   /**
    * <b>Used both by the prover and the verifier</b>
+   * <p/>
    * @param S
    * @param pub
    * @param i
@@ -64,7 +67,6 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
       this.g = pubKey.getG();
     }
   }
-
 
   /**
    * Randomly picks p-1 values {e_j} such that j != i in Z_n
@@ -110,7 +112,7 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
         // u_j = v_j^n * (g^m_j / C)^e_j mod n^2
         BigInteger tmp1 = g.pow(S[j].intValue()).multiply(C.modInverse(nSquare));
         u[j] = v[j].modPow(n, nSquare).multiply(tmp1.modPow(e[j], nSquare)).mod(
-                nSquare);
+          nSquare);
       }
       else {
         // compute ui = peta^n mod n^2
@@ -131,9 +133,8 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
       if (j != i) {
         sum = sum.add(a[j]);
       }
-    } 
+    }
     return sum;
   }
-
 //public void setCh(byte[] b) { this.ch = new BigInteger(b); }
 }

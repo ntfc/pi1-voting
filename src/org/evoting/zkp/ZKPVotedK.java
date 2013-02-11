@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package org.evoting.zkp;
 
 import java.math.BigInteger;
@@ -11,11 +10,15 @@ import java.util.List;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 
 /**
- * Zero-knowledge proof to show that one voter indeed voted for exactly K candidates
+ * Zero-knowledge proof to show that one voter indeed voted for exactly K
+ * candidates
  *
  * @author nc
  */
-/*public*/ abstract class ZKPVotedK {
+/*
+ * public
+ */ abstract class ZKPVotedK {
+
   protected PublicKey pubKey;
   protected int K;
   protected BigInteger n, nSquare;
@@ -27,7 +30,7 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
     this.setPubKey(pubKey);
     this.K = k;
   }
-  
+
   // used by the prover
   public ZKPVotedK(PublicKey pubKey) {
     this.setPubKey(pubKey);
@@ -35,37 +38,39 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
 
   private void setPubKey(PublicKey pubKey) {
     this.pubKey = pubKey;
-    this.n = ((PaillierPublicKey)pubKey).getN();
-    this.nSquare = ((PaillierPublicKey)pubKey).getNSquare();
+    this.n = ((PaillierPublicKey) pubKey).getN();
+    this.nSquare = ((PaillierPublicKey) pubKey).getNSquare();
   }
 
- /**
-   * Calcute a product of <code>n</code> BigInteger's, modulo <code>nSquare</code>.
+  /**
+   * Calcute a product of
+   * <code>n</code> BigInteger's, modulo
+   * <code>nSquare</code>.
+   * <p/>
    * @param n
    * @return
    */
-  protected final BigInteger productModNSquare(BigInteger ... n) {
-    if(n.length < 1) {
+  protected final BigInteger productModNSquare(BigInteger... n) {
+    if (n.length < 1) {
       return BigInteger.ZERO;
     }
 
     BigInteger ret = BigInteger.ONE;
-    for(BigInteger a : n) {
+    for (BigInteger a : n) {
       ret = ret.multiply(a).mod(nSquare);
     }
     return ret.mod(nSquare);
   }
 
   protected final BigInteger productModNSquare(List<BigInteger> n) {
-    if(n.size() < 1) {
+    if (n.size() < 1) {
       return BigInteger.ZERO;
     }
 
     BigInteger ret = BigInteger.ONE;
-    for(BigInteger a : n) {
+    for (BigInteger a : n) {
       ret = ret.multiply(a).mod(nSquare);
     }
     return ret.mod(nSquare);
   }
-
 }
