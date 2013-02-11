@@ -7,6 +7,7 @@ package test.gui.voters;
 
 import java.net.Socket;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 
 /**
  *
@@ -104,19 +105,30 @@ public class JDialogConnect extends javax.swing.JDialog {
   }// </editor-fold>//GEN-END:initComponents
 
   private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-    
+    int port = 0;
+    boolean verify = true;
     if(jTextField1.getText().isEmpty() || jTextPort.getText().isEmpty()){
       JOptionPane.showMessageDialog(this, "Insira os valores nos campos correctamente");
-    }
-    else{
-      id = Integer.parseInt(jTextField1.getText());
-      int port = Integer.parseInt(jTextPort.getText());
-      try {
-        this.cli = new Socket("localhost", port);
-        this.dispose();
+    } 
+    else{ 
+      
+      try{
+        id = Integer.parseInt(jTextField1.getText());
+        port = Integer.parseInt(jTextPort.getText());
       }
-      catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, ex.getMessage());
+      catch(NumberFormatException ex){ 
+        verify = false;
+        JOptionPane.showMessageDialog(this, "Insira apenas valores numéricos"); 
+      } 
+      
+      if(verify){
+        try {
+          this.cli = new Socket("localhost", port);
+          this.dispose();
+        }
+        catch (Exception ex) {
+          JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
       }
     }
   }//GEN-LAST:event_jButton2ActionPerformed
