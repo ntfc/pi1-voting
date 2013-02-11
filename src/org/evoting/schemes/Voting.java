@@ -312,67 +312,11 @@ public class Voting {
    * @return An array containing the results for each candidate, and the blank
    * votes in the last position
    */
-  public BigInteger[] votingResults(PrivateKey key) throws InvalidKeyException,
+  public VotingResult votingResult(PrivateKey key) throws InvalidKeyException,
     PaillierException, VotingSchemeException {
-    // TODO: create a VotingResults class
-    // blank votes are in the last position
-    BigInteger[] results = new BigInteger[nrCandidates + 1];
-    for (int i = 0; i < nrCandidates; i++) {
-      // number of votes for candidate
-      BigInteger candTallyDec = tallying(key, i);
-      BigInteger candTally = getCipher().dec(key, candTallyDec);
-      
-      results[i] = candTally;
-    }
-    // count blank votes
-    results[getL()] = BigInteger.ZERO; // initial number of blank votes
-    for(int i = getL(); i < (getL() + getK()); i++) {
-      BigInteger blankTallyDec = tallying(key, i);
-      BigInteger blanks = getCipher().dec(key, blankTallyDec);
-      results[getL()] = results[getL()].add(blanks);
-    }
-    return results;
-  }
-
-  class ValueComparator implements Comparator<Integer> {
-
-    private Map<Integer, BigInteger> base;
-
-    public ValueComparator(Map<Integer, BigInteger> base) {
-      this.base = base;
-    }
-
-    // Note: this comparator imposes orderings that are inconsistent with equals.
-    public int compare(Integer a, Integer b) {
-      if (base.get(a).intValue() >= base.get(b).intValue()) {
-        return -1;
-      } else {
-        return 1;
-      } // returning 0 would merge keys
-    }
-  }
-  public List<Integer> winner(BigInteger[] results) {
-    // returning List with the winners;
-    List<Integer> winners = new ArrayList<>();
-    //auxiliar collection to store the results before and after being sorted
-    Map<Integer, BigInteger> sortedResults = new TreeMap<>();
-    int i;
-    for (i = 0; i < results.length; i++) {
-      // copy the results, key = Candidate, value = number of votes in BigInteger
-      sortedResults.put(i, results[i]);
-    }
-
-    //Sort the results using a Comparator
-    Comparator cpv = new ValueComparator(sortedResults);
-    sortedResults = new TreeMap<>(cpv);
-
-    i = 0;
-    Iterator it = sortedResults.keySet().iterator();
-    while (it.hasNext() || i < getK()) {
-      //Copy the results to the returning list
-      winners.add((Integer) it.next());
-    }
-    return winners;
+      VotingResult results = new VotingResult(this.getCipher(),this.nrCandidates,this.getK());
+      results.votingResults(key, this.getL(), votes);
+      return results;
   }
 
 }

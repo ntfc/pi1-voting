@@ -27,6 +27,7 @@ import org.cssi.provider.CssiProvider;
 import org.evoting.authority.VotingServer;
 import org.evoting.exception.VotingSchemeException;
 import org.evoting.schemes.Voting;
+import org.evoting.schemes.VotingResult;
 import test.gui.CommonMethods;
 
 /**
@@ -221,26 +222,23 @@ public class JAuthorityMain extends javax.swing.JFrame {
     Voting voting = null;
     final List<String> cands = CommonMethods.getCandidatesFromText(jTextPaneCands.
             getText());
-    int nVoters = Integer.parseInt(jSpinnerVoters.getValue().toString());
+    final int nVoters = Integer.parseInt(jSpinnerVoters.getValue().toString());
     int K = Integer.parseInt(jSpinnerK.getValue().toString());
     if(K > cands.size()) {
       JOptionPane.showMessageDialog(this, "K must be lower than L");
       return;
     }
-<<<<<<< HEAD
-
+    
     BigInteger[] msg = new BigInteger[2]; 
     msg[0] = BigInteger.ZERO;
     msg[1] = BigInteger.ONE;
     
     Paillier p = new PaillierSimple();
     voting = new Voting(p,K, nVoters, cands,msg);
-=======
     // set of possible messages
     BigInteger[] S = new BigInteger[]{BigInteger.ZERO, BigInteger.ONE};
     
     voting = new Voting( new PaillierSimple(), K, nVoters, cands, S);
->>>>>>> Master
      
 
     final int port = Integer.parseInt(jTextFieldPort.getText());
@@ -258,7 +256,7 @@ public class JAuthorityMain extends javax.swing.JFrame {
       SwingWorker worker = new SwingWorker() {
 
         @Override
-        protected VotingServer doInBackground() {
+        protected VotingServer doInBackground() throws IOException, InvalidKeyException, PaillierException, InterruptedException {
           try {
             server.startVoting(timeout, port);
           }
@@ -275,13 +273,13 @@ public class JAuthorityMain extends javax.swing.JFrame {
           // show voting results
           try {
             server = (VotingServer) get();
-            BigInteger[] results = server.getVoting().votingResults(privKey);
+            VotingResult results = server.getVoting().votingResult(privKey);
             int invalidvotes = server.getVoting().getInvalidVotes();
             JOptionPane.showMessageDialog(rootPane, "Resultado serão apresentados de seguida");
 
             JDialogVotingResults votingResults = new JDialogVotingResults(JAuthorityMain.getFrames()[0],
-                                                                          results,
-                                                                          server.getVoting().getCandidateNames(), invalidvotes);
+                                                                          results.getResults(),
+                                                                          server.getVoting().getCandidateNames(), invalidvotes,results.getBlanks());
             votingResults.setVisible(true);
           }
           catch (Exception ex) {

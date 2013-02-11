@@ -7,6 +7,7 @@ package test.gui.authority;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JRootPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -15,32 +16,34 @@ import javax.swing.table.DefaultTableModel;
  * @author nc
  */
 public class JDialogVotingResults extends javax.swing.JDialog {
-  private BigInteger[] results;
+  private Map<Integer,BigInteger> results;
   private List<String> candidates;
   private int invalidvotes;
+  private int blankVotes=0;
 	/** Creates new form JDialogVotingResults */
-	public JDialogVotingResults(java.awt.Frame parent, BigInteger[] res, List<String> cands, int invVotes) {
+	public JDialogVotingResults(java.awt.Frame parent, Map<Integer,BigInteger> res, List<String> cands, int invVotes, int blankVotes) {
 		super(parent);
 		initComponents();
     this.results = res;
     this.candidates = cands;
     this.invalidvotes = invVotes;
+    this.blankVotes = blankVotes;
     setLocationRelativeTo(null);
     this.setVotingResults();
 
 	}
   
   private void setVotingResults() {
-    for(int i = 0; i < results.length-1; i++) {
+    for(Integer i : results.keySet()) {
       String t = jTextArea1.getText();
-      t += candidates.get(i).concat(" : ").concat(results[i].toString()).concat(
+      t += candidates.get(i).concat(" : ").concat(results.get(i).toString()).concat(
               "\n");
       jTextArea1.setText(t);
     }
     //print black votes
     String t = jTextArea1.getText();
-    t += "Votos brancos".concat(" : ").concat(results[results.length-1].toString()).concat(
-              "\n");
+    t += "Votos brancos".concat(" : ")+this.blankVotes+
+              "\n";
     jTextArea1.setText(t);
     //print invalid votes
     String t1 = jTextArea1.getText();

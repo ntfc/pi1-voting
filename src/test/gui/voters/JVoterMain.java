@@ -20,6 +20,7 @@ import org.cssi.provider.CssiProvider;
 import org.evoting.exception.NumberOfVotesException;
 import org.evoting.exception.VariableNotSetException;
 import org.evoting.exception.VotingSchemeException;
+import org.evoting.schemes.Ballot;
 import org.evoting.schemes.Voting;
 import org.evoting.voter.VoterClient;
 import test.gui.CommonMethods;
@@ -162,11 +163,7 @@ public class JVoterMain extends javax.swing.JFrame {
 
   private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
     Voting voting = this.voter.getVoting();
-<<<<<<< HEAD
     Ballot b = new Ballot(voting.getNrCandidates(),0); //Change THIS!!!!!!!!!!!!!!!!!!!
-=======
-    //Ballot b = new Ballot(voting.getNrCandidates());
->>>>>>> Master
 
     Component[] options = jPanelOptions.getComponents();
 
