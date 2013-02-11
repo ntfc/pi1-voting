@@ -30,24 +30,14 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
   protected BigInteger r; // r used to encrypt m_i into C
 
   /**
-   * <b>Used only by the verifier</b>
-   * @param S
-   * @param pub
-   * @param c
-   */
-  public ZKPSetOfMessages(BigInteger[] S, PaillierPublicKey pub, BigInteger c) {
-    this(S, pub, -1, c, null);
-  }
-  
-  /**
-   * <b>Used only by the prover</b>
+   * <b>Used both by the prover and the verifier</b>
    * @param S
    * @param pub
    * @param i
    * @param c
    * @param rUsedInEncryption
    */
-  public ZKPSetOfMessages(BigInteger[] S, PaillierPublicKey pub, int i, BigInteger c, BigInteger rUsedInEncryption) {
+  public ZKPSetOfMessages(BigInteger[] S, PaillierPublicKey pub) {
     this.S = S.clone();
     this.p = this.S.length;
     this.pubKey = pub;
@@ -56,9 +46,9 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
       this.nSquare = pubKey.getNSquare();
       this.g = pubKey.getG();
     }
-    this.i = i;
-    this.C = c;
-    this.r = rUsedInEncryption;
+    this.i = -1;
+    this.C = null;
+    this.r = null;
     this.e = new BigInteger[p];
     this.u = new BigInteger[p];
     this.v = new BigInteger[p];

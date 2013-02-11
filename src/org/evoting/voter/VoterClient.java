@@ -155,12 +155,12 @@ public class VoterClient {
       // send vote
       dsu.writeBigInteger(C);
       // zkp
-      ZKPSetOfMessagesProver zkp = new ZKPSetOfMessagesProver(voting.getS(), (PaillierPublicKey)publicKey, i, C, r);
+      ZKPSetOfMessagesProver zkp = new ZKPSetOfMessagesProver(voting.getS(), (PaillierPublicKey)publicKey);
 
       // send step1
       // use this if, just in case of cheating..
       int zkpIndex = (options[i] < 1) ? 0 : 1;
-      Proof stp1 = zkp.generateStep1(C, zkpIndex);
+      Proof stp1 = zkp.generateStep1(C, zkpIndex, r);
       dsu.writeBytes(stp1.getProofAsByteArray());
 
       // receive step2
@@ -189,13 +189,13 @@ public class VoterClient {
       // send vote
       dsu.writeBigInteger(C);
       // zkp
-      ZKPSetOfMessagesProver zkp = new ZKPSetOfMessagesProver(voting.getS(), (PaillierPublicKey)publicKey, i, C, r);
+      ZKPSetOfMessagesProver zkp = new ZKPSetOfMessagesProver(voting.getS(), (PaillierPublicKey)publicKey);
 
       // send step1
       // use this if, just in case of cheating..
       int zkpIndex = (options[i] < 1) ? 0 : 1;
       
-      Proof stp1 = zkp.generateStep1(C, zkpIndex);
+      Proof stp1 = zkp.generateStep1(C, zkpIndex, r);
       dsu.writeBytes(stp1.getProofAsByteArray());
 
       // receive step2

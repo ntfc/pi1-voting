@@ -74,7 +74,7 @@ public class TServer extends Thread {
           
 
           // zkp
-          ZKPSetOfMessagesVerifier zkp = new ZKPSetOfMessagesVerifier(voting.getS(), (PaillierPublicKey)pubKey, C);
+          ZKPSetOfMessagesVerifier zkp = new ZKPSetOfMessagesVerifier(voting.getS(), (PaillierPublicKey)pubKey);
           // receive step1
           Proof stp1 = new Proof(dsu.readBytes());
           
@@ -91,7 +91,7 @@ public class TServer extends Thread {
             zkp.receiveStep3(e, v);
 
             // verify
-            boolean msgVerif = zkp.verify();
+            boolean msgVerif = zkp.verify(C);
             System.err.println("Verification of C_" + i + " = " + msgVerif);
             zkpVerifierSetMessages = zkpVerifierSetMessages && msgVerif;
 

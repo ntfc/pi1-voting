@@ -27,8 +27,8 @@ public class ZKPSetOfMessagesProver extends ZKPSetOfMessages {
    * @param c Message encrypted
    * @param rUsedInEnc Random r such that c = E(S[i], r)
    */
-  public ZKPSetOfMessagesProver(BigInteger[] S, PaillierPublicKey pub, int i, BigInteger c, BigInteger rUsedInEnc) {
-    super(S, pub, i, c, rUsedInEnc);
+  public ZKPSetOfMessagesProver(BigInteger[] S, PaillierPublicKey pub) {
+    super(S, pub);
   }
 
   /**
@@ -40,13 +40,14 @@ public class ZKPSetOfMessagesProver extends ZKPSetOfMessages {
    * @throws VariableNotSetException
    * @return The array to be sent to the verifier
    */
-  public Proof generateStep1(BigInteger c, int i)
+  public Proof generateStep1(BigInteger c, int index, BigInteger rUsedInEnc)
           throws
           VariableNotSetException {
     if (pubKey == null) {
       throw new VariableNotSetException("PaillierPublicKey not set");
     }
-    this.i = i;
+    this.i = index;
+    this.r = rUsedInEnc;
     this.C = c;
     // generate random peta in Z_n^*
     peta = CryptoNumbers.genRandomZStarN(n, new SecureRandom());

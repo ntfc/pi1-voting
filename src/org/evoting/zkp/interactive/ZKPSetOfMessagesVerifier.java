@@ -25,8 +25,8 @@ public class ZKPSetOfMessagesVerifier extends ZKPSetOfMessages {
    * @param pub Paillier public key
    * @param C Encrypted message received from prover
    */
-  public ZKPSetOfMessagesVerifier(BigInteger[] S, PaillierPublicKey pub, BigInteger C) {
-    super(S, pub, C);
+  public ZKPSetOfMessagesVerifier(BigInteger[] S, PaillierPublicKey pub) {
+    super(S, pub);
   }
 
 
@@ -75,11 +75,14 @@ public class ZKPSetOfMessagesVerifier extends ZKPSetOfMessages {
    * Verifier V verifies that the encrypted message C really lies in the set of
    * messages S
    * <b>NOTE:</b> used by the verifier V
+   *
+   * @param c Ciphertext to be verified
    * @return
    */
-  public boolean verify() throws VariableNotSetException {
+  public boolean verify(BigInteger c) throws VariableNotSetException {
     if(pubKey == null)
       throw new VariableNotSetException("PaillierPublicKey not set");
+    this.C = c;
     boolean ret;
     // sum(ej) mod n
     BigInteger ejSum = arraySum(e).mod(n);
