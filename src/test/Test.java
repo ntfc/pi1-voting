@@ -30,6 +30,8 @@ import org.evoting.zkp.ZKPValidMVerifierNonInt;
 import org.evoting.zkp.ZKPVotedKProver;
 import org.evoting.zkp.ZKPVotedKVerifier;
 import org.utils.ByteUtils;
+import org.evoting.schemes.proofs.Proof;
+
 
 /**
  *
