@@ -11,6 +11,7 @@ import java.security.Security;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.provider.CssiProvider;
 import org.evoting.authority.VotingServer;
@@ -32,7 +33,7 @@ public class authTest {
     kGen.initialize(256);
     KeyPair kP = kGen.generateKeyPair();
     //Voting votingType = new YesNoVoting(3, "José", "António");
-    List<String> cands = new ArrayList<String>();
+    List<String> cands = new ArrayList<>();
     cands.add("Antonio");
     cands.add("Jose");
     cands.add("Carlos");
@@ -57,11 +58,11 @@ public class authTest {
     votingServer.startVoting(5000, 4545);
     //BigInteger tally = votingServer.getVoting().tallying(kP.getPrivate());
 
-    BigInteger[] results = votingType.votingResults(kP.getPrivate());
-    for(int i = 0; i < results.length-1; i++) {
-      System.err.println("Candidate " + i + ": " + results[i] + " votos");
+    Map<Integer, BigInteger> results = votingType.votingResult(kP.getPrivate()).getResults();
+    for(Integer i : results.keySet()) {
+      System.err.println("Candidate " + i + ": " + results.get(i) + " votos");
     }
-    System.err.println("Votos em branco: " + results[votingType.getL()]);
+    System.err.println("Votos em branco: " + votingType.votingResult(kP.getPrivate()).getBlanks());
     
     System.out.println("Votos nulos: "+ votingServer.getVoting().getInvalidVotes());
     //int winner = votingServer.getVoting().winner(kP.getPrivate(), tally);

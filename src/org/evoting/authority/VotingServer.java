@@ -7,6 +7,7 @@ package org.evoting.authority;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.security.InvalidKeyException;
 import java.security.KeyException;
@@ -64,7 +65,7 @@ public class VotingServer {
    * @throws PaillierException
    */
   public void startVoting(int timeout, int port) throws IOException,
-          InvalidKeyException, PaillierException {
+          InvalidKeyException, PaillierException, InterruptedException {
     ServerSocket server = new ServerSocket(port);
     // set the server timeout in miliseconds
     server.setSoTimeout(timeout);
@@ -78,23 +79,27 @@ public class VotingServer {
       try {
         Socket voter = server.accept();
         // if the number of max voter has been reached, break
-        if (!voting.canAcceptMoreVotes()) {
-          //Close the socket,  the accept() call will throw a SocketException. No need for a break;
-          server.close();
-          LOG.log(Level.INFO,
-                  "Cannot receive more votes. Max number of voters reached");
-        }
         LOG.log(Level.INFO, "Voter connected");
         // start the voter thread
         TServer voterThread = new TServer(voter, keyPair, voting);
         voterThread.start();
+        voterThread.join();
+        if (!voting.canAcceptMoreVotes()) {
+          //Close the socket,  the accept() call will throw a SocketException. No need for a break;
+            server.close();
+            LOG.log(Level.INFO,
+                  "Cannot receive more votes. Max number of voters reached");
+        }
+        if(server.isClosed()) break;
       }
       catch (SocketTimeoutException ex) {
         LOG.log(Level.INFO, "SocketTimeout reached. Voting ended!");
         // voting ended. exit while(1) loop
         break;
       }
+ 
     }
+     LOG.log(Level.INFO, "Voting ended");
 
   }
 }
