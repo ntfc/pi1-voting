@@ -5,34 +5,35 @@
 
 package org.evoting.zkp;
 
-import org.evoting.zkp.Proof;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import org.cssi.numbers.CryptoNumbers;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.evoting.exception.VariableNotSetException;
+import org.evoting.zkp.Proof;
+import org.evoting.zkp.ZKPValidM;
 import org.utils.ByteUtils;
 
 /**
  *
  * @author nc
  */
-public class ZKPSetOfMessagesProver extends ZKPSetOfMessages {
+public class ZKPValidMProverInt extends ZKPValidM {
 
   /**
-   * Create the prover ZKPSetOfMessages part
+   * Create the prover ZKPValidM part
    * @param S Set of messages allowed
    * @param pub Paillier public key
    * @param i Index of the message in the set S
    * @param c Message encrypted
    * @param rUsedInEnc Random r such that c = E(S[i], r)
    */
-  public ZKPSetOfMessagesProver(BigInteger[] S, PaillierPublicKey pub) {
+  public ZKPValidMProverInt(BigInteger[] S, PaillierPublicKey pub) {
     super(S, pub);
   }
 
   /**
-   * Step 1 of Non-Interactive ZKPSetOfMessages
+   * Step 1 of Non-Interactive ZKPValidM
    * <p>
    * <b>NOTE:</b> used by the prover P
    * @param c
@@ -64,7 +65,7 @@ public class ZKPSetOfMessagesProver extends ZKPSetOfMessages {
   }
 
   /**
-   * Step 1 of Non-Interactive ZKPSetOfMessages
+   * Step 1 of Non-Interactive ZKPValidM
    * <p>
    * <b>NOTE:</b> used by the prover P
    * @param c

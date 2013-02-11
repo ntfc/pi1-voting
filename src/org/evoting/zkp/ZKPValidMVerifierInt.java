@@ -17,15 +17,15 @@ import org.utils.ByteUtils;
  *
  * @author nc
  */
-public class ZKPSetOfMessagesVerifier extends ZKPSetOfMessages {
+public class ZKPValidMVerifierInt extends ZKPValidM {
 
   /**
-   * Create the verifier ZKPSetOfMessages part
+   * Create the verifier ZKPValidM part
    * @param S Set of messages allowed
    * @param pub Paillier public key
    * @param C Encrypted message received from prover
    */
-  public ZKPSetOfMessagesVerifier(BigInteger[] S, PaillierPublicKey pub) {
+  public ZKPValidMVerifierInt(BigInteger[] S, PaillierPublicKey pub) {
     super(S, pub);
   }
 

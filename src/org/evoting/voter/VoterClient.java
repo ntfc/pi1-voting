@@ -29,7 +29,7 @@ import org.evoting.exception.VotingSchemeException;
 import org.evoting.schemes.Ballot;
 import org.evoting.schemes.Voting;
 import org.evoting.zkp.Proof;
-import org.evoting.zkp.ZKPSetOfMessagesProver;
+import org.evoting.zkp.ZKPValidMProverInt;
 import org.evoting.zkp.ZKPVotedKProver;
 import org.utils.DataStreamUtils;
 
@@ -155,7 +155,7 @@ public class VoterClient {
       // send vote
       dsu.writeBigInteger(C);
       // zkp
-      ZKPSetOfMessagesProver zkp = new ZKPSetOfMessagesProver(voting.getS(), (PaillierPublicKey)publicKey);
+      ZKPValidMProverInt zkp = new ZKPValidMProverInt(voting.getS(), (PaillierPublicKey)publicKey);
 
       // send step1
       // use this if, just in case of cheating..
@@ -189,7 +189,7 @@ public class VoterClient {
       // send vote
       dsu.writeBigInteger(C);
       // zkp
-      ZKPSetOfMessagesProver zkp = new ZKPSetOfMessagesProver(voting.getS(), (PaillierPublicKey)publicKey);
+      ZKPValidMProverInt zkp = new ZKPValidMProverInt(voting.getS(), (PaillierPublicKey)publicKey);
 
       // send step1
       // use this if, just in case of cheating..

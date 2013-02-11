@@ -19,7 +19,7 @@ import org.evoting.exception.VariableNotSetException;
 import org.evoting.schemes.Ballot;
 import org.evoting.schemes.Voting;
 import org.evoting.zkp.Proof;
-import org.evoting.zkp.ZKPSetOfMessagesVerifier;
+import org.evoting.zkp.ZKPValidMVerifierInt;
 import org.evoting.zkp.ZKPVotedKVerifier;
 import org.utils.DataStreamUtils;
 
@@ -74,7 +74,7 @@ public class TServer extends Thread {
           
 
           // zkp
-          ZKPSetOfMessagesVerifier zkp = new ZKPSetOfMessagesVerifier(voting.getS(), (PaillierPublicKey)pubKey);
+          ZKPValidMVerifierInt zkp = new ZKPValidMVerifierInt(voting.getS(), (PaillierPublicKey)pubKey);
           // receive step1
           Proof stp1 = new Proof(dsu.readBytes());
           

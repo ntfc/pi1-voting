@@ -5,6 +5,7 @@
 package org.evoting.zkp;
 
 import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.security.SecureRandom;
 import org.cssi.numbers.CryptoNumbers;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
@@ -14,7 +15,7 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
  * <p/>
  * @author nc
  */
-/*public*/ abstract class ZKPSetOfMessages {
+/*public*/ abstract class ZKPValidM {
 
   protected BigInteger[] u;
   protected BigInteger[] e;
@@ -28,6 +29,7 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
   protected BigInteger n, nSquare, g;
   protected int i; // index of the choosen message
   protected BigInteger r; // r used to encrypt m_i into C
+  protected MessageDigest hash; // hash used in non-interactive proofs
 
   /**
    * <b>Used both by the prover and the verifier</b>
@@ -37,7 +39,7 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
    * @param c
    * @param rUsedInEncryption
    */
-  public ZKPSetOfMessages(BigInteger[] S, PaillierPublicKey pub) {
+  public ZKPValidM(BigInteger[] S, PaillierPublicKey pub) {
     this.S = S.clone();
     this.p = this.S.length;
     this.pubKey = pub;
@@ -52,8 +54,6 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
     this.e = new BigInteger[p];
     this.u = new BigInteger[p];
     this.v = new BigInteger[p];
-
-
   }
 
   public void setPublicKey(PaillierPublicKey pub) {
@@ -135,5 +135,5 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
     return sum;
   }
 
-public void setCh(byte[] b) { this.ch = new BigInteger(b); }
+//public void setCh(byte[] b) { this.ch = new BigInteger(b); }
 }

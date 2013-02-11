@@ -20,9 +20,12 @@ import org.cssi.paillier.interfaces.PaillierPrivateKey;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.cssi.provider.CssiProvider;
 import org.evoting.schemes.Ballot;
+import org.evoting.zkp.InteractiveProof;
 import org.evoting.zkp.Proof;
-import org.evoting.zkp.ZKPSetOfMessagesProver;
-import org.evoting.zkp.ZKPSetOfMessagesVerifier;
+import org.evoting.zkp.ZKPValidMProverInt;
+import org.evoting.zkp.ZKPValidMProverNonInt;
+import org.evoting.zkp.ZKPValidMVerifierInt;
+import org.evoting.zkp.ZKPValidMVerifierNonInt;
 import org.evoting.zkp.ZKPVotedKProver;
 import org.evoting.zkp.ZKPVotedKVerifier;
 import org.utils.ByteUtils;
@@ -232,25 +235,11 @@ public class Test {
 
     System.out.println("Verification = " + kVerifier.verify());
 
-    ZKPSetOfMessagesProver prover = new ZKPSetOfMessagesProver(S, pub);
-    ZKPSetOfMessagesVerifier verifier = new ZKPSetOfMessagesVerifier(S, pub);
-    Proof stp1 = prover.generateStep1(c0, m0, r0);
-    verifier.receiveStep1(stp1);
+    ZKPValidMProverNonInt P = new ZKPValidMProverNonInt(S, pub);
+    InteractiveProof p = (InteractiveProof) P.generateProof(c0, m0, r0, BigInteger.TEN);
 
-    MessageDigest hash = MessageDigest.getInstance("SHA-1");
-    hash.update(stp1.getProofAsByteArray());
-    hash.update(BigInteger.TEN.toByteArray());
-    byte[] h = hash.digest();
-    BigInteger ch = new BigInteger(h).mod(n);
-    System.err.println("ch = " + ch);
-    
-    prover.setCh(ch.toByteArray());
-    verifier.setCh(ch.toByteArray());
-
-    Proof[] stp3 = prover.generateStep3();
-    verifier.receiveStep3(stp3[0], stp3[1]);
-
-    System.err.println(verifier.verify(c0));
+    ZKPValidMVerifierNonInt V = new ZKPValidMVerifierNonInt(S, pub);
+    System.out.println("NI verification = " + V.verify(p, c0));
     
   }
 }
