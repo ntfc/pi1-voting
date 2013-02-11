@@ -21,10 +21,10 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.cssi.provider.CssiProvider;
 import org.evoting.schemes.Ballot;
 import org.evoting.zkp.Proof;
-import org.evoting.zkp.interactive.ZKPSetOfMessagesProver;
-import org.evoting.zkp.interactive.ZKPSetOfMessagesVerifier;
-import org.evoting.zkp.interactive.ZKPVotedKProver;
-import org.evoting.zkp.interactive.ZKPVotedKVerifier;
+import org.evoting.zkp.ZKPSetOfMessagesProver;
+import org.evoting.zkp.ZKPSetOfMessagesVerifier;
+import org.evoting.zkp.ZKPVotedKProver;
+import org.evoting.zkp.ZKPVotedKVerifier;
 import org.utils.ByteUtils;
 
 /**
@@ -232,23 +232,25 @@ public class Test {
 
     System.out.println("Verification = " + kVerifier.verify());
 
-    ZKPSetOfMessagesProver prover = new ZKPSetOfMessagesProver(S, pub, 1, c0, r0);
-    ZKPSetOfMessagesVerifier verifier = new ZKPSetOfMessagesVerifier(S, pub, c0);
-    Proof stp1 = prover.generateStep1(c0, 1);
+    ZKPSetOfMessagesProver prover = new ZKPSetOfMessagesProver(S, pub);
+    ZKPSetOfMessagesVerifier verifier = new ZKPSetOfMessagesVerifier(S, pub);
+    Proof stp1 = prover.generateStep1(c0, m0, r0);
     verifier.receiveStep1(stp1);
-    //Proof stp2 = verifier.generateStep2();
-    //prover.receiveStep2(stp2);
 
     MessageDigest hash = MessageDigest.getInstance("SHA-1");
+    hash.update(stp1.getProofAsByteArray());
     hash.update(BigInteger.TEN.toByteArray());
-    hash.update(c0.toByteArray());
-    BigInteger[] stp2 = ByteUtils.byteToArrayBigInteger((hash.digest(stp1.getProofAsByteArray())));
+    byte[] h = hash.digest();
+    BigInteger ch = new BigInteger(h).mod(n);
+    System.err.println("ch = " + ch);
     
-    prover.receiveStep2(new Proof(stp2));
-    verifier.setCh(stp2[0].toByteArray());
-    
-    Proof stp3[] = prover.generateStep3();
+    prover.setCh(ch.toByteArray());
+    verifier.setCh(ch.toByteArray());
+
+    Proof[] stp3 = prover.generateStep3();
     verifier.receiveStep3(stp3[0], stp3[1]);
-    System.out.println("ZKP = " + verifier.verify());
+
+    System.err.println(verifier.verify(c0));
+    
   }
 }

@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.evoting.zkp.interactive;
+package org.evoting.zkp;
 
 import org.evoting.zkp.Proof;
 import java.math.BigInteger;

@@ -64,6 +64,6 @@ public class clienteTest implements Runnable {
     VoterClient client = new VoterClient(new Socket("localhost", 4545));
     // receive voting properties from authority like candidate names, base, etc
     client.setUpVoting();
-    client.submitVote(1);
+    client.submitVote(3);
   }
 }

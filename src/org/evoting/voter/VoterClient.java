@@ -29,8 +29,8 @@ import org.evoting.exception.VotingSchemeException;
 import org.evoting.schemes.Ballot;
 import org.evoting.schemes.Voting;
 import org.evoting.zkp.Proof;
-import org.evoting.zkp.interactive.ZKPSetOfMessagesProver;
-import org.evoting.zkp.interactive.ZKPVotedKProver;
+import org.evoting.zkp.ZKPSetOfMessagesProver;
+import org.evoting.zkp.ZKPVotedKProver;
 import org.utils.DataStreamUtils;
 
 /**

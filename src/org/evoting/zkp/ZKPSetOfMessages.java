@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.evoting.zkp.interactive;
+package org.evoting.zkp;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
