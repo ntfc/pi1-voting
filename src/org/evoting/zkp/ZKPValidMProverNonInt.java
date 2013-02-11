@@ -8,6 +8,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import org.cssi.numbers.CryptoNumbers;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.evoting.exception.VariableNotSetException;
@@ -61,7 +62,7 @@ public class ZKPValidMProverNonInt extends ZKPValidM {
     Proof[] stp3 = niZKP.generateStep3();
     this.e = stp3[0].getProofAsBigIntegerArray();
     this.v = stp3[1].getProofAsBigIntegerArray();
-    Proof proof = new InteractiveProof(u, e, v, ch);
+    InteractiveProof proof = new InteractiveProof(u, ch, e, v);
     return proof;
   }
 }

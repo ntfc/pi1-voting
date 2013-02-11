@@ -16,11 +16,28 @@ import org.utils.ByteUtils;
 public class InteractiveProof extends Proof {
   private byte[] ch; // BigInteger
   private byte[] e, v; // arrays of BigInters
-  public InteractiveProof(BigInteger[] u, BigInteger[] e, BigInteger[] v, BigInteger ch) {
+  
+  public InteractiveProof(BigInteger[] u, BigInteger ch, BigInteger[] e, BigInteger[] v) {
     super(u);
     this.ch = ch.toByteArray();
     this.e = ByteUtils.arrayBigIntegerToByte(e);
     this.v = ByteUtils.arrayBigIntegerToByte(v);
+  }
+  /**
+   * Consctructs a new non-interactive proof from a given byte array of byte[]
+   * <p>
+   * The array must be of the following form (all fields as encoded array's of
+   * BigInteger):<br>
+   * || u | ch | e | v ||
+   * @param proof
+   */
+  public InteractiveProof(byte[][] proof) {
+    super(proof[0]);
+    ch = proof[1];
+    e = proof[2];
+    v = proof[3];
+
+
   }
 
   public BigInteger getChallengeAsBigInteger() {
@@ -38,4 +55,11 @@ public class InteractiveProof extends Proof {
   public BigInteger[] getVAsBigIntegerArray() {
     return ByteUtils.byteToArrayBigInteger(v);
   }
+
+  @Override
+  public byte[] getProofAsByteArray() {
+    return ByteUtils.arrayBytetoByte(proof, ch, e, v);
+  }
+
+
 }

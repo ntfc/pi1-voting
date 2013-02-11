@@ -11,6 +11,7 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 import org.cssi.numbers.CryptoNumbers;
@@ -239,7 +240,8 @@ public class Test {
     InteractiveProof p = (InteractiveProof) P.generateProof(c0, m0, r0, BigInteger.TEN);
 
     ZKPValidMVerifierNonInt V = new ZKPValidMVerifierNonInt(S, pub);
-    System.out.println("NI verification = " + V.verify(p, c0));
-    
+    InteractiveProof p2 = new InteractiveProof(ByteUtils.byteToArrayByte(p.getProofAsByteArray()));
+    System.out.println("NI verification = " + V.verify(p2, c0));
+
   }
 }

@@ -28,9 +28,12 @@ import org.evoting.exception.VariableNotSetException;
 import org.evoting.exception.VotingSchemeException;
 import org.evoting.schemes.Ballot;
 import org.evoting.schemes.Voting;
+import org.evoting.zkp.InteractiveProof;
 import org.evoting.zkp.Proof;
 import org.evoting.zkp.ZKPValidMProverInt;
+import org.evoting.zkp.ZKPValidMProverNonInt;
 import org.evoting.zkp.ZKPVotedKProver;
+import org.utils.ByteUtils;
 import org.utils.DataStreamUtils;
 
 /**
@@ -48,12 +51,14 @@ public class VoterClient {
   private Paillier paillier;
   private Voting voting;
   private static final Logger LOG = Logger.getLogger(VoterClient.class.getName());
+  private BigInteger voterID;
 
-  public VoterClient(Socket soc) throws IOException {
+  public VoterClient(Socket soc, BigInteger voterid) throws IOException {
     this.socket = soc;
     this.dsu = new DataStreamUtils(socket.getInputStream(), socket.
       getOutputStream());
     this.paillier = new PaillierSimple();
+    this.voterID = voterid;
   }
 
   /**
@@ -120,7 +125,7 @@ public class VoterClient {
    * @param votes The array containing the indexes of the voter options
    */
   public void submitVote(int... votes) throws NumberOfVotesException,
-    VotingSchemeException, InvalidKeyException, IOException, PaillierException, VariableNotSetException {
+    VotingSchemeException, InvalidKeyException, IOException, PaillierException, VariableNotSetException, NoSuchAlgorithmException {
 
     int ballotSize = voting.getL() + voting.getK();
     // sum 1 if voted for candidate i, 0 otherwise
@@ -155,27 +160,10 @@ public class VoterClient {
       // send vote
       dsu.writeBigInteger(C);
       // zkp
-      ZKPValidMProverInt zkp = new ZKPValidMProverInt(voting.getS(), (PaillierPublicKey)publicKey);
-
-      // send step1
-      // use this if, just in case of cheating..
-      int zkpIndex = (options[i] < 1) ? 0 : 1;
-      Proof stp1 = zkp.generateStep1(C, m, r);
-      dsu.writeBytes(stp1.getProofAsByteArray());
-
-      // receive step2
-      Proof challenge = new Proof(dsu.readBytes());
-      zkp.receiveStep2(challenge);
-
-      // send step3
-      Proof[] step3 = zkp.generateStep3();
-      
-      
-      byte[] step31 = step3[0].getProofAsByteArray();
-      dsu.writeBytes(step31);
-      
-      byte[] step32 = step3[1].getProofAsByteArray();
-      dsu.writeBytes(step32); 
+      ZKPValidMProverNonInt niZKP = new ZKPValidMProverNonInt(voting.getS(), (PaillierPublicKey)publicKey);
+      InteractiveProof p = (InteractiveProof) niZKP.generateProof(C, m, r, voterID);
+      // send NI proof
+      dsu.writeBytes(p.getProofAsByteArray());
     }
     // deal with dummy votes now
     for(int i = voting.getL(); i < ballotSize; i++) {
@@ -189,28 +177,10 @@ public class VoterClient {
       // send vote
       dsu.writeBigInteger(C);
       // zkp
-      ZKPValidMProverInt zkp = new ZKPValidMProverInt(voting.getS(), (PaillierPublicKey)publicKey);
-
-      // send step1
-      // use this if, just in case of cheating..
-      int zkpIndex = (options[i] < 1) ? 0 : 1;
-      
-      Proof stp1 = zkp.generateStep1(C, m, r);
-      dsu.writeBytes(stp1.getProofAsByteArray());
-
-      // receive step2
-      Proof challenge = new Proof(dsu.readBytes());
-      zkp.receiveStep2(challenge);
-
-      // send step3
-      Proof[] step3 = zkp.generateStep3();
-
-
-      byte[] step31 = step3[0].getProofAsByteArray();
-      dsu.writeBytes(step31);
-
-      byte[] step32 = step3[1].getProofAsByteArray();
-      dsu.writeBytes(step32);
+      ZKPValidMProverNonInt niZKP = new ZKPValidMProverNonInt(voting.getS(), (PaillierPublicKey)publicKey);
+      InteractiveProof p = (InteractiveProof) niZKP.generateProof(C, m, r, voterID);
+      // send NI proof
+      dsu.writeBytes(p.getProofAsByteArray());
     }
     
     //zkpVotedkProver

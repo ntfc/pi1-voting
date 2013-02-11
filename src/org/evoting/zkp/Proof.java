@@ -14,7 +14,7 @@ import org.utils.ByteUtils;
  */
 public class Proof {
   // byte[] holds an array of BigInteger[]
-  private byte[] proof;
+  protected byte[] proof;
   
   public Proof(byte[] p) {
     this.proof = p;

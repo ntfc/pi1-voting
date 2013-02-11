@@ -11,6 +11,7 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cssi.paillier.cipher.PaillierException;
@@ -18,9 +19,12 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.evoting.exception.VariableNotSetException;
 import org.evoting.schemes.Ballot;
 import org.evoting.schemes.Voting;
+import org.evoting.zkp.InteractiveProof;
 import org.evoting.zkp.Proof;
 import org.evoting.zkp.ZKPValidMVerifierInt;
+import org.evoting.zkp.ZKPValidMVerifierNonInt;
 import org.evoting.zkp.ZKPVotedKVerifier;
+import org.utils.ByteUtils;
 import org.utils.DataStreamUtils;
 
 /**
@@ -70,39 +74,24 @@ public class TServer extends Thread {
         Ballot ballot = new Ballot(voting.getL(), voting.getK());
         for(int i = 0; i < ballot.size(); i++) {
           BigInteger C = dsu.readBigInteger();
-          ballot.addVote(i, C);
-          
 
           // zkp
-          ZKPValidMVerifierInt zkp = new ZKPValidMVerifierInt(voting.getS(), (PaillierPublicKey)pubKey);
-          // receive step1
-          Proof stp1 = new Proof(dsu.readBytes());
+          ZKPValidMVerifierNonInt niZKP = new ZKPValidMVerifierNonInt(voting.getS(), (PaillierPublicKey)pubKey);
+          // receive proof
+          byte[] proofByte = dsu.readBytes();
           
-          zkp.receiveStep1(stp1);
+          InteractiveProof proof = new InteractiveProof(ByteUtils.byteToArrayByte(proofByte));
 
-          // send challenge
-          try {
-            dsu.writeBytes(zkp.generateStep2().getProofAsByteArray());
-            
-            // receive step3
-            byte[] e = dsu.readBytes();
-            byte[] v = dsu.readBytes();
-            
-            zkp.receiveStep3(e, v);
+          // re-create ballot
+          ballot.addVote(i, C, proof);
 
-            // verify
-            boolean msgVerif = zkp.verify(C);
-            System.err.println("Verification of C_" + i + " = " + msgVerif);
-            zkpVerifierSetMessages = zkpVerifierSetMessages && msgVerif;
-
-          }
-          catch(VariableNotSetException ex) {
-            System.err.println(ex.getMessage());
-          }
+          // verify
+          boolean msgVerif = niZKP.verify(proof, C);
+          System.err.println("Verification of C_" + i + " = " + msgVerif);
+          zkpVerifierSetMessages = zkpVerifierSetMessages && msgVerif;
         }
         
-        System.out.println("ZKPSetOfMessages: " + zkpVerifierSetMessages);
-        
+        System.err.println("ZKPSetOfMessages: " + zkpVerifierSetMessages);
         
         //gen VotedKVerifier
         ZKPVotedKVerifier kVerifier = new ZKPVotedKVerifier(pubKey, voting.getK());
