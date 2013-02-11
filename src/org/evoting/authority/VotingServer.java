@@ -29,10 +29,10 @@ public class VotingServer {
   private static final Logger LOG = Logger.getLogger(VotingServer.class.
           getName());
 
-  public VotingServer(Voting vot, KeyPair kP, Paillier cipher) throws VotingSchemeException,
+  public VotingServer(Voting vot, KeyPair kP) throws VotingSchemeException,
           KeyException {
     this.voting = vot;
-    this.voting.setCipher(cipher);
+    //this.voting.setCipher(cipher);
     this.keyPair = kP;
     // modulo n is not valid
     canEncrypt(); // throws exception if it cannot encrypt

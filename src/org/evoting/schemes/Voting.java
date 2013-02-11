@@ -274,8 +274,13 @@ public class Voting {
       votes.get(i).put(ballot.getVote(i), ballot.getProof(i));
 
     }
+    addVoterWhoVoted();
+  }
+  
+  public void addVoterWhoVoted(){
     votersWhoVoted++;
   }
+  
 
   /**
    * Multiply all votes received and returned the tally

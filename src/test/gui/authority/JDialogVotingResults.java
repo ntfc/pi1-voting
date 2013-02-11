@@ -17,29 +17,35 @@ import javax.swing.table.DefaultTableModel;
 public class JDialogVotingResults extends javax.swing.JDialog {
   private BigInteger[] results;
   private List<String> candidates;
-  private int invalidvotes; 
+  private int invalidvotes;
 	/** Creates new form JDialogVotingResults */
 	public JDialogVotingResults(java.awt.Frame parent, BigInteger[] res, List<String> cands, int invVotes) {
 		super(parent);
 		initComponents();
     this.results = res;
     this.candidates = cands;
-    this.setVotingResults();
     this.invalidvotes = invVotes;
     setLocationRelativeTo(null);
-	}
+    this.setVotingResults();
 
+	}
+  
   private void setVotingResults() {
-    for(int i = 0; i < results.length; i++) {
+    for(int i = 0; i < results.length-1; i++) {
       String t = jTextArea1.getText();
       t += candidates.get(i).concat(" : ").concat(results[i].toString()).concat(
               "\n");
       jTextArea1.setText(t);
     }
-    //print invalid votes
+    //print black votes
     String t = jTextArea1.getText();
-    t += "Votos nulos : ".concat(String.valueOf(invalidvotes)).concat("\n");
+    t += "Votos brancos".concat(" : ").concat(results[results.length-1].toString()).concat(
+              "\n");
     jTextArea1.setText(t);
+    //print invalid votes
+    String t1 = jTextArea1.getText();
+    t1 += "Votos nulos : ".concat(String.valueOf(invalidvotes)).concat("\n");
+    jTextArea1.setText(t1);
   }
 
 	/** This method is called from within the constructor to
