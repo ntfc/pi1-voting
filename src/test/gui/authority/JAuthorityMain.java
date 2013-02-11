@@ -222,7 +222,7 @@ public class JAuthorityMain extends javax.swing.JFrame {
             getText());
     int nVoters = Integer.parseInt(jSpinnerVoters.getValue().toString());
     int K = Integer.parseInt(jSpinnerK.getValue().toString());
-    if(K > cands.size()) {
+    if(K >= cands.size()) {
       JOptionPane.showMessageDialog(this, "K must be lower than L");
       return;
     }
