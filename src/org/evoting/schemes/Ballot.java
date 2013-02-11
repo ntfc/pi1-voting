@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import org.evoting.zkp.Proof;
+import org.evoting.schemes.proofs.NonInteractiveProof;
+import org.evoting.schemes.proofs.Proof;
 
 /**
  * This class implements the ballot that each voter sends to the authority.
@@ -45,7 +46,9 @@ public class Ballot {
    * @param voteEnc
    * @param p
    */
-  public void addVote(int candIndex, BigInteger voteEnc, Proof p) {
+  public void addVote(int candIndex, BigInteger voteEnc, NonInteractiveProof p) {
+    System.err.println("Vote byte[] size: " + voteEnc.toByteArray().length);
+    System.err.println("Proof byte[] size: " + p.getProofEncoded().length);
     this.votes.put(candIndex, voteEnc);
     this.proofs.put(candIndex, p);
   }

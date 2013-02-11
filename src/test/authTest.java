@@ -29,6 +29,7 @@ public class authTest {
     Security.addProvider(new CssiProvider());
     // Generate keys
     KeyPairGenerator kGen = KeyPairGenerator.getInstance("Paillier", "CSSI");
+    kGen.initialize(256);
     KeyPair kP = kGen.generateKeyPair();
     //Voting votingType = new YesNoVoting(3, "José", "António");
     List<String> cands = new ArrayList<String>();

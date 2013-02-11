@@ -2,8 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
-package org.evoting.zkp.interactive;
+package org.evoting.zkp;
 
 import java.math.BigInteger;
 import java.security.PublicKey;
@@ -21,11 +20,11 @@ public class ZKPVotedKProver extends ZKPVotedK {
   /**
    * Calculate the product of every r used to encrypt L votes
    * <p>
-   * @return 
+   * <p/>
+   * @return
    */
   public byte[] generateStep1(BigInteger[] rj) {
     super.productR = productModNSquare(rj);
-    return productR.toByteArray();    
+    return productR.toByteArray();
   }
-  
 }

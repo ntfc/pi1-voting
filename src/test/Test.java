@@ -11,6 +11,7 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 import org.cssi.numbers.CryptoNumbers;
@@ -20,11 +21,14 @@ import org.cssi.paillier.interfaces.PaillierPrivateKey;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.cssi.provider.CssiProvider;
 import org.evoting.schemes.Ballot;
-import org.evoting.zkp.Proof;
-import org.evoting.zkp.interactive.ZKPSetOfMessagesProver;
-import org.evoting.zkp.interactive.ZKPSetOfMessagesVerifier;
-import org.evoting.zkp.interactive.ZKPVotedKProver;
-import org.evoting.zkp.interactive.ZKPVotedKVerifier;
+import org.evoting.schemes.proofs.InteractiveProof;
+import org.evoting.schemes.proofs.Proof;
+import org.evoting.zkp.ZKPValidMProverInt;
+import org.evoting.zkp.ZKPValidMProverNonInt;
+import org.evoting.zkp.ZKPValidMVerifierInt;
+import org.evoting.zkp.ZKPValidMVerifierNonInt;
+import org.evoting.zkp.ZKPVotedKProver;
+import org.evoting.zkp.ZKPVotedKVerifier;
 import org.utils.ByteUtils;
 
 /**
@@ -232,23 +236,12 @@ public class Test {
 
     System.out.println("Verification = " + kVerifier.verify());
 
-    ZKPSetOfMessagesProver prover = new ZKPSetOfMessagesProver(S, pub, 1, c0, r0);
-    ZKPSetOfMessagesVerifier verifier = new ZKPSetOfMessagesVerifier(S, pub, c0);
-    Proof stp1 = prover.generateStep1(c0, 1);
-    verifier.receiveStep1(stp1);
-    //Proof stp2 = verifier.generateStep2();
-    //prover.receiveStep2(stp2);
+    ZKPValidMProverNonInt P = new ZKPValidMProverNonInt(S, pub);
+    InteractiveProof p = (InteractiveProof) P.generateProof(c0, m0, r0, BigInteger.TEN);
 
-    MessageDigest hash = MessageDigest.getInstance("SHA-1");
-    hash.update(BigInteger.TEN.toByteArray());
-    hash.update(c0.toByteArray());
-    BigInteger[] stp2 = ByteUtils.byteToArrayBigInteger((hash.digest(stp1.getProofAsByteArray())));
-    
-    prover.receiveStep2(new Proof(stp2));
-    verifier.setCh(stp2[0].toByteArray());
-    
-    Proof stp3[] = prover.generateStep3();
-    verifier.receiveStep3(stp3[0], stp3[1]);
-    System.out.println("ZKP = " + verifier.verify());
+    ZKPValidMVerifierNonInt V = new ZKPValidMVerifierNonInt(S, pub);
+    InteractiveProof p2 = new InteractiveProof(ByteUtils.byteToArrayByte(p.getProofAsByteArray()));
+    System.out.println("NI verification = " + V.verify(p2, c0));
+
   }
 }

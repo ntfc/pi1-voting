@@ -21,7 +21,7 @@ import org.cssi.paillier.cipher.Paillier;
 import org.cssi.paillier.cipher.PaillierException;
 import org.cssi.paillier.cipher.PaillierSimple;
 import org.evoting.exception.VotingSchemeException;
-import org.evoting.zkp.Proof;
+import org.evoting.schemes.proofs.Proof;
 import org.utils.ByteUtils;
 import org.utils.DataStreamUtils;
 

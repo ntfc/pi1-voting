@@ -2,19 +2,22 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.evoting.zkp.interactive;
+package org.evoting.zkp;
 
 import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.security.SecureRandom;
 import org.cssi.numbers.CryptoNumbers;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 
 /**
- * Non-interactive Zero Knowledge Proof
+ * Prove that a message lies in a given set of messages
+ * <p>
+ * All non-interactive and interactive proofs must extends this class
  * <p/>
  * @author nc
  */
-/*public*/ abstract class ZKPSetOfMessages {
+ /* public */ abstract class ZKPValidM {
 
   protected BigInteger[] u;
   protected BigInteger[] e;
@@ -28,26 +31,18 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
   protected BigInteger n, nSquare, g;
   protected int i; // index of the choosen message
   protected BigInteger r; // r used to encrypt m_i into C
+  protected MessageDigest hash; // hash used in non-interactive proofs
 
   /**
-   * <b>Used only by the verifier</b>
-   * @param S
-   * @param pub
-   * @param c
-   */
-  public ZKPSetOfMessages(BigInteger[] S, PaillierPublicKey pub, BigInteger c) {
-    this(S, pub, -1, c, null);
-  }
-  
-  /**
-   * <b>Used only by the prover</b>
+   * <b>Used both by the prover and the verifier</b>
+   * <p/>
    * @param S
    * @param pub
    * @param i
    * @param c
    * @param rUsedInEncryption
    */
-  public ZKPSetOfMessages(BigInteger[] S, PaillierPublicKey pub, int i, BigInteger c, BigInteger rUsedInEncryption) {
+  public ZKPValidM(BigInteger[] S, PaillierPublicKey pub) {
     this.S = S.clone();
     this.p = this.S.length;
     this.pubKey = pub;
@@ -56,14 +51,12 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
       this.nSquare = pubKey.getNSquare();
       this.g = pubKey.getG();
     }
-    this.i = i;
-    this.C = c;
-    this.r = rUsedInEncryption;
+    this.i = -1;
+    this.C = null;
+    this.r = null;
     this.e = new BigInteger[p];
     this.u = new BigInteger[p];
     this.v = new BigInteger[p];
-
-
   }
 
   public void setPublicKey(PaillierPublicKey pub) {
@@ -74,7 +67,6 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
       this.g = pubKey.getG();
     }
   }
-
 
   /**
    * Randomly picks p-1 values {e_j} such that j != i in Z_n
@@ -120,7 +112,7 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
         // u_j = v_j^n * (g^m_j / C)^e_j mod n^2
         BigInteger tmp1 = g.pow(S[j].intValue()).multiply(C.modInverse(nSquare));
         u[j] = v[j].modPow(n, nSquare).multiply(tmp1.modPow(e[j], nSquare)).mod(
-                nSquare);
+          nSquare);
       }
       else {
         // compute ui = peta^n mod n^2
@@ -141,9 +133,8 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
       if (j != i) {
         sum = sum.add(a[j]);
       }
-    } 
+    }
     return sum;
   }
-
-public void setCh(byte[] b) { this.ch = new BigInteger(b); }
+//public void setCh(byte[] b) { this.ch = new BigInteger(b); }
 }
