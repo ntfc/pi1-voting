@@ -298,6 +298,9 @@ public class Voting {
     if(candIndex >= (getL() + getK())) {
       throw new VotingSchemeException("Candidate index must be between 0 and nrCandidates + nrOptions");
     }
+    if(votes.isEmpty()){
+      return BigInteger.ZERO;
+    }
     Map<BigInteger, Proof> candVotes = votes.get(candIndex);
     return getCipher().mult(key, candVotes.keySet());
   }
