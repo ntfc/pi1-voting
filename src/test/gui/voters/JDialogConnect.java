@@ -14,6 +14,8 @@ import javax.swing.JOptionPane;
  */
 public class JDialogConnect extends javax.swing.JDialog {
   private Socket cli;
+  private int id;
+  
 	/** Creates new form JDialogConnect */
 	public JDialogConnect(java.awt.Frame parent, boolean modal) {
 		super(parent, modal);
@@ -24,6 +26,10 @@ public class JDialogConnect extends javax.swing.JDialog {
   public Socket showDialog() {
     return cli;
 
+  }
+  
+  public int getID(){
+    return id;
   }
 	/** This method is called from within the constructor to
 	 * initialize the form.
@@ -39,6 +45,8 @@ public class JDialogConnect extends javax.swing.JDialog {
     jLabel2 = new javax.swing.JLabel();
     jButton2 = new javax.swing.JButton();
     jTextPort = new javax.swing.JTextField();
+    jLabel1 = new javax.swing.JLabel();
+    jTextField1 = new javax.swing.JTextField();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
     setTitle("Connect");
@@ -51,7 +59,7 @@ public class JDialogConnect extends javax.swing.JDialog {
     jLabel2.setText("Port:");
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 0;
+    gridBagConstraints.gridy = 1;
     jPanel1.add(jLabel2, gridBagConstraints);
 
     jButton2.setText("Connect");
@@ -62,7 +70,7 @@ public class JDialogConnect extends javax.swing.JDialog {
     });
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 1;
+    gridBagConstraints.gridy = 2;
     gridBagConstraints.gridwidth = 2;
     jPanel1.add(jButton2, gridBagConstraints);
 
@@ -70,8 +78,25 @@ public class JDialogConnect extends javax.swing.JDialog {
     jTextPort.setText("4546");
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 0;
+    gridBagConstraints.gridy = 1;
     jPanel1.add(jTextPort, gridBagConstraints);
+
+    jLabel1.setText("ID:");
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 0;
+    jPanel1.add(jLabel1, gridBagConstraints);
+
+    jTextField1.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        jTextField1ActionPerformed(evt);
+      }
+    });
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 0;
+    gridBagConstraints.ipadx = 60;
+    jPanel1.add(jTextField1, gridBagConstraints);
 
     getContentPane().add(jPanel1, new java.awt.GridBagConstraints());
 
@@ -79,20 +104,33 @@ public class JDialogConnect extends javax.swing.JDialog {
   }// </editor-fold>//GEN-END:initComponents
 
   private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-    int port = Integer.parseInt(jTextPort.getText());
-    try {
-      this.cli = new Socket("localhost", port);
-      this.dispose();
+    
+    if(jTextField1.getText().isEmpty() || jTextPort.getText().isEmpty()){
+      JOptionPane.showMessageDialog(this, "Insira os valores nos campos correctamente");
     }
-    catch (Exception ex) {
-      JOptionPane.showMessageDialog(this, ex.getMessage());
+    else{
+      id = Integer.parseInt(jTextField1.getText());
+      int port = Integer.parseInt(jTextPort.getText());
+      try {
+        this.cli = new Socket("localhost", port);
+        this.dispose();
+      }
+      catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, ex.getMessage());
+      }
     }
   }//GEN-LAST:event_jButton2ActionPerformed
 
+  private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    // TODO add your handling code here:
+  }//GEN-LAST:event_jTextField1ActionPerformed
+
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton jButton2;
+  private javax.swing.JLabel jLabel1;
   private javax.swing.JLabel jLabel2;
   private javax.swing.JPanel jPanel1;
+  private javax.swing.JTextField jTextField1;
   private javax.swing.JTextField jTextPort;
   // End of variables declaration//GEN-END:variables
 

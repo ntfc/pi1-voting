@@ -2,6 +2,7 @@ package test.gui.voters;
 
 import java.awt.Component;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.Socket;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -137,10 +138,12 @@ public class JVoterMain extends javax.swing.JFrame {
     this.voter = null;
     connect.setVisible(true);
     Socket cliSocket = connect.showDialog();
+    BigInteger id = BigInteger.valueOf(connect.getID());
+
     if (cliSocket != null) {
       this.jButtonConnect.setVisible(false);
       try {
-        this.voter = new VoterClient(cliSocket);
+        this.voter = new VoterClient(cliSocket, id);
         this.voter.setUpVoting();
         // show voting options
         generateVotingOptions();
@@ -192,11 +195,11 @@ public class JVoterMain extends javax.swing.JFrame {
     
     try {
       
-      //submit votes
-      voter.submitVote(arrayVotes);
+        //submit votes
+        voter.submitVote(arrayVotes);   
       JOptionPane.showMessageDialog(this, "Vote submitted");
     }
-    catch (NumberOfVotesException | VotingSchemeException | InvalidKeyException | IOException | PaillierException | VariableNotSetException ex) {
+    catch (NumberOfVotesException | VotingSchemeException | InvalidKeyException | IOException | PaillierException | VariableNotSetException | NoSuchAlgorithmException ex) {
       JOptionPane.showMessageDialog(this, ex.getMessage());
       LOG.log(Level.SEVERE, ex.getMessage(), ex);
     }
