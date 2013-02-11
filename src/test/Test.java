@@ -21,10 +21,10 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.cssi.provider.CssiProvider;
 import org.evoting.schemes.Ballot;
 import org.evoting.zkp.Proof;
-import org.evoting.zkp.noninteractive.ZKPSetOfMessagesProver;
-import org.evoting.zkp.noninteractive.ZKPSetOfMessagesVerifier;
-import org.evoting.zkp.noninteractive.ZKPVotedKProver;
-import org.evoting.zkp.noninteractive.ZKPVotedKVerifier;
+import org.evoting.zkp.interactive.ZKPSetOfMessagesProver;
+import org.evoting.zkp.interactive.ZKPSetOfMessagesVerifier;
+import org.evoting.zkp.interactive.ZKPVotedKProver;
+import org.evoting.zkp.interactive.ZKPVotedKVerifier;
 import org.utils.ByteUtils;
 
 /**

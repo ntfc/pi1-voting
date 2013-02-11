@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.evoting.zkp.noninteractive;
+package org.evoting.zkp.interactive;
 
 import java.math.BigInteger;
 import java.security.InvalidKeyException;

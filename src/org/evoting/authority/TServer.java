@@ -19,8 +19,8 @@ import org.evoting.exception.VariableNotSetException;
 import org.evoting.schemes.Ballot;
 import org.evoting.schemes.Voting;
 import org.evoting.zkp.Proof;
-import org.evoting.zkp.noninteractive.ZKPSetOfMessagesVerifier;
-import org.evoting.zkp.noninteractive.ZKPVotedKVerifier;
+import org.evoting.zkp.interactive.ZKPSetOfMessagesVerifier;
+import org.evoting.zkp.interactive.ZKPVotedKVerifier;
 import org.utils.DataStreamUtils;
 
 /**
