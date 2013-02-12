@@ -6,6 +6,7 @@ package org.evoting.authority;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -38,6 +39,7 @@ import org.utils.DataStreamUtils;
   private Socket client;
   private PublicKey pubKey;
   private PrivateKey privKey;
+  private ServerSocket server;
   private Voting voting;
   private boolean interactive;
 
@@ -48,12 +50,13 @@ import org.utils.DataStreamUtils;
    * @param kP
    * @param vot
    */
-  public TServer(Socket s, KeyPair kP, Voting vot) {
+  public TServer(ServerSocket s1,Socket s, KeyPair kP, Voting vot) {
     this.client = s;
     this.pubKey = kP.getPublic();
     this.privKey = kP.getPrivate();
     this.voting = vot;
     this.interactive = false;
+    this.server = s1;
   }
 
   @Override
@@ -100,6 +103,10 @@ import org.utils.DataStreamUtils;
       }
       finally {
         dsu.close();
+        if(!voting.canAcceptMoreVotes()){
+          client.close();
+          server.close();
+        }
       }
     }
     catch (IOException e) {

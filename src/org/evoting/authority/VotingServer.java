@@ -7,6 +7,7 @@ package org.evoting.authority;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.security.InvalidKeyException;
 import java.security.KeyException;
@@ -76,23 +77,33 @@ public class VotingServer {
       // but each voter must be validated in its thread!
       try {
         Socket voter = server.accept();
-        // if the number of max voter has been reached, break
-        LOG.log(Level.INFO, "Voter connected");
-        // start the voter thread
-        TServer voterThread = new TServer(voter, keyPair, voting);
-        voterThread.start();
+        
+        // if the number of max voter has been reached, break    
         if (!voting.canAcceptMoreVotes()) {
           //Close the socket,  the accept() call will throw a SocketException. No need for a break;
             server.close();
+            voter.close();
             LOG.log(Level.INFO,
                   "Cannot receive more votes. Max number of voters reached");
         }
-        if(server.isClosed()) break;
+                
+        LOG.log(Level.INFO, "Voter connected");
+        // start the voter thread
+        TServer voterThread = new TServer(server,voter, keyPair, voting);
+        voterThread.start();
+        
+        
+        
       }
       catch (SocketTimeoutException ex) {
         LOG.log(Level.INFO, "SocketTimeout reached. Voting ended!");
         // voting ended. exit while(1) loop
         break;
+      }
+      catch(SocketException e){
+       LOG.log(Level.INFO, "SocketClosed Voting ended!");
+       //voting ended. exit while(1) loop
+       break;
       }
  
     }
