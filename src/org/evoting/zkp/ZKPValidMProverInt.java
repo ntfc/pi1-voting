@@ -4,12 +4,12 @@
  */
 package org.evoting.zkp;
 
-import org.evoting.schemes.proofs.InteractiveProof;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import org.cssi.numbers.CryptoNumbers;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.evoting.exception.VariableNotSetException;
+import org.evoting.schemes.proofs.InteractiveProof;
 import org.evoting.zkp.ZKPValidM;
 import org.utils.ByteUtils;
 

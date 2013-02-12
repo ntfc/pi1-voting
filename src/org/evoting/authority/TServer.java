@@ -32,7 +32,7 @@ import org.utils.DataStreamUtils;
  *
  * @author nc
  */
-public class TServer extends Thread {
+/*public*/ class TServer extends Thread {
 
   private static final Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
   private Socket client;
