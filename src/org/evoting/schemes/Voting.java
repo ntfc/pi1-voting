@@ -289,7 +289,6 @@ public class Voting {
   }
   
   public void addVoterWhoVoted(){
-    System.out.println("voto contado");
     votersWhoVoted++;
   }
   
