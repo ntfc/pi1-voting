@@ -5,7 +5,6 @@
 package org.evoting.zkp;
 
 import org.evoting.schemes.proofs.InteractiveProof;
-import org.evoting.schemes.proofs.Proof;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import org.cssi.numbers.CryptoNumbers;

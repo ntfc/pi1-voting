@@ -10,7 +10,6 @@ import java.security.SecureRandom;
 import org.cssi.numbers.CryptoNumbers;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.evoting.exception.VariableNotSetException;
-import org.evoting.schemes.proofs.Proof;
 import org.evoting.zkp.ZKPValidM;
 import org.utils.ByteUtils;
 
