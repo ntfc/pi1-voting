@@ -127,7 +127,7 @@ public class VoterClient {
       //-------------------------
     }
     catch (IOException ex) {
-      System.err.println(ex.getMessage());
+      LOG.log(Level.SEVERE, ex.getMessage(), ex);
     }
   }
 

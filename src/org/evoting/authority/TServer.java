@@ -71,19 +71,21 @@ public class TServer extends Thread {
         dsu.writeBytes(pubKey.getEncoded());
         // receive zkp for client: interactive or not
         int iz = dsu.readInt();
-        if(iz == 1)
+        if (iz == 1) {
           this.interactive = true;
-        else
+        }
+        else {
           this.interactive = false;
+        }
 
         // receive votes
-        if(interactive) {
+        if (interactive) {
           try {
             // receive votes interactive
             log.log(Level.INFO, "Receiving Proofs interactively");
             receiveVotesInteractive(dsu);
           }
-          catch(VariableNotSetException ex) {
+          catch (VariableNotSetException ex) {
             log.log(Level.SEVERE, ex.getMessage());
           }
         }
@@ -105,7 +107,7 @@ public class TServer extends Thread {
     }
   }
 
-  public void receiveBallotNonInteractive(DataStreamUtils dsu) throws
+  private void receiveBallotNonInteractive(DataStreamUtils dsu) throws
     IOException {
     //zkp boolean verifier
     boolean zkpVerifierSetMessages = true;
@@ -130,47 +132,19 @@ public class TServer extends Thread {
 
       // verify
       boolean msgVerif = niZKP.verify(proof, C);
-      System.err.println("Verification of C_" + i + " = " + msgVerif);
+      log.log(Level.INFO, "Verification of C_{0}", i + " = " + msgVerif);
       zkpVerifierSetMessages = zkpVerifierSetMessages && msgVerif;
     }
 
-    System.err.println("ZKPSetOfMessages: " + zkpVerifierSetMessages);
+    log.log(Level.INFO, "ZKPSetOfMessages: {0}", zkpVerifierSetMessages);
 
-    //gen VotedKVerifier
-    ZKPVotedKVerifier kVerifier = new ZKPVotedKVerifier(pubKey, voting.getK());
+    boolean zkpVerifierVotedK = this.maxKOptionsProof(dsu, ballot.getVotes());
 
-    //receive step1
-    byte[] step1VotedK = dsu.readBytes();
-    kVerifier.receiveStep1(step1VotedK);
-
-    //gen step2
-    kVerifier.generateStep2(ballot.getVotes());
-
-    //verifier VotedK
-    boolean zkpVerifierVotedK = true;
-    try {
-      zkpVerifierVotedK = kVerifier.verify();
-
-      System.out.println("ZKPVotedK: " + zkpVerifierVotedK);
-    }
-    catch (PaillierException | InvalidKeyException ex) {
-      log.log(Level.SEVERE, ex.getMessage(), ex);
-    }
-
-    // TODO: invalid votes are discarded or not?
-    if (zkpVerifierSetMessages && zkpVerifierVotedK) {
-      voting.receiveBallot(ballot);
-      System.out.println("Valid ballot");
-    }
-    else {
-      voting.addInvalidVote();
-      voting.addVoterWhoVoted();
-      System.out.println("Invalid ballot");
-    }
+    addVotes(zkpVerifierSetMessages && zkpVerifierVotedK, ballot.getVotes());
   }
 
-  public void receiveVotesInteractive(DataStreamUtils dsu) throws IOException,
-      VariableNotSetException {
+  private void receiveVotesInteractive(DataStreamUtils dsu) throws IOException,
+    VariableNotSetException {
     //zkp boolean verifier
     boolean zkpVerifierSetMessages = true;
 
@@ -197,16 +171,30 @@ public class TServer extends Thread {
       InteractiveProof step3_2 = new InteractiveProof(dsu.readBytes()); // v
       iZKP.receiveStep3(step3_1, step3_2);
 
-
       // verify
       boolean msgVerif = iZKP.verify(C);
-      System.err.println("Verification of C_" + i + " = " + msgVerif);
+      log.log(Level.INFO, "Verification of C_{0}", i + " = " + msgVerif);
       zkpVerifierSetMessages = zkpVerifierSetMessages && msgVerif;
     }
 
-    System.err.println("ZKPSetOfMessages: " + zkpVerifierSetMessages);
+    log.log(Level.INFO, "ZKPSetOfMessages: {0}", zkpVerifierSetMessages);
 
-    //gen VotedKVerifier
+    boolean zkpVerifierVotedK = this.maxKOptionsProof(dsu, votes);
+
+    addVotes(zkpVerifierSetMessages && zkpVerifierVotedK, votes);
+  }
+
+  /**
+   * Auxiliary method
+   * <p/>
+   * @param dsu
+   * @param votes
+   * @return
+   * @throws IOException
+   */
+  private boolean maxKOptionsProof(DataStreamUtils dsu, List<BigInteger> votes)
+    throws IOException {
+    // VotedKVerifier
     ZKPVotedKVerifier kVerifier = new ZKPVotedKVerifier(pubKey, voting.getK());
 
     //receive step1
@@ -221,21 +209,31 @@ public class TServer extends Thread {
     try {
       zkpVerifierVotedK = kVerifier.verify();
 
-      System.out.println("ZKPVotedK: " + zkpVerifierVotedK);
+      log.log(Level.INFO, "ZKPVotedK: {0}", zkpVerifierVotedK);
     }
     catch (PaillierException | InvalidKeyException ex) {
       log.log(Level.SEVERE, ex.getMessage(), ex);
     }
 
+    return zkpVerifierVotedK;
+  }
+
+  /**
+   * Auxiliary method
+   * <p/>
+   * @param toAdd
+   * @param votes
+   */
+  private void addVotes(boolean toAdd, List<BigInteger> votes) {
     // TODO: invalid votes are discarded or not?
-    if (zkpVerifierSetMessages && zkpVerifierVotedK) {
+    if (toAdd) {
       voting.receiveVotes(votes);
-      System.out.println("Valid ballot");
+      log.log(Level.INFO, "Valid ballot. Ballot added");
     }
     else {
       voting.addInvalidVote();
       voting.addVoterWhoVoted();
-      System.out.println("Invalid ballot");
+      log.log(Level.INFO, "Invalid ballot. Ballot not added");
     }
   }
 }
