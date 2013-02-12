@@ -334,18 +334,18 @@ public class Voting {
       
       for (int i = 0; i < nrCandidates; i++) {
         // number of votes for candidate
-        BigInteger candTallyDec = tallying(key, i);
-        BigInteger res = cipher.dec(key, candTallyDec);
+        BigInteger candTallyEnc = tallying(key, i);
+        BigInteger res = cipher.dec(key, candTallyEnc);
         results.addResult(res, i);
       }
       //add blank votes
-      BigInteger blankTotal = BigInteger.ZERO;
+      List<BigInteger> blankVotes = new ArrayList<>();
       for(int i = getL(); i < (getL() + getK()); i++) {
-        BigInteger blankTallyDec = tallying(key, i);
-        BigInteger blank = cipher.dec(key, blankTallyDec);
-        blankTotal = blankTotal.add(blank);
+        BigInteger blankTallyEnc = tallying(key, i);
+        blankVotes.add(blankTallyEnc);
       }
-      results.addResultBlankVotes(blankTotal);
+      BigInteger blankTotalEnc = getCipher().mult(key, blankVotes);
+      results.addResultBlankVotes(getCipher().dec(key, blankTotalEnc));
       
       //add invalid votes
       results.addResultInvalidVotes(BigInteger.valueOf(invalidvotes));
