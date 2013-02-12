@@ -180,7 +180,6 @@ public class TServer extends Thread {
     log.log(Level.INFO, "ZKPSetOfMessages: {0}", zkpVerifierSetMessages);
 
     boolean zkpVerifierVotedK = this.maxKOptionsProof(dsu, votes);
-    System.out.println("Votes size = " + votes.size());
     addVotes(zkpVerifierSetMessages && zkpVerifierVotedK, votes);
   }
 
@@ -227,7 +226,6 @@ public class TServer extends Thread {
   private void addVotes(boolean toAdd, List<BigInteger> votes) {
     // TODO: invalid votes are discarded or not?
     if (toAdd) {
-      System.out.println("Votes accepted");
       voting.receiveVotes(votes);
       log.log(Level.INFO, "Valid ballot. Ballot added");
     }

@@ -65,6 +65,8 @@ public class authTest {
       System.out.println("Candidate " + i + ": " + b + " votos");
       i++;
     }
+    System.out.println("Votos brancos: " + res.getResultBlankVotes());
+    System.out.println("Votos nulos: " + res.getResultInvalidVotes());
     //BigInteger tally = votingServer.getVoting().tallying(kP.getPrivate());
 
     /*Map<Integer, BigInteger> results = votingType.votingResult(kP.getPrivate()).getResults();
