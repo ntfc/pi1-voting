@@ -34,7 +34,11 @@ public class JDialogVotingResults extends javax.swing.JDialog {
 	}
   
   private void setVotingResults() {
+    if(results.isEmpty()){
+            jTextArea1.setText("erro a joker");
+    }
     for(Integer i : results.keySet()) {
+      jTextArea1.setText("erro a joker");
       String t = jTextArea1.getText();
       t += candidates.get(i).concat(" : ").concat(results.get(i).toString()).concat(
               "\n");

@@ -48,6 +48,7 @@ public class Voting {
   public static final int CODE = 0x14;
   private int nrOptions; // this is K
   private BigInteger[] S; // set of allowed messages
+  private VotingResult voteResults;
 
   /**
    * Create an empty voting scheme <p> This is used only by the voter
@@ -318,7 +319,8 @@ public class Voting {
   public VotingResult votingResult(PrivateKey key) throws InvalidKeyException,
     PaillierException, VotingSchemeException {
       VotingResult results = new VotingResult(this.getCipher(),this.nrCandidates,this.getK());
-      results.votingResults(key, this.getL(), votes);
+      results.calculateResults(key, this.getL(), votes);
+      this.voteResults = results;
       return results;
   }
 

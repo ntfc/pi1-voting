@@ -44,10 +44,14 @@ public class VotingResult {
     if(candIndex >= (l + k)) { 
       throw new VotingSchemeException("Candidate index must be between 0 and nrCandidates + nrOptions");
     }
+     if(votes.isEmpty()){
+      return BigInteger.ZERO;
+    }
     Map<BigInteger, Proof> candVotes = votes.get(candIndex);
     return cipher.mult(key, candVotes.keySet());
   } 
  
+    
    public int getVotes(int candidate){
       return results.get(candidate).intValue();
    }
@@ -90,7 +94,7 @@ public class VotingResult {
     return this.results;
   }
   
-   public void votingResults(PrivateKey key, int l,  Map<Integer, Map<BigInteger, Proof>> votes) throws InvalidKeyException,
+   public void calculateResults(PrivateKey key, int l,  Map<Integer, Map<BigInteger, Proof>> votes) throws InvalidKeyException,
     PaillierException, VotingSchemeException {
     // blank votes are in the last position
      
