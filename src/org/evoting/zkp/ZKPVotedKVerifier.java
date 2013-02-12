@@ -30,7 +30,7 @@ public class ZKPVotedKVerifier extends ZKPVotedK {
    * Calculate the product of all ciphertexts
    * <p/>
    * @param cj
-   * @return
+   * @return An encoded BigInteger
    */
   public byte[] generateStep2(BigInteger[] cj) {
     super.productC = productMod(nSquare, cj);
@@ -38,7 +38,7 @@ public class ZKPVotedKVerifier extends ZKPVotedK {
   }
 
   public byte[] generateStep2(List<BigInteger> cj) {
-    super.productC = productModNSquare(nSquare, cj);
+    super.productC = productMod(nSquare, cj);
     return productC.toByteArray();
   }
 

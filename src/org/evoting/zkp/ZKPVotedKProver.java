@@ -21,7 +21,7 @@ public class ZKPVotedKProver extends ZKPVotedK {
    * Calculate the product of every r used to encrypt L votes
    * <p>
    * <p/>
-   * @return
+   * @return An encoded BigInteger
    */
   public byte[] generateStep1(BigInteger[] rj) {
     super.productR = productMod(n, rj);

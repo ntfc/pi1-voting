@@ -276,6 +276,20 @@ public class Voting {
     }
     addVoterWhoVoted();
   }
+
+  /**
+   * Used in interactive method
+   * @param votes
+   */
+  public void receiveVotes(List<BigInteger> vs) {
+    for(int i = 0; i < votes.size(); i++) {
+      if(votes.get(i) == null) {
+        votes.put(i, new HashMap<BigInteger, Proof>());
+      }
+      // add ballot
+      votes.get(i).put(vs.get(i), null);
+    }
+  }
   
   public void addVoterWhoVoted(){
     votersWhoVoted++;

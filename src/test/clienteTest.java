@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.security.SecureRandom;
 import java.security.Security;
 import org.cssi.provider.CssiProvider;
+import org.evoting.schemes.Ballot;
 import org.evoting.voter.VoterClient;
 
 /**
@@ -56,7 +57,7 @@ public class clienteTest implements Runnable {
 
       
       client.submitBallot(ballot);*/
-      client.submitVote();
+      client.submitVoteInterative();
       
     }
     catch (Exception e) {
@@ -68,6 +69,8 @@ public class clienteTest implements Runnable {
     VoterClient client = new VoterClient(new Socket("localhost", 4545), new BigInteger(5, new SecureRandom()));
     // receive voting properties from authority like candidate names, base, etc
     client.setUpVoting();
-    client.submitVote(3);
+    Ballot b = client.createBallotNonInteractive(3);
+    client.submitBallot(b);
+    //client.submitVoteInterative(3);
   }
 }

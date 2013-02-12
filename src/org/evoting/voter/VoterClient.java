@@ -15,6 +15,7 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.cssi.numbers.CryptoNumbers;
 import org.cssi.paillier.cipher.Paillier;
@@ -27,7 +28,9 @@ import org.evoting.exception.VariableNotSetException;
 import org.evoting.exception.VotingSchemeException;
 import org.evoting.schemes.Ballot;
 import org.evoting.schemes.Voting;
+import org.evoting.schemes.proofs.InteractiveProof;
 import org.evoting.schemes.proofs.NonInteractiveProof;
+import org.evoting.zkp.ZKPValidMProverInt;
 import org.evoting.zkp.ZKPValidMProverNonInt;
 import org.evoting.zkp.ZKPVotedKProver;
 import org.utils.DataStreamUtils;
@@ -46,7 +49,8 @@ public class VoterClient {
   private PublicKey publicKey;
   private Paillier paillier;
   private Voting voting;
-  private static final Logger LOG = Logger.getLogger(VoterClient.class.getName());
+  private static final Logger LOG = Logger.
+    getLogger(VoterClient.class.getName());
   private BigInteger voterID;
 
   public VoterClient(Socket soc, BigInteger voterid) throws IOException {
@@ -112,84 +116,155 @@ public class VoterClient {
     }
   }
 
-  public Ballot createBallot(int... votes) {
-    // TODO: seria o metodo usado com ZKP nao interactivo..
-    return null;
-  }
   /**
-   *
-   * @param votes The array containing the indexes of the voter options
+   * Given the voter options, creates a Ballot with the encrypted votes and the
+   * respective proofs
+   * <p>
+   * <p/>
+   * @param votes
+   * @return
+   * @throws PaillierException
+   * @throws InvalidKeyException
+   * @throws NoSuchAlgorithmException
+   * @throws VariableNotSetException
    */
-  public void submitVote(int... votes) throws NumberOfVotesException,
-    VotingSchemeException, InvalidKeyException, IOException, PaillierException, VariableNotSetException, NoSuchAlgorithmException {
-
+  public Ballot createBallotNonInteractive(int... votes) throws
+    PaillierException, InvalidKeyException, NoSuchAlgorithmException,
+    VariableNotSetException {
+    // cast publicKey
+    PaillierPublicKey pub = (PaillierPublicKey) publicKey;
+    BigInteger n = pub.getN();
     int ballotSize = voting.getL() + voting.getK();
-    // sum 1 if voted for candidate i, 0 otherwise
-    // NOTE: array size is getL() + getK() because of dummy votes
+
+    // ballot unencrypted, only with the voter options
     int[] options = new int[ballotSize];
-    Arrays.fill(options, 0); // default option is 0
-    // put 1's where the voter voted
-    for(int i = 0; i < votes.length; i++) {
-      options[votes[i]] += 1; // WARNING: using += 1 just to be able to cheat
+    Arrays.fill(options, 0);
+    // if voter voted for option i, set options[i] = 1, 0 otherwise
+    for (int i = 0; i < votes.length; i++) {
+      options[votes[i]] = 1; // TODO: test cheating here
     }
-    // put the necessary blank votes in the dummy votes
-    int blank = voting.getK() - votes.length;
-    for(int i = voting.getL(); i < (voting.getL() + blank) ; i++) {
+    // blank votes = K - nrOptionsSelected
+    int nBlank = voting.getK() - votes.length;
+    // put blank votes in the dummy votes
+    for (int i = voting.getL(); i < (voting.getL() + nBlank); i++) {
       options[i] = 1;
     }
-    System.err.println("Ballot = " + Arrays.toString(options));
+    LOG.log(Level.INFO, "Ballot = {0}", Arrays.toString(options));
+    Ballot ballot = new Ballot(voting.getL(), voting.getK());
 
+    // r_{ij} to prove that the ballot contains exactly K options selected
     BigInteger[] arrayWithR = new BigInteger[ballotSize];
-    // this array contains 1's and 0's: 1 if voted for candidate i, 0 otherwise
 
-    // send vote and create ZKP for each voting option
-    // DUMMY VOTES ARE DEALED IN THE NEXT LOOP
-    for(int i = 0; i < voting.getL(); i++) {
+    // ni zkp object
+    ZKPValidMProverNonInt niZKP = new ZKPValidMProverNonInt(voting.getS(), pub);
+    for (int i = 0; i < options.length; i++) {
       // encrypt vote
-      BigInteger r = CryptoNumbers.genRandomZN(((PaillierPublicKey)publicKey).getN(), new SecureRandom());
+      BigInteger r = CryptoNumbers.genRandomZN(n, new SecureRandom());
       BigInteger m = BigInteger.valueOf(options[i]);
-      BigInteger C = voting.getCipher().enc(publicKey, m, r);
-      
+      BigInteger C = voting.getCipher().enc(pub, m, r);
+
+      // save r_{ij}
+      arrayWithR[i] = r;
+
+      // generate NI-ZKP
+      NonInteractiveProof proof = niZKP.generateProof(C, m, r, voterID);
+
+      // add C and Proof to ballot
+      ballot.addVote(i, C, proof);
+    }
+
+    // create the proof that he voted for exactly K candidates
+    ZKPVotedKProver kZKP = new ZKPVotedKProver(publicKey);
+    ballot.addR(kZKP.generateStep1(arrayWithR));
+
+    return ballot;
+  }
+
+  public void submitBallot(Ballot b) throws IOException {
+    for (int i = 0; i < b.size(); i++) {
+      // send C
+      dsu.writeBigInteger(b.getVote(i));
+      // send proof
+      dsu.writeBytes(b.getProof(i).getProofEncoded());
+    }
+    // send proof R
+    dsu.writeBigInteger(b.getR());
+  }
+
+  /**
+   * Submits the voter votes, <b>interactively</b>
+   * <p>
+   * <p/>
+   * @param votes
+   * @throws NumberOfVotesException
+   * @throws VotingSchemeException
+   * @throws InvalidKeyException
+   * @throws IOException
+   * @throws PaillierException
+   * @throws VariableNotSetException
+   * @throws NoSuchAlgorithmException
+   */
+  public void submitVoteInterative(int... votes) throws NumberOfVotesException,
+    VotingSchemeException, InvalidKeyException, IOException, PaillierException,
+    VariableNotSetException, NoSuchAlgorithmException {
+
+    // cast publicKey
+    PaillierPublicKey pub = (PaillierPublicKey) publicKey;
+    BigInteger n = pub.getN();
+    int ballotSize = voting.getL() + voting.getK();
+
+    // ballot unencrypted, only with the voter options
+    int[] options = new int[ballotSize];
+    Arrays.fill(options, 0);
+    // if voter voted for option i, set options[i] = 1, 0 otherwise
+    for (int i = 0; i < votes.length; i++) {
+      options[votes[i]] = 1; // TODO: test cheating here
+    }
+    // blank votes = K - nrOptionsSelected
+    int nBlank = voting.getK() - votes.length;
+    // put blank votes in the dummy votes
+    for (int i = voting.getL(); i < (voting.getL() + nBlank); i++) {
+      options[i] = 1;
+    }
+    LOG.log(Level.INFO, "Ballot = {0}", Arrays.toString(options));
+
+    // r_{ij} to prove that the ballot contains exactly K options selected
+    BigInteger[] arrayWithR = new BigInteger[ballotSize];
+
+    ZKPValidMProverInt iZKP = new ZKPValidMProverInt(voting.getS(), pub);
+    // send vote and create ZKP for each voting option
+    for (int i = 0; i < ballotSize; i++) {
+      // encrypt vote
+      BigInteger r = CryptoNumbers.genRandomZN(pub.getN(), new SecureRandom());
+      BigInteger m = BigInteger.valueOf(options[i]);
+      BigInteger C = voting.getCipher().enc(pub, m, r);
+
       //save r value
       arrayWithR[i] = r;
-      
+
       // send vote
       dsu.writeBigInteger(C);
       // zkp
-      ZKPValidMProverNonInt niZKP = new ZKPValidMProverNonInt(voting.getS(), (PaillierPublicKey)publicKey);
-      //InteractiveProof p = (InteractiveProof) niZKP.generateProof(C, m, r, voterID);
-      NonInteractiveProof p = niZKP.generateProof(C, m, r, voterID);
-      // send NI proof
-      dsu.writeBytes(p.getProofEncoded());
+      InteractiveProof step1 = iZKP.generateStep1(C, m, r);
+      // send step1
+      dsu.writeBytes(step1.getProofEncoded());
+
+      // receive step2
+      InteractiveProof step2 = new InteractiveProof(dsu.readBytes());
+      iZKP.receiveStep2(step2);
+      // send step3
+      InteractiveProof[] step3 = iZKP.generateStep3();
+      dsu.writeBytes(step3[0].getProofEncoded());
+      dsu.writeBytes(step3[1].getProofEncoded());
     }
-    // deal with dummy votes now
-    for(int i = voting.getL(); i < ballotSize; i++) {
-      BigInteger r = CryptoNumbers.genRandomZN(((PaillierPublicKey)publicKey).getN(), new SecureRandom());
-      BigInteger m = BigInteger.valueOf(options[i]);
-      BigInteger C = voting.getCipher().enc(publicKey, m, r);
-
-      //save r value
-      arrayWithR[i] = r;
-
-      // send vote
-      dsu.writeBigInteger(C);
-      // zkp
-      ZKPValidMProverNonInt niZKP = new ZKPValidMProverNonInt(voting.getS(), (PaillierPublicKey)publicKey);
-      //InteractiveProof p = (InteractiveProof) niZKP.generateProof(C, m, r, voterID);
-
-      NonInteractiveProof p = niZKP.generateProof(C, m, r, voterID);
-      // send NI proof
-      dsu.writeBytes(p.getProofEncoded());
-    }
-    
     //zkpVotedkProver
-    ZKPVotedKProver kProver = new ZKPVotedKProver(publicKey);
-    
+    ZKPVotedKProver kProver = new ZKPVotedKProver(pub);
+
     //gen step 1
     byte[] step1KProver = kProver.generateStep1(arrayWithR);
-    
+
     //send step 1
     dsu.writeBytes(step1KProver);
-    
+
   }
 }

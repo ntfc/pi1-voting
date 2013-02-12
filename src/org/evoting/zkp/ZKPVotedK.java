@@ -62,7 +62,7 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
     return ret.mod(m);
   }
 
-  protected final BigInteger productModNSquare(BigInteger m, List<BigInteger> n) {
+  protected final BigInteger productMod(BigInteger m, List<BigInteger> n) {
     if (n.size() < 1) {
       return BigInteger.ZERO;
     }
