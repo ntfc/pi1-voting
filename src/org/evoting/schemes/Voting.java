@@ -278,7 +278,7 @@ public class Voting {
    * @param votes
    */
   public void receiveVotes(List<BigInteger> vs) {
-    for(int i = 0; i < votes.size(); i++) {
+    for(int i = 0; i < vs.size(); i++) {
       if(votes.get(i) == null) {
         votes.put(i, new HashMap<BigInteger, Proof>());
       }
@@ -338,7 +338,7 @@ public class Voting {
       }
       //add blank votes
       BigInteger blankTotal = BigInteger.ZERO;
-      for(int i = nrCandidates; i < (nrCandidates + nrOptions); i++) {
+      for(int i = getL(); i < (getL() + getK()); i++) {
         BigInteger blankTallyDec = tallying(key, i);
         BigInteger blank = cipher.dec(key, blankTallyDec);
         blankTotal = blankTotal.add(blank);

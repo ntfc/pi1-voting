@@ -16,6 +16,7 @@ import org.cssi.paillier.cipher.PaillierSimple;
 import org.cssi.provider.CssiProvider;
 import org.evoting.authority.VotingServer;
 import org.evoting.schemes.Voting;
+import org.evoting.schemes.VotingResult;
 
 /**
  *
@@ -56,6 +57,14 @@ public class authTest {
     VotingServer votingServer = new VotingServer(votingType, kP);
 
     votingServer.startVoting(5000, 4545);
+
+    VotingResult res = votingType.votingResults(kP.getPrivate());
+    int i = 0;
+    System.out.println(votingType.votingResults(kP.getPrivate()).getResults().size());
+    for(BigInteger b : res.getResults().values()) {
+      System.out.println("Candidate " + i + ": " + b + " votos");
+      i++;
+    }
     //BigInteger tally = votingServer.getVoting().tallying(kP.getPrivate());
 
     /*Map<Integer, BigInteger> results = votingType.votingResult(kP.getPrivate()).getResults();
