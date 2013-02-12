@@ -33,8 +33,8 @@ import org.utils.DataStreamUtils;
  * @author nc
  */
 /*public*/ class TServer extends Thread {
-
-  private static final Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+  
+  private static final Logger log = Logger.getLogger(TServer.class.getName());
   private Socket client;
   private PublicKey pubKey;
   private PrivateKey privKey;
