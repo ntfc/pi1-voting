@@ -58,26 +58,13 @@ public class authTest {
     votingServer.startVoting(5000, 4545);
     //BigInteger tally = votingServer.getVoting().tallying(kP.getPrivate());
 
-    Map<Integer, BigInteger> results = votingType.votingResult(kP.getPrivate()).getResults();
+    /*Map<Integer, BigInteger> results = votingType.votingResult(kP.getPrivate()).getResults();
     for(Integer i : results.keySet()) {
       System.err.println("Candidate " + i + ": " + results.get(i) + " votos");
     }
     System.err.println("Votos em branco: " + votingType.votingResult(kP.getPrivate()).getBlanks());
     
-    System.out.println("Votos nulos: "+ votingServer.getVoting().getInvalidVotes());
-    //int winner = votingServer.getVoting().winner(kP.getPrivate(), tally);
-    //System.out.println("Results: " + tally);
-    //System.out.println("Total votes: " + votingServer.getVoting().totalVotes());
-
-    /*int winner = votingServer.getVoting().winner(kP.getPrivate(), tally);
-     System.out.println("Winner: " + winner + " (" + votingServer.getVoting().
-     getCandidateNames().get(winner) + ")");*/
-
-    //BigInteger tallyDec = new PaillierSimple().dec(kP.getPrivate(), tally);
-    //System.out.println("Tally dec: " + tallyDec);
-//    int base = ((OneOutOfLVoting)votingType).getBase();
-//    System.out.println("Tally base " + base + ": " + tallyDec.toString(base));
-
-    //System.out.println(votingType.votingResults(tallyDec));
+    System.out.println("Votos nulos: "+ votingServer.getVoting().getInvalidVotes());*/
+    
   }
 }

@@ -52,13 +52,20 @@ public class VoterClient {
   private static final Logger LOG = Logger.
     getLogger(VoterClient.class.getName());
   private BigInteger voterID;
+  private boolean interactive;
 
   public VoterClient(Socket soc, BigInteger voterid) throws IOException {
+    this(soc, voterid, false);
+  }
+
+  public VoterClient(Socket soc, BigInteger voterid, boolean interactive) throws
+    IOException {
     this.socket = soc;
     this.dsu = new DataStreamUtils(socket.getInputStream(), socket.
       getOutputStream());
     this.paillier = new PaillierSimple();
     this.voterID = voterid;
+    this.interactive = interactive;
   }
 
   /**
@@ -110,6 +117,14 @@ public class VoterClient {
         pubKeyEnc);
       this.publicKey = keyFactory.generatePublic(paiSpec);
       //-------------------------
+      // send prefered zkp: interactive or non-interactive
+      if (interactive) {
+        dsu.writeInt(1); // interactive
+      }
+      else {
+        dsu.writeInt(0); // non-interactive
+      }
+      //-------------------------
     }
     catch (IOException ex) {
       System.err.println(ex.getMessage());
@@ -117,25 +132,43 @@ public class VoterClient {
   }
 
   /**
-   * Given the voter options, creates a Ballot with the encrypted votes and the
-   * respective proofs
-   * <p>
+   * Submits the votes from the voter to the authority
+   * <p/>
+   * @param votes
+   * @throws NumberOfVotesException
+   * @throws VotingSchemeException
+   * @throws InvalidKeyException
+   * @throws IOException
+   * @throws PaillierException
+   * @throws VariableNotSetException
+   * @throws NoSuchAlgorithmException
+   * @return
+   */
+  public Ballot submitVote(int... votes) throws NumberOfVotesException,
+    VotingSchemeException, InvalidKeyException, IOException, PaillierException,
+    VariableNotSetException, NoSuchAlgorithmException {
+    int[] options = createOptionsArray(votes);
+
+    // interactive
+    if (this.interactive) {
+      LOG.log(Level.INFO, "Sending Proofs interactively");
+      return this.submitVoteInterative(options);
+    }
+    // noninteractive
+    else {
+      LOG.log(Level.INFO, "Sending Proofs non-interactively");
+      return this.submitVoteNonInteractive(options);
+    }
+  }
+
+  /**
+   * Auxiliary method for submitVote()
    * <p/>
    * @param votes
    * @return
-   * @throws PaillierException
-   * @throws InvalidKeyException
-   * @throws NoSuchAlgorithmException
-   * @throws VariableNotSetException
    */
-  public Ballot createBallotNonInteractive(int... votes) throws
-    PaillierException, InvalidKeyException, NoSuchAlgorithmException,
-    VariableNotSetException {
-    // cast publicKey
-    PaillierPublicKey pub = (PaillierPublicKey) publicKey;
-    BigInteger n = pub.getN();
+  private int[] createOptionsArray(int... votes) {
     int ballotSize = voting.getL() + voting.getK();
-
     // ballot unencrypted, only with the voter options
     int[] options = new int[ballotSize];
     Arrays.fill(options, 0);
@@ -150,6 +183,29 @@ public class VoterClient {
       options[i] = 1;
     }
     LOG.log(Level.INFO, "Ballot = {0}", Arrays.toString(options));
+
+    return options;
+  }
+
+  /**
+   * Given the voter options, sends a Ballot with the encrypted votes and the
+   * respective proofs
+   * @param options
+   * @return
+   * @throws PaillierException
+   * @throws InvalidKeyException
+   * @throws NoSuchAlgorithmException
+   * @throws VariableNotSetException
+   * @throws IOException
+   */
+  private Ballot submitVoteNonInteractive(int[] options) throws
+      PaillierException, InvalidKeyException, NoSuchAlgorithmException,
+      VariableNotSetException, IOException {
+    // cast publicKey
+    PaillierPublicKey pub = (PaillierPublicKey) publicKey;
+    BigInteger n = pub.getN();
+    int ballotSize = voting.getL() + voting.getK();
+
     Ballot ballot = new Ballot(voting.getL(), voting.getK());
 
     // r_{ij} to prove that the ballot contains exactly K options selected
@@ -177,10 +233,17 @@ public class VoterClient {
     ZKPVotedKProver kZKP = new ZKPVotedKProver(publicKey);
     ballot.addR(kZKP.generateStep1(arrayWithR));
 
+    this.submitBallot(ballot);
+
     return ballot;
   }
 
-  public void submitBallot(Ballot b) throws IOException {
+  /**
+   * Auxiliary method for submitVoteNonInteractive()
+   * @param b
+   * @throws IOException
+   */
+  private void submitBallot(Ballot b) throws IOException {
     for (int i = 0; i < b.size(); i++) {
       // send C
       dsu.writeBigInteger(b.getVote(i));
@@ -191,44 +254,32 @@ public class VoterClient {
     dsu.writeBigInteger(b.getR());
   }
 
-  /**
-   * Submits the voter votes, <b>interactively</b>
-   * <p>
-   * <p/>
-   * @param votes
-   * @throws NumberOfVotesException
-   * @throws VotingSchemeException
-   * @throws InvalidKeyException
-   * @throws IOException
-   * @throws PaillierException
-   * @throws VariableNotSetException
-   * @throws NoSuchAlgorithmException
-   */
-  public void submitVoteInterative(int... votes) throws NumberOfVotesException,
-    VotingSchemeException, InvalidKeyException, IOException, PaillierException,
-    VariableNotSetException, NoSuchAlgorithmException {
+ /**
+  * Submits the voter votes, <b>interactively</b>
+  * <p>
+  * @param options
+  * @return
+  * @throws NumberOfVotesException
+  * @throws VotingSchemeException
+  * @throws InvalidKeyException
+  * @throws IOException
+  * @throws PaillierException
+  * @throws VariableNotSetException
+  * @throws NoSuchAlgorithmException
+  */
+  private Ballot submitVoteInterative(int[] options) throws
+      NumberOfVotesException, VotingSchemeException, InvalidKeyException,
+      IOException, PaillierException, VariableNotSetException,
+      NoSuchAlgorithmException {
 
     // cast publicKey
     PaillierPublicKey pub = (PaillierPublicKey) publicKey;
     BigInteger n = pub.getN();
     int ballotSize = voting.getL() + voting.getK();
 
-    // ballot unencrypted, only with the voter options
-    int[] options = new int[ballotSize];
-    Arrays.fill(options, 0);
-    // if voter voted for option i, set options[i] = 1, 0 otherwise
-    for (int i = 0; i < votes.length; i++) {
-      options[votes[i]] = 1; // TODO: test cheating here
-    }
-    // blank votes = K - nrOptionsSelected
-    int nBlank = voting.getK() - votes.length;
-    // put blank votes in the dummy votes
-    for (int i = voting.getL(); i < (voting.getL() + nBlank); i++) {
-      options[i] = 1;
-    }
-    LOG.log(Level.INFO, "Ballot = {0}", Arrays.toString(options));
-
     // r_{ij} to prove that the ballot contains exactly K options selected
+    Ballot ballot = new Ballot(voting.getL(), voting.getK());
+
     BigInteger[] arrayWithR = new BigInteger[ballotSize];
 
     ZKPValidMProverInt iZKP = new ZKPValidMProverInt(voting.getS(), pub);
@@ -256,6 +307,8 @@ public class VoterClient {
       InteractiveProof[] step3 = iZKP.generateStep3();
       dsu.writeBytes(step3[0].getProofEncoded());
       dsu.writeBytes(step3[1].getProofEncoded());
+
+      ballot.addVote(i, C);
     }
     //zkpVotedkProver
     ZKPVotedKProver kProver = new ZKPVotedKProver(pub);
@@ -266,5 +319,6 @@ public class VoterClient {
     //send step 1
     dsu.writeBytes(step1KProver);
 
+    return ballot;
   }
 }

@@ -39,6 +39,7 @@ public class TServer extends Thread {
   private PublicKey pubKey;
   private PrivateKey privKey;
   private Voting voting;
+  private boolean interactive;
 
   /**
    * Create a thread for each connected voter
@@ -52,6 +53,56 @@ public class TServer extends Thread {
     this.pubKey = kP.getPublic();
     this.privKey = kP.getPrivate();
     this.voting = vot;
+    this.interactive = false;
+  }
+
+  @Override
+  public void run() {
+    try {
+      DataStreamUtils dsu = new DataStreamUtils(client.getInputStream(), client.
+        getOutputStream());
+
+      try {
+        // send voting properties, like base
+        voting.sendVotingProperties(dsu);
+        // send voting candidates to the voter
+        voting.sendVotingCandidates(dsu);
+        // send publickey
+        dsu.writeBytes(pubKey.getEncoded());
+        // receive zkp for client: interactive or not
+        int iz = dsu.readInt();
+        if(iz == 1)
+          this.interactive = true;
+        else
+          this.interactive = false;
+
+        // receive votes
+        if(interactive) {
+          try {
+            // receive votes interactive
+            log.log(Level.INFO, "Receiving Proofs interactively");
+            receiveVotesInteractive(dsu);
+          }
+          catch(VariableNotSetException ex) {
+            log.log(Level.SEVERE, ex.getMessage());
+          }
+        }
+        else {
+          // receive votes non interactive
+          log.log(Level.INFO, "Receiving Proofs non-interactively");
+          receiveBallotNonInteractive(dsu);
+        }
+      }
+      catch (IOException e) {
+        log.log(Level.SEVERE, e.getMessage(), e);
+      }
+      finally {
+        dsu.close();
+      }
+    }
+    catch (IOException e) {
+      log.log(Level.SEVERE, e.getMessage(), e);
+    }
   }
 
   public void receiveBallotNonInteractive(DataStreamUtils dsu) throws
@@ -185,38 +236,6 @@ public class TServer extends Thread {
       voting.addInvalidVote();
       voting.addVoterWhoVoted();
       System.out.println("Invalid ballot");
-    }
-  }
-
-  @Override
-  public void run() {
-    try {
-      DataStreamUtils dsu = new DataStreamUtils(client.getInputStream(), client.
-        getOutputStream());
-
-      try {
-        // send voting properties, like base
-        voting.sendVotingProperties(dsu);
-        // send voting candidates to the voter
-        voting.sendVotingCandidates(dsu);
-        // send publickey
-        dsu.writeBytes(pubKey.getEncoded());
-
-        // receive votes non interactive
-        receiveBallotNonInteractive(dsu);
-        // receive votes interactive
-        //receiveVotesInteractive(dsu);
-
-      }
-      catch (IOException e) {
-        log.log(Level.SEVERE, e.getMessage(), e);
-      }
-      finally {
-        dsu.close();
-      }
-    }
-    catch (IOException e) {
-      log.log(Level.SEVERE, e.getMessage(), e);
     }
   }
 }

@@ -56,8 +56,8 @@ public class clienteTest implements Runnable {
       }
 
       
-      client.submitBallot(ballot);*/
-      client.submitVoteInterative();
+      client.submitBallot(ballot);
+      client.submitVoteInterative();*/
       
     }
     catch (Exception e) {
@@ -66,11 +66,9 @@ public class clienteTest implements Runnable {
 
   public static void main(String[] args) throws Exception{
     Security.addProvider(new CssiProvider());
-    VoterClient client = new VoterClient(new Socket("localhost", 4545), new BigInteger(5, new SecureRandom()));
+    VoterClient client = new VoterClient(new Socket("localhost", 4545), new BigInteger(5, new SecureRandom()), true);
     // receive voting properties from authority like candidate names, base, etc
     client.setUpVoting();
-    Ballot b = client.createBallotNonInteractive(3);
-    client.submitBallot(b);
-    //client.submitVoteInterative(3);
+    client.submitVote(1, 0);
   }
 }

@@ -47,8 +47,6 @@ public class Ballot {
    * @param p
    */
   public void addVote(int candIndex, BigInteger voteEnc, NonInteractiveProof p) {
-    System.err.println("Vote byte[] size: " + voteEnc.toByteArray().length);
-    System.err.println("Proof byte[] size: " + p.getProofEncoded().length);
     Pair<BigInteger, Proof> voteProof = new Pair<>(voteEnc, (Proof)p);
     this.votes.put(candIndex, voteProof);
   }
