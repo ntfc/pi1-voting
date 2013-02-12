@@ -30,15 +30,15 @@ public class ZKPVotedKVerifier extends ZKPVotedK {
    * Calculate the product of all ciphertexts
    * <p/>
    * @param cj
-   * @return
+   * @return An encoded BigInteger
    */
   public byte[] generateStep2(BigInteger[] cj) {
-    super.productC = productModNSquare(cj);
+    super.productC = productMod(nSquare, cj);
     return productC.toByteArray();
   }
 
   public byte[] generateStep2(List<BigInteger> cj) {
-    super.productC = productModNSquare(cj);
+    super.productC = productMod(nSquare, cj);
     return productC.toByteArray();
   }
 
@@ -48,7 +48,7 @@ public class ZKPVotedKVerifier extends ZKPVotedK {
     while (kAux >= 0) {
       // E(K, productR) == productC ==> tudo ok, votou em kAux candidatos
       BigInteger cc = new PaillierSimple().enc(pubKey, BigInteger.valueOf(kAux),
-                                               productR.mod(n));
+                                               productR);
       if (cc.compareTo(productC) == 0) {
         return true;
       }

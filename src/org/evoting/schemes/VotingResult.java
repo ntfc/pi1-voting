@@ -23,6 +23,7 @@ public class VotingResult {
   private BigInteger blankVotes;
   
   
+
   
   public VotingResult(){
     this.results = new TreeMap<>();
@@ -38,6 +39,7 @@ public class VotingResult {
     return this.results;
   }
   
+
    public void addResult(BigInteger result, int index) throws PaillierException, InvalidKeyException{
      results.put(index, result);
    }
@@ -57,5 +59,6 @@ public class VotingResult {
      return this.invalidVotes;
    }
    
+
 }
   

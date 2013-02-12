@@ -48,6 +48,7 @@ public class Voting {
   public static final int CODE = 0x14;
   private int nrOptions; // this is K
   private BigInteger[] S; // set of allowed messages
+  private VotingResult voteResults;
 
   /**
    * Create an empty voting scheme <p> This is used only by the voter
@@ -275,6 +276,20 @@ public class Voting {
     }
     addVoterWhoVoted();
   }
+
+  /**
+   * Used in interactive method
+   * @param votes
+   */
+  public void receiveVotes(List<BigInteger> vs) {
+    for(int i = 0; i < votes.size(); i++) {
+      if(votes.get(i) == null) {
+        votes.put(i, new HashMap<BigInteger, Proof>());
+      }
+      // add ballot
+      votes.get(i).put(vs.get(i), null);
+    }
+  }
   
   public void addVoterWhoVoted(){
     votersWhoVoted++;
@@ -336,7 +351,6 @@ public class Voting {
       
       //add invalid votes
       results.addResultInvalidVotes(BigInteger.valueOf(invalidvotes));
-      
       return results;
   }
 

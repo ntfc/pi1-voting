@@ -12,19 +12,19 @@ import java.util.Map;
 import java.util.TreeMap;
 import org.evoting.schemes.proofs.NonInteractiveProof;
 import org.evoting.schemes.proofs.Proof;
+import org.utils.Pair;
 
 /**
  * This class implements the ballot that each voter sends to the authority.
  * @author nc
  */
 public class Ballot {
-  private Map<Integer, BigInteger> votes;
-  private Map<Integer, Proof> proofs;
+  private Map<Integer, Pair<BigInteger, Proof>> votes;
+  private BigInteger R; // proof that he voted for K options
   private int size;
 
   public Ballot(int nrCands, int nrOpts) {
     this.votes = new TreeMap<>();
-    this.proofs = new TreeMap<>();
     this.size = nrCands + nrOpts;
   }
 
@@ -49,19 +49,34 @@ public class Ballot {
   public void addVote(int candIndex, BigInteger voteEnc, NonInteractiveProof p) {
     System.err.println("Vote byte[] size: " + voteEnc.toByteArray().length);
     System.err.println("Proof byte[] size: " + p.getProofEncoded().length);
-    this.votes.put(candIndex, voteEnc);
-    this.proofs.put(candIndex, p);
+    Pair<BigInteger, Proof> voteProof = new Pair<>(voteEnc, (Proof)p);
+    this.votes.put(candIndex, voteProof);
   }
 
   public BigInteger getVote(int candIndex) {
-    return this.votes.get(candIndex);
+    return this.votes.get(candIndex).getFirst();
   }
 
   public Proof getProof(int candIndex) {
-    return this.proofs.get(candIndex);
+    return this.votes.get(candIndex).getSecond();
   }
 
   public List<BigInteger> getVotes() {
-    return new ArrayList<>(this.votes.values());
+    ArrayList<BigInteger> v = new ArrayList<>();
+    for(Pair<BigInteger,Proof> p : votes.values()) {
+      v.add(p.getFirst());
+    }
+    return v;
+  }
+
+  public void addR(BigInteger r) {
+    this.R = r;
+  }
+  public void addR(byte[] r) {
+    this.addR(new BigInteger(r));
+  }
+
+  public BigInteger getR() {
+    return R;
   }
 }

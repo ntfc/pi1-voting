@@ -197,7 +197,7 @@ public class JVoterMain extends javax.swing.JFrame {
     try {
       
         //submit votes
-        voter.submitVote(arrayVotes);   
+        voter.submitVoteInterative(arrayVotes);
       JOptionPane.showMessageDialog(this, "Vote submitted");
     }
     catch (NumberOfVotesException | VotingSchemeException | InvalidKeyException | IOException | PaillierException | VariableNotSetException | NoSuchAlgorithmException ex) {
