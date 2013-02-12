@@ -283,9 +283,9 @@ public class Voting {
         votes.put(i, new HashMap<BigInteger, Proof>());
       }
       // add ballot
-      votes.get(i).put(vs.get(i), null);
-      addVoterWhoVoted();
+      votes.get(i).put(vs.get(i), null);      
     }
+    addVoterWhoVoted();
   }
   
   public void addVoterWhoVoted(){
