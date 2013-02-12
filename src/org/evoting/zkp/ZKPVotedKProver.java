@@ -24,7 +24,7 @@ public class ZKPVotedKProver extends ZKPVotedK {
    * @return
    */
   public byte[] generateStep1(BigInteger[] rj) {
-    super.productR = productModNSquare(rj);
+    super.productR = productMod(n, rj);
     return productR.toByteArray();
   }
 }

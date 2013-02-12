@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import org.cssi.numbers.CryptoNumbers;
 import org.cssi.paillier.cipher.Paillier;
 import org.cssi.paillier.cipher.PaillierSimple;
+import org.cssi.paillier.cipher.PaillierTrapdoor;
 import org.cssi.paillier.interfaces.PaillierPrivateKey;
 import org.cssi.paillier.interfaces.PaillierPublicKey;
 import org.cssi.provider.CssiProvider;
@@ -238,12 +239,25 @@ public class Test {
 
     System.out.println("Verification = " + kVerifier.verify());
 
-    ZKPValidMProverNonInt P = new ZKPValidMProverNonInt(S, pub);
-    InteractiveProof p = (InteractiveProof) P.generateProof(c0, m0, r0, BigInteger.TEN);
+    System.out.println("g = " + g);
+    System.out.println("n = " + n);
+    
+    BigInteger m = BigInteger.valueOf(866464563);
+    System.out.println("m = " + m);
 
-    ZKPValidMVerifierNonInt V = new ZKPValidMVerifierNonInt(S, pub);
-    InteractiveProof p2 = new InteractiveProof(ByteUtils.byteToArrayByte(p.getProofAsByteArray()));
-    System.out.println("NI verification = " + V.verify(p2, c0));
+    BigInteger[] dR = m.divideAndRemainder(n);
+    BigInteger mm1 = dR[1];
+    BigInteger mm2 = dR[0];
+    System.out.println("m1 = " + mm1);
+    System.out.println("m2 = " + mm2);
+    System.out.println("m1 + n*m2 = " + mm1.add(n.multiply(mm2)));
+
+    PaillierTrapdoor paiT = new PaillierTrapdoor();
+    BigInteger ccc = paiT.enc(pub, m0, m0);
+    System.out.println("m = " + m0);
+    System.out.println("c = " + ccc);
+    BigInteger ddd = paiT.dec(priv, ccc);
+    System.out.println("m = " + ddd);
 
   }
 }

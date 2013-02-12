@@ -44,33 +44,33 @@ import org.cssi.paillier.interfaces.PaillierPublicKey;
 
   /**
    * Calcute a product of
-   * <code>n</code> BigInteger's, modulo
+   * <code>r</code> BigInteger's, modulo
    * <code>nSquare</code>.
    * <p/>
-   * @param n
+   * @param r
    * @return
    */
-  protected final BigInteger productModNSquare(BigInteger... n) {
-    if (n.length < 1) {
+  protected final BigInteger productMod(BigInteger m, BigInteger... r) {
+    if (r.length < 1) {
       return BigInteger.ZERO;
     }
 
     BigInteger ret = BigInteger.ONE;
-    for (BigInteger a : n) {
-      ret = ret.multiply(a).mod(nSquare);
+    for (BigInteger a : r) {
+      ret = ret.multiply(a).mod(m);
     }
-    return ret.mod(nSquare);
+    return ret.mod(m);
   }
 
-  protected final BigInteger productModNSquare(List<BigInteger> n) {
+  protected final BigInteger productModNSquare(BigInteger m, List<BigInteger> n) {
     if (n.size() < 1) {
       return BigInteger.ZERO;
     }
 
     BigInteger ret = BigInteger.ONE;
     for (BigInteger a : n) {
-      ret = ret.multiply(a).mod(nSquare);
+      ret = ret.multiply(a).mod(m);
     }
-    return ret.mod(nSquare);
+    return ret.mod(m);
   }
 }
