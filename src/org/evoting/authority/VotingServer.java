@@ -81,7 +81,6 @@ public class VotingServer {
         // start the voter thread
         TServer voterThread = new TServer(voter, keyPair, voting);
         voterThread.start();
-        voterThread.join();
         if (!voting.canAcceptMoreVotes()) {
           //Close the socket,  the accept() call will throw a SocketException. No need for a break;
             server.close();
