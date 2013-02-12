@@ -1,6 +1,7 @@
 package test.gui.voters;
 
 import java.awt.Component;
+import java.awt.Frame;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Socket;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JCheckBox;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.cssi.paillier.cipher.PaillierException;
@@ -271,6 +273,15 @@ public class JVoterMain extends javax.swing.JFrame {
       for (String cand : cands) {
         JCheckBox check = new JCheckBox(cand);
         jPanelOptions.add(check);
+      }
+      Frame[] jframe = JVoterMain.getFrames();
+      
+      //resize window if necessary
+      if(jPanel1.getPreferredSize().width > jframe[0].getSize().width){
+        //dif to change window location
+        int dif = jPanel1.getPreferredSize().width - jframe[0].getSize().width;
+        jframe[0].setSize(jPanel1.getPreferredSize().width+100, jframe[0].getSize().height);
+        jframe[0].setLocation(jframe[0].getLocation().x-(dif/2), jframe[0].getLocation().y);
       }
     }
   }
