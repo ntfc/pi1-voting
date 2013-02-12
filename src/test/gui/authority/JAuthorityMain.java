@@ -273,13 +273,14 @@ public class JAuthorityMain extends javax.swing.JFrame {
           // show voting results
           try {
             server = (VotingServer) get();
-            VotingResult results = server.getVoting().votingResult(privKey);
-            int invalidvotes = server.getVoting().getInvalidVotes();
+            VotingResult results = server.getVoting().votingResults(privKey);          
+      
             JOptionPane.showMessageDialog(rootPane, "Resultado serão apresentados de seguida");
 
             JDialogVotingResults votingResults = new JDialogVotingResults(JAuthorityMain.getFrames()[0],
-                                                                          results.getResults(),
-                                                                          server.getVoting().getCandidateNames(), invalidvotes,results.getBlanks());
+                                                                          results, cands);
+            
+            
             votingResults.setVisible(true);
           }
           catch (Exception ex) {

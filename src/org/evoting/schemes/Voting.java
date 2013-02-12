@@ -315,10 +315,28 @@ public class Voting {
    * @return An array containing the results for each candidate, and the blank
    * votes in the last position
    */
-  public VotingResult votingResult(PrivateKey key) throws InvalidKeyException,
+  public VotingResult votingResults(PrivateKey key) throws InvalidKeyException,
     PaillierException, VotingSchemeException {
-      VotingResult results = new VotingResult(this.getCipher(),this.nrCandidates,this.getK());
-      results.votingResults(key, this.getL(), votes);
+      VotingResult results = new VotingResult();
+      
+      for (int i = 0; i < nrCandidates; i++) {
+        // number of votes for candidate
+        BigInteger candTallyDec = tallying(key, i);
+        BigInteger res = cipher.dec(key, candTallyDec);
+        results.addResult(res, i);
+      }
+      //add blank votes
+      BigInteger blankTotal = BigInteger.ZERO;
+      for(int i = nrCandidates; i < (nrCandidates + nrOptions); i++) {
+        BigInteger blankTallyDec = tallying(key, i);
+        BigInteger blank = cipher.dec(key, blankTallyDec);
+        blankTotal = blankTotal.add(blank);
+      }
+      results.addResultBlankVotes(blankTotal);
+      
+      //add invalid votes
+      results.addResultInvalidVotes(BigInteger.valueOf(invalidvotes));
+      
       return results;
   }
 

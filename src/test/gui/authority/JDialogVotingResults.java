@@ -10,45 +10,49 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JRootPane;
 import javax.swing.table.DefaultTableModel;
+import org.evoting.schemes.VotingResult;
 
 /**
  *
  * @author nc
  */
 public class JDialogVotingResults extends javax.swing.JDialog {
-  private Map<Integer,BigInteger> results;
+  //private Map<String,BigInteger> results;
   private List<String> candidates;
-  private int invalidvotes;
-  private int blankVotes=0;
-	/** Creates new form JDialogVotingResults */
-	public JDialogVotingResults(java.awt.Frame parent, Map<Integer,BigInteger> res, List<String> cands, int invVotes, int blankVotes) {
-		super(parent);
-		initComponents();
-    this.results = res;
+  private VotingResult result;
+	
+  
+  /** Creates new form JDialogVotingResults */
+  public JDialogVotingResults(java.awt.Frame parent, VotingResult results, List<String> cands){
+    super(parent);
+    initComponents();
+    this.result = results;
     this.candidates = cands;
-    this.invalidvotes = invVotes;
-    this.blankVotes = blankVotes;
     setLocationRelativeTo(null);
     this.setVotingResults();
-
-	}
-  
-  private void setVotingResults() {
-    for(Integer i : results.keySet()) {
+  }
+    
+  private void setVotingResults(){
+      Map<Integer,BigInteger> results = result.getResults();
+      //print candidates results
+      for(Integer i : results.keySet()) {
+        String t = jTextArea1.getText();
+        t += candidates.get(i).concat(" : ").concat(results.get(i).toString()).concat(
+                "\n");
+        jTextArea1.setText(t);
+      }
+      
+      //print blank votes
       String t = jTextArea1.getText();
-      t += candidates.get(i).concat(" : ").concat(results.get(i).toString()).concat(
-              "\n");
+      t += "Votos brancos".concat(" : ").concat(result.getResultBlankVotes().toString()).concat(
+                  "\n");
       jTextArea1.setText(t);
-    }
-    //print black votes
-    String t = jTextArea1.getText();
-    t += "Votos brancos".concat(" : ")+this.blankVotes+
-              "\n";
-    jTextArea1.setText(t);
-    //print invalid votes
-    String t1 = jTextArea1.getText();
-    t1 += "Votos nulos : ".concat(String.valueOf(invalidvotes)).concat("\n");
-    jTextArea1.setText(t1);
+      
+      //print invalid votes
+      t += "Votos nulos".concat(" : ").concat(result.getResultInvalidVotes().toString()).concat(
+                  "\n");
+      jTextArea1.setText(t);
+      
   }
 
 	/** This method is called from within the constructor to
