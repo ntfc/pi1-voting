@@ -284,10 +284,12 @@ public class Voting {
       }
       // add ballot
       votes.get(i).put(vs.get(i), null);
+      addVoterWhoVoted();
     }
   }
   
   public void addVoterWhoVoted(){
+    System.out.println("voto contado");
     votersWhoVoted++;
   }
   

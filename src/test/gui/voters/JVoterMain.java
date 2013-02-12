@@ -38,7 +38,7 @@ public class JVoterMain extends javax.swing.JFrame {
   private VoterClient voter;
   private PublicKey key;
   private static final Logger LOG = Logger.getLogger(JVoterMain.class.getName());
-
+ 
   /**
    * Creates new form JVoterMain
    */
@@ -47,6 +47,10 @@ public class JVoterMain extends javax.swing.JFrame {
     setLocationRelativeTo(null);
     jLabel1.setVisible(false);
     jButton1.setVisible(false);
+    
+    buttonGroup1.add(jRadioButton1);
+    buttonGroup1.add(jRadioButton2);
+    
   }
 
   /**
@@ -60,6 +64,7 @@ public class JVoterMain extends javax.swing.JFrame {
   private void initComponents() {
     java.awt.GridBagConstraints gridBagConstraints;
 
+    buttonGroup1 = new javax.swing.ButtonGroup();
     jPanel1 = new javax.swing.JPanel();
     jButtonConnect = new javax.swing.JButton();
     jLabel1 = new javax.swing.JLabel();
@@ -67,6 +72,9 @@ public class JVoterMain extends javax.swing.JFrame {
     jPanelOptions = new javax.swing.JPanel();
     jButton1 = new javax.swing.JButton();
     jButton2 = new javax.swing.JButton();
+    jLabel2 = new javax.swing.JLabel();
+    jRadioButton1 = new javax.swing.JRadioButton();
+    jRadioButton2 = new javax.swing.JRadioButton();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
     setTitle("Voter");
@@ -83,13 +91,14 @@ public class JVoterMain extends javax.swing.JFrame {
       }
     });
     gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridy = 4;
     gridBagConstraints.gridwidth = 2;
     jPanel1.add(jButtonConnect, gridBagConstraints);
 
     jLabel1.setText("Opções:");
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 1;
+    gridBagConstraints.gridy = 3;
     jPanel1.add(jLabel1, gridBagConstraints);
 
     jPanel2.setLayout(new java.awt.GridBagLayout());
@@ -99,7 +108,7 @@ public class JVoterMain extends javax.swing.JFrame {
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 1;
+    gridBagConstraints.gridy = 3;
     jPanel1.add(jPanel2, gridBagConstraints);
 
     jButton1.setText("Submit");
@@ -110,8 +119,9 @@ public class JVoterMain extends javax.swing.JFrame {
     });
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 2;
+    gridBagConstraints.gridy = 5;
     gridBagConstraints.gridwidth = 2;
+    gridBagConstraints.ipadx = 9;
     jPanel1.add(jButton1, gridBagConstraints);
 
     jButton2.setText("Close");
@@ -125,9 +135,34 @@ public class JVoterMain extends javax.swing.JFrame {
     });
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 3;
+    gridBagConstraints.gridy = 6;
     gridBagConstraints.gridwidth = 2;
+    gridBagConstraints.ipadx = 9;
     jPanel1.add(jButton2, gridBagConstraints);
+
+    jLabel2.setText("ZKP:");
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 0;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    jPanel1.add(jLabel2, gridBagConstraints);
+
+    jRadioButton1.setSelected(true);
+    jRadioButton1.setText("Interactive");
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 1;
+    gridBagConstraints.gridwidth = 2;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    jPanel1.add(jRadioButton1, gridBagConstraints);
+
+    jRadioButton2.setText("Non Interactive");
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 2;
+    gridBagConstraints.gridwidth = 2;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    jPanel1.add(jRadioButton2, gridBagConstraints);
 
     getContentPane().add(jPanel1, new java.awt.GridBagConstraints());
 
@@ -135,33 +170,47 @@ public class JVoterMain extends javax.swing.JFrame {
   }// </editor-fold>//GEN-END:initComponents
 
   private void jButtonConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonConnectActionPerformed
-    JDialogConnect connect = new JDialogConnect(this, true);
-    this.voter = null;
-    connect.setVisible(true);
-    Socket cliSocket = connect.showDialog();
-    BigInteger id = BigInteger.valueOf(connect.getID());
+    
+    
+      JDialogConnect connect = new JDialogConnect(this, true);
+      this.voter = null;
+      connect.setVisible(true);
+      Socket cliSocket = connect.showDialog();
+      BigInteger id = BigInteger.valueOf(connect.getID());
 
-    if (cliSocket != null) {
-      this.jButtonConnect.setVisible(false);
-      try {
-        this.voter = new VoterClient(cliSocket, id);
-        this.voter.setUpVoting();
-        // show voting options
-        generateVotingOptions();
-        //show buttons
-        jLabel1.setVisible(true);
-        jButton1.setVisible(true);
+      if (cliSocket != null) {
+        this.jButtonConnect.setVisible(false);
+        try {
+          
+          if(jRadioButton1.isSelected()){
+            this.voter = new VoterClient(cliSocket, id, true);
+          
+          }
+          else{
+          this.voter = new VoterClient(cliSocket, id, false);
+          }
+          this.voter.setUpVoting();
+          // show voting options
+          generateVotingOptions();
+          //hide buttons
+          jRadioButton1.setVisible(false);
+          jRadioButton2.setVisible(false);
+          jLabel2.setVisible(false);
+          //show buttons
+          jLabel1.setVisible(true);
+          jButton1.setVisible(true);
+        }
+        catch (IOException | NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException | VotingSchemeException ex) {
+          JOptionPane.showMessageDialog(this, ex.getMessage());
+          LOG.log(Level.SEVERE, ex.getMessage(), ex);
+          this.dispose();
+        }
       }
-      catch (IOException | NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException | VotingSchemeException ex) {
-        JOptionPane.showMessageDialog(this, ex.getMessage());
-        LOG.log(Level.SEVERE, ex.getMessage(), ex);
+      else {
+        JOptionPane.showMessageDialog(this, "Error connecting server");
         this.dispose();
       }
-    }
-    else {
-      JOptionPane.showMessageDialog(this, "Error connecting server");
-      this.dispose();
-    }
+    
   }//GEN-LAST:event_jButtonConnectActionPerformed
 
   private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -198,8 +247,8 @@ public class JVoterMain extends javax.swing.JFrame {
       
         //submit votes
         //voter.submitVoteInterative(arrayVotes);
-      Ballot ball = voter.createBallotNonInteractive(arrayVotes);
-      voter.submitBallot(ball);
+      voter.submitVote(arrayVotes);
+      
       JOptionPane.showMessageDialog(this, "Vote submitted");
     }
     catch (Exception ex) {
@@ -248,12 +297,16 @@ public class JVoterMain extends javax.swing.JFrame {
     });
   }
   // Variables declaration - do not modify//GEN-BEGIN:variables
+  private javax.swing.ButtonGroup buttonGroup1;
   private javax.swing.JButton jButton1;
   private javax.swing.JButton jButton2;
   private javax.swing.JButton jButtonConnect;
   private javax.swing.JLabel jLabel1;
+  private javax.swing.JLabel jLabel2;
   private javax.swing.JPanel jPanel1;
   private javax.swing.JPanel jPanel2;
   private javax.swing.JPanel jPanelOptions;
+  private javax.swing.JRadioButton jRadioButton1;
+  private javax.swing.JRadioButton jRadioButton2;
   // End of variables declaration//GEN-END:variables
 }
